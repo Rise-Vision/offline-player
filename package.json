@@ -1,0 +1,13 @@
+{
+  "name": "offline-player",
+  "version": "0.0.1",
+  "description": "Rise Vision Offline Player",
+  "scripts": {
+    "pretest": "if ! (sonar.sh status); then sonar.sh start; fi",
+    "test": "jshint app && jshint test && istanbul cover -- mocha -t 5000 test/**/*-test.js && mocha -t 5000 test/**/*-it.js && sonar-runner -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true0"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.4",
+    "selenium-webdriver": "^2.45.1"
+  }
+}
