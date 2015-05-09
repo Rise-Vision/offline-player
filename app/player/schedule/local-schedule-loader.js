@@ -6,28 +6,28 @@ $rv.localScheduleLoader = {
   observers: null,
   resolveLoadSchedulePromise: null,
 
-  scheduleLoadedHandler: function scheduleLoadedHandler() {
-    $rv.schedule.scheduleData =
-    $rv.localScheduleLoader.xhr.response.content.schedule;
+  loadSchedule() {
+    var that = this;
+    this.setupXHR();
 
-    $rv.localScheduleLoader.resolveLoadSchedulePromise();
-  },
-
-  setupXHR: function setupXHR() {
-    $rv.localScheduleLoader.xhr = new XMLHttpRequest();
-    $rv.localScheduleLoader.xhr.responseType = "json";
-    $rv.localScheduleLoader.xhr.addEventListener
-    ("load", $rv.localScheduleLoader.scheduleLoadedHandler);
-  },
-
-  loadSchedule: function loadSchedule() {
-    $rv.localScheduleLoader.setupXHR();
     return new Promise(function(resolve) {
-      $rv.localScheduleLoader.xhr.open
-      ("GET", $rv.localScheduleLoader.schedulePath);
+      that.xhr.open("GET", that.schedulePath);
 
-      $rv.localScheduleLoader.resolveLoadSchedulePromise = resolve;
-      $rv.localScheduleLoader.xhr.send();
+      that.resolveLoadSchedulePromise = resolve;
+      that.xhr.send();
+    });
+  },
+
+  scheduleLoadedHandler() {
+    this.resolveLoadSchedulePromise(this.xhr.response.content.schedule);
+  },
+
+  setupXHR() {
+    var that = this;
+    this.xhr = new XMLHttpRequest();
+    this.xhr.responseType = "json";
+    this.xhr.addEventListener("load", function() {
+      that.scheduleLoadedHandler();
     });
   }
 };

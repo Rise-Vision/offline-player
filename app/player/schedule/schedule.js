@@ -5,8 +5,10 @@ $rv.schedule = {
   scheduleData: {},
   timeoutHandle: null,
 
-  createItemWebviews: function() {
-    $rv.schedule.scheduleData.items.forEach(function(item) {
+  createItemWebviews() {
+    var that = this;
+
+    this.scheduleData.items.forEach(function(item) {
       var wv = document.createElement("webview");
       wv.style.height = document.body.clientHeight + "px";
       wv.style.width = document.body.clientWidth + "px";
@@ -14,38 +16,41 @@ $rv.schedule = {
       wv.partition = "persist:" + item.name;
       wv.src = item.objectReference;
 
-      $rv.schedule.webviews.push(wv);
+      that.webviews.push(wv);
       document.body.appendChild(wv);
     });
   },
 
-  cycleItems: function() {
-    clearTimeout($rv.schedule.timeoutHandle);
-    showItem(0);
+  cycleItems() {
+    clearTimeout(this.timeoutHandle);
+    this.showItem(0);
 
-    function showItem(item) {
-      var wv = $rv.schedule.webviews[item],
-      duration = parseInt($rv.schedule.scheduleData.items[item].duration, 10);
+  },
 
-      wv.style.display = "block";
-      $rv.schedule.timeoutHandle = setTimeout(function() {
-        showNextItem(item);
-      }, duration * 1000);
+  showItem(item) {
+    var wv = this.webviews[item],
+    duration = parseInt(this.scheduleData.items[item].duration, 10),
+    that;
+
+    wv.style.display = "block";
+    that = this;
+    this.timeoutHandle = setTimeout(function() {
+      that.showNextItem(item);
+    }, duration * 1000);
+  },
+
+  hideItem(item) {
+    this.webviews[item].style.display = "none";
+  },
+
+  showNextItem(item) {
+    this.hideItem(item);
+    item += 1;
+    if (item === this.scheduleData.items.length) {
+      item = 0;
     }
 
-    function showNextItem(item) {
-      hideItem(item);
-      item += 1;
-      if (item === $rv.schedule.scheduleData.items.length) {
-        item = 0;
-      }
-
-      showItem(item);
-    }
-
-    function hideItem(item) {
-      $rv.schedule.webviews[item].style.display = "none";
-    }
+    this.showItem(item);
   }
 };
 
