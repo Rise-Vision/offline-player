@@ -22,7 +22,6 @@ $rv.localScheduleLoader = {
 
   loadSchedule: function loadSchedule() {
     $rv.localScheduleLoader.setupXHR();
-
     return new Promise(function(resolve) {
       $rv.localScheduleLoader.xhr.open
       ("GET", $rv.localScheduleLoader.schedulePath);

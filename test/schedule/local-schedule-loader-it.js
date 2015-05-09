@@ -14,15 +14,14 @@ module.exports = function(test, driverObj) {
 
     driverObj.driver.wait(function() {
       return driverObj.driver.executeAsyncScript(function() {
-        var asyncDoneFunction = arguments[arguments.length - 1];
+        var asyncDoneFunction = arguments[arguments.length - 1],
+        intervalHandler;
 
-        $rv.localScheduleLoader.loadSchedule().then(function() {
+        intervalHandler = setInterval(function() {
           if ($rv.schedule.scheduleData) {
             asyncDoneFunction(true);
-          } else {
-            asyncDoneFunction(false);
           }
-        });
+        }, 300);
       });
     }, 2000);
   });

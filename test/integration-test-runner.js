@@ -14,11 +14,12 @@ test.describe("integration suite", function() {
   });
 
   test.it("should create a window", function() {
-    var windowHandle;
+    var windowHandle, mainElement;
 
     driverObj.driver.sleep(1000);
     driverObj.driver.getAllWindowHandles().then(function(arr) {
-      windowHandle = arr[1];
+      console.log(arr);
+      windowHandle = arr[2];
     });
 
     driverObj.driver.controlFlow().execute(function() {
@@ -26,7 +27,8 @@ test.describe("integration suite", function() {
       driverObj.driver.switchTo().window(windowHandle);
     });
 
-    driverObj.driver.findElement({"id": "mainChromeAppBody"});
+    mainElement = driverObj.driver.findElement({"id": "mainChromeAppBody"});
+    driverObj.driver.wait(mainElement, 2500);
   });
 
   require("./basic-it.js")(test, driverObj);

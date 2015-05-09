@@ -3,11 +3,18 @@
 module.exports = function(test, driverObj) {
   test.it("should create webviews", function() {
     driverObj.driver.wait(function() {
-      return driverObj.driver.executeScript(function() {
-        $rv.schedule.createItemWebviews();
-        return document.querySelectorAll("webview").length === 2;
+      return driverObj.driver.executeAsyncScript(function() {
+        var asyncDoneCallback = arguments[arguments.length - 1],
+        intervalHandle;
+
+        intervalHandle = setInterval(function() {
+          if (document.querySelectorAll("webview").length === 2) {
+            clearInterval(intervalHandle);
+            asyncDoneCallback(true);
+          }
+        }, 300);
       });
-    }, 500);
+    }, 1700);
   });
 
   test.it("should show both webviews", function() {
@@ -16,11 +23,6 @@ module.exports = function(test, driverObj) {
         var asyncDoneCallback = arguments[arguments.length - 1];
         document.viewedSources = {};
 
-        $rv.schedule.scheduleData.items.forEach(function(item) {
-          item.duration = 1;
-        });
-
-        $rv.schedule.cycleItems();
         checkForBothPresentations();
 
         function checkForBothPresentations() {
