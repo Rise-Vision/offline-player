@@ -2,7 +2,7 @@ node_modules
 *.log
 *.png
 dist-e2e
-test_reports
+coverage
 test/e2e/*.png
 storage-client.iml
 web/js/config/config.js

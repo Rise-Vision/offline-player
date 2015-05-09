@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Rise Vision Offline Player",
   "scripts": {
-    "pretest": "if ! (sonar.sh status); then sonar.sh start; fi",
-    "test": "jshint app && jshint test && istanbul cover -- mocha -t 5000 test/**/*-test.js && mocha -t 5000 test/**/*-it.js && sonar-runner -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true0"
+    "pretest": "rm -f .sonar/issues-report/issues-report.html; if ! (sonar.sh status); then sonar.sh start; fi",
+    "test": "jshint app/player && jshint test && istanbul cover -- mocha -t 5000 test/**/*-test.js && mocha -t 5000 test/integration-test-runner.js && sonar-runner -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true"
   },
   "devDependencies": {
     "mocha": "^2.2.4",

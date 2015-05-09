@@ -3,17 +3,31 @@
   "name": "Offline Player",
   "version": "0.0.1",
   "minimum_chrome_version": "41",
-  "permissions": ["webview", "http://localhost:8080/*"],
+  "permissions": ["webview", "*"],
   "app": {
     "background": {
-      "scripts": ["background-script.js"]
+      "scripts": ["player/main/background-script.js"]
     }
   },
   "permissions": [
+    "webview",
     "geolocation",
     "power",
     "storage",
+    "fileSystem",
     "unlimitedStorage",
     "system.display"
-  ]
+  ],
+  "webview": {
+     "partitions": [
+       {
+         "name": "Restaurant-Template",
+         "accessible_resources": ["content/restaurant-promotion/*"]
+       },
+       {
+         "name": "Retail-QRCode-Template",
+         "accessible_resources": ["content/retail-qrcode/*"]
+       }
+     ]
+  }
 }
