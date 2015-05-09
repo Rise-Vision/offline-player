@@ -12,7 +12,7 @@ module.exports = function(test, driverObj) {
             clearInterval(intervalHandle);
             asyncDoneCallback(true);
           }
-        }, 300);
+        }, 100);
       });
     }, 1700);
   });
@@ -22,6 +22,13 @@ module.exports = function(test, driverObj) {
       return driverObj.driver.executeAsyncScript(function() {
         var asyncDoneCallback = arguments[arguments.length - 1];
         document.viewedSources = {};
+
+        (function speedupCyclingForTests() {
+          $rv.schedule.scheduleData.items.forEach(function(item) {
+            item.duration = "0";
+          });
+          $rv.schedule.cycleItems();
+        }());
 
         checkForBothPresentations();
 
@@ -38,7 +45,7 @@ module.exports = function(test, driverObj) {
                 asyncDoneCallback(true);
               }
             });
-          }, 800);
+          }, 100);
         }
       });
     }, 5000);

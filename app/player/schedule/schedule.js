@@ -3,6 +3,7 @@
 $rv.schedule = {
   webviews: [],
   scheduleData: {},
+  timeoutHandle: null,
 
   createItemWebviews: function() {
     $rv.schedule.scheduleData.items.forEach(function(item) {
@@ -19,6 +20,7 @@ $rv.schedule = {
   },
 
   cycleItems: function() {
+    clearTimeout($rv.schedule.timeoutHandle);
     showItem(0);
 
     function showItem(item) {
@@ -26,7 +28,7 @@ $rv.schedule = {
       duration = parseInt($rv.schedule.scheduleData.items[item].duration, 10);
 
       wv.style.display = "block";
-      setTimeout(function() {
+      $rv.schedule.timeoutHandle = setTimeout(function() {
         showNextItem(item);
       }, duration * 1000);
     }
