@@ -19,7 +19,7 @@ if(isWindows) {
 }
 
 chromeOptions.addArguments("--disable-web-security");
-chromeOptions.addArguments("--load-extension=./app");
+chromeOptions.addArguments("--load-and-launch-app=./app");
 
 module.exports.webdriver = webdriver;
 module.exports.chromeOptions = chromeOptions;

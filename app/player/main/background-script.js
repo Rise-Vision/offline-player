@@ -1,8 +1,8 @@
 "use strict";
 
-chrome.runtime.onInstalled.addListener(onLaunchListener);
+chrome.app.runtime.onLaunched.addListener(onLaunchListener);
 
-function onLaunchListener() {
+function onLaunchListener(launchData) {
   var windowOptions = { state: "fullscreen" },
       windowPath="player/main/main-chrome-app-window.html";
 
