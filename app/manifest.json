@@ -16,7 +16,8 @@
     "storage",
     "fileSystem",
     "unlimitedStorage",
-    "system.display"
+    "system.display",
+    "pointerLock"
   ],
   "webview": {
      "partitions": [

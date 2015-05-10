@@ -34,7 +34,7 @@ test.describe("integration suite", function() {
   require("./basic-it.js")(test, driverObj);
   require("./namespace-it.js")(test, driverObj);
   require("./schedule/local-schedule-loader-it.js")(test, driverObj);
-  require("./schedule/schedule-it.js")(test, driverObj);
+  require("./schedule/schedule-handler-it.js")(test, driverObj);
 
   test.after(function() {
     driverObj.driver.quit();
