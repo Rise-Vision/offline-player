@@ -7,7 +7,14 @@ $rv.schedule = (function() {
 
   return {
     setScheduleData(newScheduleData) {
-      scheduleData = newScheduleData;
+      if (newScheduleData === "test") {
+        scheduleData.items.forEach(function(item) {
+          item.duration = 0;
+        });
+      } else {
+        scheduleData = newScheduleData;
+      }
+
       removeItemWebviews();
       createItemWebviews();
       cycleItems();
@@ -16,7 +23,7 @@ $rv.schedule = (function() {
 
   function removeItemWebviews() {
     webviews.forEach(function(item) {
-      document.removeChild(item);
+      document.body.removeChild(item);
     });
 
     webviews = [];
