@@ -1,14 +1,29 @@
 "use strict";
 
-$rv.schedule = {
-  webviews: [],
-  scheduleData: {},
-  timeoutHandle: null,
+$rv.schedule = (function() {
+  var webviews = [],
+  scheduleData = {},
+  timeoutHandle = null;
 
-  createItemWebviews() {
-    var that = this;
+  return {
+    setScheduleData(newScheduleData) {
+      scheduleData = newScheduleData;
+      removeItemWebviews();
+      createItemWebviews();
+      cycleItems();
+    }
+  };
 
-    this.scheduleData.items.forEach(function(item) {
+  function removeItemWebviews() {
+    webviews.forEach(function(item) {
+      document.removeChild(item);
+    });
+
+    webviews = [];
+  }
+
+  function createItemWebviews() {
+    scheduleData.items.forEach(function(item) {
       var wv = document.createElement("webview");
       wv.style.height = document.body.clientHeight + "px";
       wv.style.width = document.body.clientWidth + "px";
@@ -16,41 +31,38 @@ $rv.schedule = {
       wv.partition = "persist:" + item.name;
       wv.src = item.objectReference;
 
-      that.webviews.push(wv);
+      webviews.push(wv);
       document.body.appendChild(wv);
     });
-  },
+  }
 
-  cycleItems() {
-    clearTimeout(this.timeoutHandle);
-    this.showItem(0);
+  function cycleItems() {
+    clearTimeout(timeoutHandle);
+    showItem(0);
+  }
 
-  },
-
-  showItem(item) {
-    var wv = this.webviews[item],
-    duration = parseInt(this.scheduleData.items[item].duration, 10),
-    that;
+  function showItem(item) {
+    var wv = webviews[item],
+    duration = parseInt(scheduleData.items[item].duration, 10);
 
     wv.style.display = "block";
-    that = this;
-    this.timeoutHandle = setTimeout(function() {
-      that.showNextItem(item);
+    timeoutHandle = setTimeout(function() {
+      showNextItem(item);
     }, duration * 1000);
-  },
+  }
 
-  hideItem(item) {
-    this.webviews[item].style.display = "none";
-  },
+  function hideItem(item) {
+    webviews[item].style.display = "none";
+  }
 
-  showNextItem(item) {
-    this.hideItem(item);
+  function showNextItem(item) {
+    hideItem(item);
+
     item += 1;
-    if (item === this.scheduleData.items.length) {
+    if (item === scheduleData.items.length) {
       item = 0;
     }
 
-    this.showItem(item);
+    showItem(item);
   }
-};
-
+}());

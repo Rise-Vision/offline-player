@@ -2,10 +2,12 @@
 
 module.exports = function(test, driverObj) {
   test.it("should create webviews", function() {
+    driverObj.driver.manage().timeouts().setScriptTimeout(10000);
     driverObj.driver.wait(function() {
       return driverObj.driver.executeAsyncScript(function() {
         var asyncDoneCallback = arguments[arguments.length - 1],
-        intervalHandle;
+        intervalHandle,
+        scheduleData;
 
         intervalHandle = setInterval(function() {
           if (document.querySelectorAll("webview").length === 2) {
@@ -22,13 +24,6 @@ module.exports = function(test, driverObj) {
       return driverObj.driver.executeAsyncScript(function() {
         var asyncDoneCallback = arguments[arguments.length - 1];
         document.viewedSources = {};
-
-        (function speedupCyclingForTests() {
-          $rv.schedule.scheduleData.items.forEach(function(item) {
-            item.duration = "0";
-          });
-          $rv.schedule.cycleItems();
-        }());
 
         checkForBothPresentations();
 
