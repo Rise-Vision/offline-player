@@ -30,6 +30,9 @@ $rv.schedule = (function() {
       wv.style.display = "none";
       wv.partition = "persist:" + item.name;
       wv.src = item.objectReference;
+      wv.addEventListener("loadStop", function() {
+        wv.insertCSS("body {cursor: none}");
+      });
 
       webviews.push(wv);
       document.body.appendChild(wv);
