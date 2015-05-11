@@ -18,12 +18,10 @@ test.describe("integration suite", function() {
 
     driverObj.driver.sleep(1000);
     driverObj.driver.getAllWindowHandles().then(function(arr) {
-      console.log(arr);
       windowHandle = arr[2];
     });
 
     driverObj.driver.controlFlow().execute(function() {
-      console.log("Changing to window " + windowHandle);
       driverObj.driver.switchTo().window(windowHandle);
     });
 

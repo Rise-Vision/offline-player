@@ -29,23 +29,17 @@
     };
 
     function showItem(item) {
-      var wv = contentViews[item],
-      duration = parseInt(scheduleData.items[item].duration, 10);
+      var duration = parseInt(scheduleData.items[item].duration, 10);
 
-      wv.style.display = "block";
-      wv.requestPointerLock();
+      contentViews[item].showView();
 
       timeoutHandle = setTimeout(function() {
         showNextItem(item);
       }, duration * 1000);
     }
 
-    function hideItem(item) {
-      contentViews[item].style.display = "none";
-    }
-
     function showNextItem(item) {
-      hideItem(item);
+      contentViews[item].hideView();
 
       item += 1;
       if (item === scheduleData.items.length) {
@@ -59,6 +53,6 @@
   if (typeof window === "undefined") {
     module.exports = scheduleHandler;
   } else {
-    window.$rv.scheduleHandler = scheduleHandler;
+    $rv.scheduleHandler = scheduleHandler;
   }
 }());

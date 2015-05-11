@@ -1,33 +1,49 @@
 "use strict";
 
-$rv.contentViewCreator = (function() {
-  var contentViews = [];
+(function() {
+  var contentViewCreator = (function() {
+    var contentViews = [];
 
-  return {
-    createContentViews(items) {
-      items.forEach(function(item) {
-        if (item.type === "url") {
-          var wv = document.createElement("webview");
-          wv.style.height = document.body.clientHeight + "px";
-          wv.style.width = document.body.clientWidth + "px";
-          wv.style.display = "none";
-          wv.partition = "persist:" + item.name;
-          wv.src = item.objectReference;
+    return {
+      createContentViews: function(items) {
+        items.forEach(function(item) {
+          if (item.type === "url") {
+            var wv = document.createElement("webview");
+            wv.style.height = document.body.clientHeight + "px";
+            wv.style.width = document.body.clientWidth + "px";
+            wv.style.display = "none";
+            wv.partition = "persist:" + item.name;
+            wv.src = item.objectReference;
+            wv.showView = function() {
+              wv.style.display = "block";
+              wv.requestPointerLock();
+            };
 
-          contentViews.push(wv);
-          document.body.appendChild(wv);
-        }
-      });
+            wv.hideView = function() {
+              wv.style.display = "none";
+            };
 
-      return contentViews;
-    },
+            contentViews.push(wv);
+            document.body.appendChild(wv);
+          }
+        });
 
-    removeContentViews() {
-      contentViews.forEach(function(item) {
-        document.body.removeChild(item);
-      });
+        return contentViews;
+      },
 
-      contentViews = [];
-    }
-  };
+      removeContentViews: function() {
+        contentViews.forEach(function(item) {
+          document.body.removeChild(item);
+        });
+
+        contentViews = [];
+      }
+    };
+  }());
+
+  if (typeof window === "undefined") {
+    module.exports = contentViewCreator;
+  } else {
+    $rv.contentViewCreator = contentViewCreator;
+  }
 }());

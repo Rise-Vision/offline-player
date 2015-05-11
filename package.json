@@ -4,7 +4,7 @@
   "description": "Rise Vision Offline Player",
   "scripts": {
     "pretest": "rm -f .sonar/issues-report/issues-report.html; if ! (sonar.sh status); then sonar.sh start && echo 'starting sonar server' && sleep 8; fi",
-    "test": "jshint app/player && jshint test && istanbul cover -- _mocha -t 5000 test/*-test.js test/**/*-test.js && mocha -t 5000 test/integration-test-runner.js && sonar-runner -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true"
+    "test": "jshint app/player && jshint test && istanbul cover -- _mocha -t 5000 test/*-test.js test/**/*-test.js 2>&1 |grep -v -e 'Writing coverage' -e '======================================' && mocha -t 5000 test/integration-test-runner.js && sonar-runner -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true |grep -v -e 'INFO' -e '======================================='"
   },
   "devDependencies": {
     "mocha": "^2.2.4",
