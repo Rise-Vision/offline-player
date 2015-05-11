@@ -1,4 +1,3 @@
-"use strict";
 
 chrome.app.runtime.onLaunched.addListener(onLaunchListener);
 

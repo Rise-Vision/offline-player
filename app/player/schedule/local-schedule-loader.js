@@ -1,6 +1,6 @@
-"use strict";
-
 (function() {
+  "use strict";
+
   var localScheduleLoader = (function() {
     var schedulePath = "../schedule/default.json",
     xhr = null,

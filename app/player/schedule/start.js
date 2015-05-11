@@ -1,7 +1,21 @@
-"use strict";
+(function() {
+  "use strict";
 
-$rv.localScheduleLoader.loadSchedule().then(function(scheduleData) {
-  $rv.scheduleHandler.setScheduleData(scheduleData);
-  $rv.scheduleHandler.cycleViews
-  ($rv.contentViewCreator.createContentViews(scheduleData.items));
-});
+  var starter = (function() {
+    return {
+      start: function(localScheduleLoader, scheduleHandler, contentViewCreator) {
+        return localScheduleLoader.loadSchedule().then(function(scheduleData) {
+          scheduleHandler.setScheduleData(scheduleData);
+          scheduleHandler.cycleViews
+          (contentViewCreator.createContentViews(scheduleData.items));
+        });
+      }
+    };
+  }());
+
+  if (typeof window === "undefined") {
+    module.exports = starter;
+  } else {
+    starter.start($rv.localScheduleLoader, $rv.scheduleHandler, $rv.contentViewCreator);
+  }
+}());
