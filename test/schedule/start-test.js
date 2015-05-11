@@ -14,14 +14,17 @@ describe("starter", function(){
        return new Promise(function(resolve) {resolve({items:[]});});
       }
     },
-    scheduleHandler = {
-      setScheduleData: function() {},
-      cycleViews: function() {}
+    scheduleHandlerFactory = function() {
+      return {
+        setScheduleData: function() {},
+        cycleViews: function() {}
+      };
     },
-    contentViewCreator = {
+    contentViewController = {
       createContentViews: function() {}
     };
 
-    return starter.start(localScheduleLoader, scheduleHandler, contentViewCreator);
+    return starter.start
+    (localScheduleLoader, scheduleHandlerFactory, contentViewController);
   });
 });

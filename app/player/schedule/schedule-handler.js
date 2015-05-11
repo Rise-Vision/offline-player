@@ -1,28 +1,20 @@
 (function() {
   "use strict";
 
-  var scheduleHandler = (function() {
-    var contentViews = [],
-    scheduleData = {},
+  function scheduleHandlerFactory(contentViewController) {
+    var scheduleData = {},
     timeoutHandle = null;
 
     return {
       setScheduleData: function setScheduleData(newScheduleData) {
-        if (newScheduleData === "test") {
-          scheduleData.items.forEach(function(item) {
-            item.duration = 0;
-          });
-        } else {
-          scheduleData = newScheduleData;
-        }
+        scheduleData = newScheduleData;
       },
 
       getScheduleData: function getScheduleData() {
         return scheduleData;
       },
 
-      cycleViews: function cycleViews(views) {
-        contentViews = views || contentViews;
+      cycleViews: function cycleViews() {
         clearTimeout(timeoutHandle);
         showItem(0);
       }
@@ -31,7 +23,7 @@
     function showItem(item) {
       var duration = parseInt(scheduleData.items[item].duration, 10);
 
-      contentViews[item].showView();
+      contentViewController.showView(item);
 
       timeoutHandle = setTimeout(function() {
         showNextItem(item);
@@ -39,7 +31,7 @@
     }
 
     function showNextItem(item) {
-      contentViews[item].hideView();
+      contentViewController.hideView(item);
 
       item += 1;
       if (item === scheduleData.items.length) {
@@ -48,11 +40,11 @@
 
       showItem(item);
     }
-  }());
+  }
 
   if (typeof window === "undefined") {
-    module.exports = scheduleHandler;
+    module.exports = scheduleHandlerFactory;
   } else {
-    $rv.scheduleHandler = scheduleHandler;
+    $rv.scheduleHandlerFactory = scheduleHandlerFactory;
   }
 }());

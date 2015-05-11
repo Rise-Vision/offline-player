@@ -1,9 +1,8 @@
 (function() {
   "use strict";
 
-  var localScheduleLoader = (function() {
+  function localScheduleLoaderFactory(xhr) {
     var schedulePath = "../schedule/default.json",
-    xhr = null,
     resolveLoadSchedulePromise = null;
 
     function scheduleLoadedHandler() {
@@ -11,7 +10,6 @@
     }
 
     function setupXHR() {
-      xhr = new XMLHttpRequest();
       xhr.responseType = "json";
       xhr.addEventListener("load", function() {
         scheduleLoadedHandler();
@@ -30,11 +28,11 @@
         });
       }
     };
-  }());
+  }
 
   if (typeof window === "undefined") {
-    module.exports = localScheduleLoader;
+    module.exports = localScheduleLoaderFactory;
   } else {
-    $rv.localScheduleLoader = localScheduleLoader;
+    $rv.localScheduleLoader = localScheduleLoaderFactory(new XMLHttpRequest());
   }
 }());

@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var contentViewCreator = (function() {
+  function contentViewControllerFactory(document) {
     var contentViews = [];
 
     return {
@@ -13,14 +13,6 @@
             wv.style.display = "none";
             wv.partition = "persist:" + item.name;
             wv.src = item.objectReference;
-            wv.showView = function() {
-              wv.style.display = "block";
-              wv.requestPointerLock();
-            };
-
-            wv.hideView = function() {
-              wv.style.display = "none";
-            };
 
             contentViews.push(wv);
             document.body.appendChild(wv);
@@ -36,13 +28,23 @@
         });
 
         contentViews = [];
+        return true;
+      },
+
+      showView: function(item) {
+        contentViews[item].style.display = "block";
+        contentViews[item].requestPointerLock();
+      },
+
+      hideView: function(item) {
+        contentViews[item].style.display = "none";
       }
     };
-  }());
+  }
 
   if (typeof window === "undefined") {
-    module.exports = contentViewCreator;
+    module.exports = contentViewControllerFactory;
   } else {
-    $rv.contentViewCreator = contentViewCreator;
+    $rv.contentViewController = contentViewControllerFactory(window.document);
   }
 }());

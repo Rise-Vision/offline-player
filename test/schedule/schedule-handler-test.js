@@ -1,45 +1,39 @@
 "use strict";
 
 var assert = require("assert"),
-scheduleHandler = require("../../app/player/schedule/schedule-handler.js");
+scheduleHandlerFactory = require("../../app/player/schedule/schedule-handler.js");
 
 describe("schedule handler", function(){
   it("exists", function(){
-    assert.notEqual(scheduleHandler, undefined);
+    assert.notEqual(scheduleHandlerFactory(), undefined);
   });
 
   it("accepts schedule data", function(){
+    var scheduleHandler = scheduleHandlerFactory();
+
     scheduleHandler.setScheduleData({items: [{duration: 5}, {duration: 5}]});
     assert.equal(scheduleHandler.getScheduleData().items.length, 2);
   });
 
-  it("accepts 'test' override for speedy integration tests", function(){
-    scheduleHandler.setScheduleData({items: [{duration: 5}, {duration: 5}]});
-    scheduleHandler.setScheduleData("test");
-    assert.equal(scheduleHandler.getScheduleData().items[0].duration, 0);
-  });
-
   it("shows views", function() {
-    function mockView() {
-      var shown = false;
+    var contentViewController = (function() {
+      var shownViews = {};
 
       return {
-        showView: function() {
-          shown = true;
-        },
-        wasShown: function() {
-          return shown === true;
-        },
-        hideView: function() {}
+        showView: function(item){shownViews[item] = true;},
+        hideView: function(){},
+        getShownViews: function() {return shownViews;}
       };
-    }
 
-    var views = [mockView(), mockView()];
+    }()),
 
-    scheduleHandler.cycleViews(views);
+    scheduleHandler = scheduleHandlerFactory(contentViewController);
+    scheduleHandler.setScheduleData({items: [{duration: 0}, {duration: 0}]});
+    scheduleHandler.cycleViews();
+
     return new Promise(function(resolve) {
       var intervalHandle = setInterval(function() {
-        if (views[0].wasShown() && views[1].wasShown()) {
+        if (Object.keys(contentViewController.getShownViews()).length === 2) {
           clearInterval(intervalHandle);
           resolve();
         }

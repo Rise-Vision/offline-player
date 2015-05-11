@@ -3,11 +3,12 @@
 
   var starter = (function() {
     return {
-      start: function(localScheduleLoader, scheduleHandler, contentViewCreator) {
+      start: function(localScheduleLoader, scheduleHandlerFactory, contentViewController) {
         return localScheduleLoader.loadSchedule().then(function(scheduleData) {
+          var scheduleHandler = scheduleHandlerFactory(contentViewController);
           scheduleHandler.setScheduleData(scheduleData);
           scheduleHandler.cycleViews
-          (contentViewCreator.createContentViews(scheduleData.items));
+          (contentViewController.createContentViews(scheduleData.items));
         });
       }
     };
@@ -16,6 +17,6 @@
   if (typeof window === "undefined") {
     module.exports = starter;
   } else {
-    starter.start($rv.localScheduleLoader, $rv.scheduleHandler, $rv.contentViewCreator);
+    starter.start($rv.localScheduleLoader, $rv.scheduleHandlerFactory, $rv.contentViewController);
   }
 }());

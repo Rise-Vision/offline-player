@@ -8,7 +8,7 @@
     "exports": false,
     "module": false,
     "describe": false,
-    "document": false,
+    "document": true,
     "it": false,
     "chrome": false,
     "setTimeout": false,

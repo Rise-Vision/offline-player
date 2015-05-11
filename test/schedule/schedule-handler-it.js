@@ -25,9 +25,6 @@ module.exports = function(test, driverObj) {
         var asyncDoneCallback = arguments[arguments.length - 1];
         document.viewedSources = {};
 
-        $rv.scheduleHandler.setScheduleData("test");
-        $rv.scheduleHandler.cycleViews();
-
         checkForBothPresentations();
 
         function checkForBothPresentations() {
