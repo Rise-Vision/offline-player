@@ -1,4 +1,3 @@
-
 chrome.app.runtime.onLaunched.addListener(onLaunchListener);
 
 function onLaunchListener() {

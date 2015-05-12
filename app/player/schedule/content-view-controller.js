@@ -1,50 +1,44 @@
-(function() {
+function contentViewControllerFactory(document) {
   "use strict";
-  function contentViewControllerFactory(document) {
-    var contentViews = [];
+  var contentViews = [];
 
-    return {
-      createContentViews: function(items) {
-        items.forEach(function(item) {
-          if (item.type === "url") {
-            var wv = document.createElement("webview");
-            wv.style.height = document.body.clientHeight + "px";
-            wv.style.width = document.body.clientWidth + "px";
-            wv.style.display = "none";
-            wv.partition = "persist:" + item.name;
-            wv.src = item.objectReference;
+  return {
+    createContentViews: function(items) {
+      items.forEach(function(item) {
+        if (item.type === "url") {
+          var wv = document.createElement("webview");
+          wv.style.height = document.body.clientHeight + "px";
+          wv.style.width = document.body.clientWidth + "px";
+          wv.style.display = "none";
+          wv.partition = "persist:" + item.name;
+          wv.src = item.objectReference;
 
-            contentViews.push(wv);
-            document.body.appendChild(wv);
-          }
-        });
+          contentViews.push(wv);
+          document.body.appendChild(wv);
+        }
+      });
 
-        return contentViews;
-      },
+      return contentViews;
+    },
 
-      removeContentViews: function() {
-        contentViews.forEach(function(item) {
-          document.body.removeChild(item);
-        });
+    removeContentViews: function() {
+      contentViews.forEach(function(item) {
+        document.body.removeChild(item);
+      });
 
-        contentViews = [];
-        return true;
-      },
+      contentViews = [];
+      return true;
+    },
 
-      showView: function(item) {
-        contentViews[item].style.display = "block";
-        contentViews[item].requestPointerLock();
-      },
+    showView: function(item) {
+      contentViews[item].style.display = "block";
+      contentViews[item].requestPointerLock();
+    },
 
-      hideView: function(item) {
-        contentViews[item].style.display = "none";
-      }
-    };
-  }
+    hideView: function(item) {
+      contentViews[item].style.display = "none";
+    }
+  };
+}
 
-  if (typeof window === "undefined") {
-    module.exports = contentViewControllerFactory;
-  } else {
-    $rv.contentViewController = contentViewControllerFactory(window.document);
-  }
-}());
+module.exports = contentViewControllerFactory;
