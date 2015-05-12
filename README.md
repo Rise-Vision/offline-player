@@ -20,6 +20,12 @@ This is a chrome app designed to run presentations locally as part of the [Rise 
 
 Note that tests require [Chromedriver](http://chromedriver.storage.googleapis.com/index.html) to be available in your path and that google-chrome is installed.
 
+Tests should be run after any save to any relevant fil.  This can be accomplished with a file watcher that is set to run `npm run test` whenever a file changes.  For example, using the excellent [entr](http://entrproject.org/):
+```bash
+find app/player test -iname "*.js" |entr -c sh -c 'npm run test; \
+if [ $(jq ".issues |length" .sonar/sonar-report.json) -ne "0" ];then \
+google-chrome .sonar/issues-report/issues-report.html;fi'
+```
 ## Submitting Issues 
 
 Issues should be reported in the github issue list at https://github.com/Rise-Vision/offline-player/issues  

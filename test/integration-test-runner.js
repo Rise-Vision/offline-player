@@ -18,7 +18,7 @@ test.describe("integration suite", function() {
 
     driverObj.driver.sleep(1000);
     driverObj.driver.getAllWindowHandles().then(function(arr) {
-      windowHandle = arr[2];
+      windowHandle = arr[3];
     });
 
     driverObj.driver.controlFlow().execute(function() {
