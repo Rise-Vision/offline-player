@@ -1,15 +1,13 @@
 # Offline Player
 ## Introduction
 
-The offline player.
-
-[Rise Vision](http://rva.risevision.com) runs on Google App Engine and as such requires Google App Engine to operate.
+This is a chrome app designed to run presentations locally as part of the [Rise Vision](http://www.risevision.com) platform..
 
 ## Built With
 
-- NPM (node package manager)
-- Bower
-- Karma and Mocha for testing
+- [NPM](http://www.npmjs.org)
+- [Browserify](http://www.browserify.org)
+- [Mocha](http://www.mochajs.org)
 
 ## Development 
 
@@ -17,9 +15,10 @@ The offline player.
  - Install sonar-runner http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
  - Add sonar.sh to path
  - Install javascript plugin http://dist.sonarsource.com/oss/org/codehaus/sonar-plugins/javascript/sonar-javascript-plugin/2.5/sonar-javascript-plugin-2.5.jar
+ - npm install
  - npm run test
 
-Note that tests require [Chromedriver](http://chromedriver.storage.googleapis.com/index.html) available in your path.
+Note that tests require [Chromedriver](http://chromedriver.storage.googleapis.com/index.html) to be available in your path and that google-chrome is installed.
 
 ## Submitting Issues 
 
