@@ -27,16 +27,18 @@ function contentViewControllerFactory(document) {
       });
 
       contentViews = [];
-      return true;
+      return contentViews;
     },
 
     showView: function(item) {
       contentViews[item].style.display = "block";
       contentViews[item].requestPointerLock();
+      return true;
     },
 
     hideView: function(item) {
       contentViews[item].style.display = "none";
+      return true;
     }
   };
 }

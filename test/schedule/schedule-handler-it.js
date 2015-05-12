@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(test, driverObj) {
-  test.it("should create webviews", function() {
+  test.it("should create two webviews", function() {
     driverObj.driver.manage().timeouts().setScriptTimeout(10000);
     driverObj.driver.wait(function() {
       return driverObj.driver.executeAsyncScript(function() {
@@ -19,7 +19,7 @@ module.exports = function(test, driverObj) {
     }, 1700);
   });
 
-  test.it("should show both webviews", function() {
+  test.it("should show a webview", function() {
     driverObj.driver.wait(function() {
       return driverObj.driver.executeAsyncScript(function() {
         var asyncDoneCallback = arguments[arguments.length - 1];
@@ -33,9 +33,6 @@ module.exports = function(test, driverObj) {
 
             Array.prototype.forEach.call(webviews, function(wv) {
               if (wv.style.display === "block" && wv.src) {
-                document.viewedSources[wv.src] = 1;
-              }
-              if (Object.keys(document.viewedSources).length === 2) {
                 clearInterval(intervalHandle);
                 asyncDoneCallback(true);
               }
