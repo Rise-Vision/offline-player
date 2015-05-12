@@ -1,50 +1,43 @@
-(function() {
+function scheduleHandlerFactory(contentViewController) {
   "use strict";
+  var scheduleData = {},
+  timeoutHandle = null;
 
-  function scheduleHandlerFactory(contentViewController) {
-    var scheduleData = {},
-    timeoutHandle = null;
+  return {
+    setScheduleData: function setScheduleData(newScheduleData) {
+      scheduleData = newScheduleData;
+    },
 
-    return {
-      setScheduleData: function setScheduleData(newScheduleData) {
-        scheduleData = newScheduleData;
-      },
+    getScheduleData: function getScheduleData() {
+      return scheduleData;
+    },
 
-      getScheduleData: function getScheduleData() {
-        return scheduleData;
-      },
-
-      cycleViews: function cycleViews() {
-        clearTimeout(timeoutHandle);
-        showItem(0);
-      }
-    };
-
-    function showItem(item) {
-      var duration = parseInt(scheduleData.items[item].duration, 10);
-
-      contentViewController.showView(item);
-
-      timeoutHandle = setTimeout(function() {
-        showNextItem(item);
-      }, duration * 1000);
+    cycleViews: function cycleViews() {
+      clearTimeout(timeoutHandle);
+      showItem(0);
     }
+  };
 
-    function showNextItem(item) {
-      contentViewController.hideView(item);
+  function showItem(item) {
+    var duration = parseInt(scheduleData.items[item].duration, 10);
 
-      item += 1;
-      if (item === scheduleData.items.length) {
-        item = 0;
-      }
+    contentViewController.showView(item);
 
-      showItem(item);
-    }
+    timeoutHandle = setTimeout(function() {
+      showNextItem(item);
+    }, duration * 1000);
   }
 
-  if (typeof window === "undefined") {
-    module.exports = scheduleHandlerFactory;
-  } else {
-    $rv.scheduleHandlerFactory = scheduleHandlerFactory;
+  function showNextItem(item) {
+    contentViewController.hideView(item);
+
+    item += 1;
+    if (item === scheduleData.items.length) {
+      item = 0;
+    }
+
+    showItem(item);
   }
-}());
+}
+
+module.exports = scheduleHandlerFactory;

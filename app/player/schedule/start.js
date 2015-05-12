@@ -1,22 +1,12 @@
 (function() {
   "use strict";
+  var contentViewController = require("./content-view-controller.js")(document),
+  localScheduleLoader = require("./local-schedule-loader.js")(new XMLHttpRequest()),
+  scheduleHandler = require("./schedule-handler.js")(contentViewController);
 
-  var starter = (function() {
-    return {
-      start: function(localScheduleLoader, scheduleHandlerFactory, contentViewController) {
-        return localScheduleLoader.loadSchedule().then(function(scheduleData) {
-          var scheduleHandler = scheduleHandlerFactory(contentViewController);
-          scheduleHandler.setScheduleData(scheduleData);
-          scheduleHandler.cycleViews
-          (contentViewController.createContentViews(scheduleData.items));
-        });
-      }
-    };
-  }());
-
-  if (typeof window === "undefined") {
-    module.exports = starter;
-  } else {
-    starter.start($rv.localScheduleLoader, $rv.scheduleHandlerFactory, $rv.contentViewController);
-  }
+  localScheduleLoader.loadSchedule().then(function(scheduleData) {
+    scheduleHandler.setScheduleData(scheduleData);
+    scheduleHandler.cycleViews
+      (contentViewController.createContentViews(scheduleData.items));
+  });
 }());
