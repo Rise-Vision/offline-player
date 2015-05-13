@@ -18,7 +18,7 @@ test.describe("integration suite", function() {
 
     driverObj.driver.sleep(1000);
     driverObj.driver.getAllWindowHandles().then(function(arr) {
-      windowHandle = arr[3];
+      windowHandle = arr[2];
     });
 
     driverObj.driver.controlFlow().execute(function() {
@@ -31,6 +31,7 @@ test.describe("integration suite", function() {
 
   require("./basic-it.js")(test, driverObj);
   require("./schedule/schedule-handler-it.js")(test, driverObj);
+  require("./main-window-events-it.js")(test, driverObj);
 
   test.after(function() {
     driverObj.driver.quit();

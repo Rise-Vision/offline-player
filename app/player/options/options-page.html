@@ -1,21 +1,11 @@
 <html>
 <head>
     <title>Rise Player Configuration</title>
-    <!-- <style type="text/css">
-	    .section{
-	        border: 1px solid black;
-	        display: table;
-	        margin: 5px;
-	        padding:5px;
-	    }
-    </style> -->
-    <script src="config-page.js"></script>
+    <script src="options-page.js"></script>
 </head>
 <body style="margin: 0px;">
-    <h1>
-        Rise Player Configuration</h1>
-    <div id="statusOK" style="background-color:#0CFF0C; width:200px; text-align:center; display:none;">Success</div>
-    <div id="statusError" style="background-color:Red; width:200px; text-align:center; display:none;">Failure</div>
+    <h1>Rise Player Configuration</h1>
+    <div id="status" style="background-color:Yellow; width:200px; text-align:center; display:none;">Offline</div>
     <div class="section">
     <table cellpadding="5" cellspacing="0">
         <tr>
@@ -23,7 +13,7 @@
                 Display ID:
             </td>
             <td>
-                <input id="displayId" type="text" value="[DISPLAY_ID]" />
+                <input id="displayId" type="text" value="" />
             </td>
         </tr>
         <tr>
@@ -31,43 +21,21 @@
                 Claim ID:
             </td>
             <td>
-                <input  id="claimId" type="text" value="[CLAIM_ID]" />
+                <input  id="claimId" type="text" value="" />
             </td>
         </tr>
-        <!--
-        <tr>
-            <td valign="top">
-                Server:
-            </td>
-            <td>
-                <input id="rbProduction" type="radio" name="server" value="Production" checked="checked" />Production<br />
-                <input id="rbTest" type="radio" name="server" value="Test" />Test<br />
-                <input id="rbURL" type="radio" name="server" value="URL" />URL:
-                <input id="tbServerUrl" type="text" value="" />
-            </td>
-        </tr>
-        -->
         <tr>
             <td>
             </td>
             <td style="padding-top:10px">
             <button id="apply">Apply</button>
-            <button id="reset">Reset Settings</button>
-            <!-- <button onclick="reboot()">Restart Player</button><br> -->
             </td>
         </tr>
     </table>
     </div>
     <div>
-      <button type="button">Hide until restarted</button>
+      <button type="button" id="close">close</button>
+      <button type="button" id="close">close until restarted</button>
     </div>
-    <!--
-    <div class="section">
-        <h2>Cache</h2>
-        <button onclick="get_cached_files()">Show Cached Files</button>
-        <button onclick="clear_cache()">Clear Cache</button>
-        <div id="divCahedFiles"></div>
-    </div>
-    -->
 </body>
 </html>
