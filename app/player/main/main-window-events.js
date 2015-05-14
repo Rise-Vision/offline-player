@@ -5,13 +5,12 @@
   });
 
   window.addEventListener("online", function() {
-    console.log("GOING ONLINE");
+    goOnline();
   });
 
   window.addEventListener("load", function() {
-    console.log("LOADED");
     if (navigator.onLine) {
-      console.log("ONLINE");
+      goOnline();
     }
   });
 
@@ -31,5 +30,8 @@
       alwaysOnTop: true,
       outerBounds: boundsSpecification
     });
+  }
+
+  function goOnline() {
   }
 }());
