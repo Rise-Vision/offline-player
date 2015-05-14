@@ -3,7 +3,6 @@
   "name": "Offline Player",
   "version": "0.0.1",
   "minimum_chrome_version": "41",
-  "permissions": ["webview", "*"],
   "app": {
     "background": {
       "scripts": ["player/main/background-script.js"]
@@ -11,6 +10,7 @@
   },
   "permissions": [
     "webview",
+    "alwaysOnTopWindows",
     "geolocation",
     "power",
     "storage",

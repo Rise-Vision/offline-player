@@ -1,0 +1,48 @@
+<html>
+<head>
+    <title>Rise Player Configuration</title>
+    <script src="options-page.js"></script>
+</head>
+<body style="margin: 0px;">
+    <h1>Rise Player Configuration</h1>
+    <div id="status" style="background-color:Yellow; width:200px; text-align:center; display:none;">Offline</div>
+    <div class="section">
+    <table cellpadding="5" cellspacing="0">
+        <tr>
+            <td>
+                Display ID:
+            </td>
+            <td>
+                <input id="displayId" type="text" value="" />
+            </td>
+            <td>
+              <button type="button" id="displayIdApply">Apply</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Claim ID:
+            </td>
+            <td>
+                <input  id="claimId" type="text" value="" />
+            </td>
+            <td>
+                <input  id="displayName" type="text" value="display name" />
+            </td>
+            <td>
+              <button type="button" id="claimIdApply">Apply</button>
+            </td>
+        </tr>
+        <tr>
+          <td>
+            <button type="button" id="helpButton">Help</button>
+          </td>
+        </tr>
+    </table>
+    </div>
+    <div>
+      <button type="button" id="close">close</button>
+      <button type="button" id="close">close until restarted</button>
+    </div>
+</body>
+</html>
