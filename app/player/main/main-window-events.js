@@ -1,17 +1,8 @@
 (function mainWindowEvents() {
   "use strict";
-  window.document.addEventListener("click", function() {
-    showOptionsMenu();
-  });
-
-  window.addEventListener("online", function() {
-    goOnline();
-  });
 
   window.addEventListener("load", function() {
-    if (navigator.onLine) {
-      goOnline();
-    }
+    showOptionsMenu();
   });
 
   function showOptionsMenu() {
@@ -30,8 +21,5 @@
       alwaysOnTop: true,
       outerBounds: boundsSpecification
     });
-  }
-
-  function goOnline() {
   }
 }());

@@ -10,6 +10,7 @@
   },
   "permissions": [
     "webview",
+    "alarms",
     "alwaysOnTopWindows",
     "geolocation",
     "power",
@@ -17,7 +18,8 @@
     "fileSystem",
     "unlimitedStorage",
     "system.display",
-    "pointerLock"
+    "pointerLock",
+    "<all_urls>"
   ],
   "webview": {
      "partitions": [
@@ -28,6 +30,10 @@
        {
          "name": "Retail-QRCode-Template",
          "accessible_resources": ["content/retail-qrcode/*"]
+       },
+       {
+         "name": "empty-schedule-screen",
+         "accessible_resources": ["content/empty-schedule-screen/*"]
        }
      ]
   }

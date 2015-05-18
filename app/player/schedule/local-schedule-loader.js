@@ -1,31 +1,26 @@
-function localScheduleLoaderFactory(xhr) {
+function localScheduleLoader() {
   "use strict";
-  var schedulePath = "../schedule/default.json",
-  resolveLoadSchedulePromise = null;
+  var emptySchedule = require("./empty-schedule.js");
 
-  function scheduleLoadedHandler() {
-    resolveLoadSchedulePromise(xhr.response.content.schedule);
-  }
+  return new Promise(function(resolve, reject) {
+    chrome.storage.local.get(["schedule"], function(storageObject) {
+      var schedule = storageObject.schedule;
+      if (chrome.runtime.lastError) {
+        return reject(new Error("error retrieving local schedule"));
+      }
 
-  function setupXHR() {
-    xhr.responseType = "json";
-    xhr.addEventListener("load", function() {
-      scheduleLoadedHandler();
+      if (!schedule || !schedule.hasOwnProperty("items") ||
+      schedule.items.length === 0 ||
+      !schedule.items.some(isUrlType)) {
+        console.info("Local schedule loader: schedule is invalid");
+        return resolve(emptySchedule);
+      }
+
+      schedule.items = schedule.items.filter(isUrlType);
+      resolve(schedule);
     });
-  }
-
-  return {
-    loadSchedule: function() {
-      setupXHR();
-
-      return new Promise(function(resolve) {
-        xhr.open("GET", schedulePath);
-
-        resolveLoadSchedulePromise = resolve;
-        xhr.send();
-      });
-    }
-  };
+  });
 }
 
-module.exports = localScheduleLoaderFactory;
+function isUrlType(item) {return item.type === "url";}
+module.exports = localScheduleLoader;

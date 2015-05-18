@@ -1,43 +1,45 @@
-function contentViewControllerFactory(document) {
+function contentViewControllerFactory(platformUIController) {
   "use strict";
   var contentViews = [];
 
+  function removePreviousContentViews() {
+    contentViews.forEach(function(item) {
+      platformUIController.removeChild(platformUIController.getPrimaryElement(), item);
+    });
+
+    contentViews = [];
+    return contentViews;
+  }
+
   return {
     createContentViews: function(items) {
+      removePreviousContentViews();
+
       items.forEach(function(item) {
         if (item.type === "url") {
-          var wv = document.createElement("webview");
-          wv.style.height = document.body.clientHeight + "px";
-          wv.style.width = document.body.clientWidth + "px";
-          wv.style.display = "none";
+          var wv = platformUIController.createElement("webview");
+          platformUIController.setElementHeight(wv, platformUIController.getUIHeight());
+          platformUIController.setElementWidth(wv, platformUIController.getUIWidth());
+          platformUIController.setVisibility(wv, false);
           wv.partition = "persist:" + item.name;
           wv.src = item.objectReference;
 
           contentViews.push(wv);
-          document.body.appendChild(wv);
+          platformUIController.appendChild(platformUIController.getPrimaryElement(), wv);
         }
       });
 
       return contentViews;
     },
 
-    removeContentViews: function() {
-      contentViews.forEach(function(item) {
-        document.body.removeChild(item);
-      });
-
-      contentViews = [];
-      return contentViews;
-    },
-
     showView: function(item) {
-      contentViews[item].style.display = "block";
-      contentViews[item].requestPointerLock();
+      platformUIController.setVisibility(contentViews[item], true);
+      platformUIController.requestElementPointerLock(contentViews[item]);
       return true;
     },
 
     hideView: function(item) {
-      contentViews[item].style.display = "none";
+      platformUIController.setVisibility(contentViews[item], false);
       return true;
     }
   };
