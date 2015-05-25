@@ -2,8 +2,8 @@
 
 var assert = require("assert");
 
-describe("mocha works", function(){
-  it("should work", function(){
-    assert.equal(1, 1);
+describe("mocha", function(){
+  it("works with basic assertion", function(){
+    assert.ok(true);
   });
 });

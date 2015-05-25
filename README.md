@@ -12,15 +12,19 @@ This is a chrome app designed to run presentations locally as part of the [Rise 
 ## Development 
 
 ### Local Development Environment Setup and Installation
- - Install sonar-runner http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
- - Add sonar.sh to path
- - Install javascript plugin http://dist.sonarsource.com/oss/org/codehaus/sonar-plugins/javascript/sonar-javascript-plugin/2.5/sonar-javascript-plugin-2.5.jar
+ - Download and unzip SonarQube http://dist.sonar.codehaus.org/sonarqube-5.1.zip
+ - Add sonarqube-5.1/bin/[platform] to path
+ - Download and unzip sonar-runner http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
+ - Add sonar-runner-2.4 to path
+ - Download javascript plugin http://dist.sonarsource.com/oss/org/codehaus/sonar-plugins/javascript/sonar-javascript-plugin/2.5/sonar-javascript-plugin-2.5.jar
+ - Add sonar-javascript-plugin-2.5.jar to sonarqube-5.1/extensions/plugins
+ - npm install -g istanbul
  - npm install
  - npm run test
 
 Note that tests require [Chromedriver](http://chromedriver.storage.googleapis.com/index.html) to be available in your path and that google-chrome is installed.
 
-Tests should be run after any save to any relevant fil.  This can be accomplished with a file watcher that is set to run `npm run test` whenever a file changes.  For example, using the excellent [entr](http://entrproject.org/):
+Tests should be run after any save to any relevant file.  This can be accomplished with a file watcher that is set to run `npm run test` whenever a file changes.  For example, using the excellent [entr](http://entrproject.org/):
 ```bash
 find app/player test -iname "*.js" |entr -c sh -c 'npm run test; \
 if [ $(jq ".issues |length" .sonar/sonar-report.json) -ne "0" ];then \

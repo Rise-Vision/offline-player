@@ -1,4 +1,24 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var coreUrls = {
+  setPlatformDetailsUrl: "https://rvacore-test.appspot.com" +
+  "/v2/viewer/display/DISPLAY_ID?os=" +
+  navigator.platform.replace(" ", "/") +
+  "&cv=" + navigator.appVersion.match(/Chrome\/([0-9.]*)/)[1] +
+  "&cn=Chrome&pv=0.0.1&pn=OfflinePlayer",
+
+  scheduleFetchUrl: "https://rvacore-test.appspot.com" +
+  "/v2/viewer/display/DISPLAY_ID?nothing",
+
+  displayNameFetchUrl: "https://rvacore-test.appspot.com/_ah/api/content/v0/display?id=DISPLAY_ID",
+
+  registrationUrl: "https://rvacore-test.appspot.com" +
+  "/v2/viewer/display/CLAIM_ID/register?" +
+  "width=WIDTH&height=HEIGHT&name=NAME"
+};
+
+module.exports = coreUrls;
+
+},{}],2:[function(require,module,exports){
 function contentViewControllerFactory(document) {
   "use strict";
   var contentViews = [];
@@ -46,40 +66,73 @@ function contentViewControllerFactory(document) {
 
 module.exports = contentViewControllerFactory;
 
-},{}],2:[function(require,module,exports){
-function localScheduleLoaderFactory(xhr) {
+},{}],3:[function(require,module,exports){
+function localScheduleLoader() {
   "use strict";
-  var schedulePath = "../schedule/default.json",
-  resolveLoadSchedulePromise = null;
 
-  function scheduleLoadedHandler() {
-    resolveLoadSchedulePromise(xhr.response.content.schedule);
-  }
+  return new Promise(function(resolve, reject) {
+    chrome.storage.local.get(["schedule"], function(schedule) {
+      if (chrome.runtime.lastError) {
+        return reject(new Error("error retrieving local schedule"));
+      }
 
-  function setupXHR() {
-    xhr.responseType = "json";
-    xhr.addEventListener("load", function() {
-      scheduleLoadedHandler();
+      if (!schedule.hasOwnProperty("items") || schedule.items.length === 0) {
+        return resolve(require("empty-schedule.js"));
+      }
+
+      resolve(schedule);
     });
-  }
-
-  return {
-    loadSchedule: function() {
-      setupXHR();
-
-      return new Promise(function(resolve) {
-        xhr.open("GET", schedulePath);
-
-        resolveLoadSchedulePromise = resolve;
-        xhr.send();
-      });
-    }
-  };
+  });
 }
 
-module.exports = localScheduleLoaderFactory;
+module.exports = localScheduleLoader;
 
-},{}],3:[function(require,module,exports){
+},{"empty-schedule.js":undefined}],4:[function(require,module,exports){
+function remoteScheduleLoad() {
+  "use strict";
+  var url = require("../options/core-urls.js").scheduleFetchUrl;
+
+  if (!navigator.onLine) {return;}
+
+  new Promise(function(resolve, reject) {
+    chrome.storage.local.get(["displayId"], function(item) {
+      if (chrome.runtime.lastError) {
+        return reject(new Error("error retrieving display id"));
+      }
+
+      if (!item.hasOwnProperty("displayId")) {return;}
+      resolve(item.displayId);
+    });
+  })
+  .then(function(id) {
+    fetch(url.replace("DISPLAY_ID", id));
+  })
+  .then(function(resp) {
+    return resp.json();
+  })
+  .then(function(json) {
+    if (!json.content || !json.content.schedule) {
+      return new Error("no schedule data");
+    }
+
+    return json.content.schedule;
+  })
+  .then(function(schedule) {
+    return new Promise(function(resolve, reject) {
+      chrome.storage.local.set({schedule: schedule}, function() {
+        if (chrome.runtime.lastError) {
+          return reject(new Error("error saving schedule"));
+        }
+
+        resolve();
+      });
+    });
+  });
+}
+
+module.exports = remoteScheduleLoad;
+
+},{"../options/core-urls.js":1}],5:[function(require,module,exports){
 function scheduleHandlerFactory(contentViewController) {
   "use strict";
   var scheduleData = {},
@@ -124,18 +177,45 @@ function scheduleHandlerFactory(contentViewController) {
 
 module.exports = scheduleHandlerFactory;
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function() {
   "use strict";
   var contentViewController = require("./content-view-controller.js")(document),
-  localScheduleLoader = require("./local-schedule-loader.js")(new XMLHttpRequest()),
+  localScheduleLoader = require("./local-schedule-loader.js"),
+  remoteScheduleRetriever = require("./remote-schedule-retriever.js"),
   scheduleHandler = require("./schedule-handler.js")(contentViewController);
 
-  localScheduleLoader.loadSchedule().then(function(scheduleData) {
-    scheduleHandler.setScheduleData(scheduleData);
-    scheduleHandler.cycleViews
-      (contentViewController.createContentViews(scheduleData.items));
+  chrome.alarms.create("load.remote.schedule", {periodInMinutes: 12});
+
+  chrome.alarms.onAlarm.addListener(function(alarm) {
+    if (alarm.name === "load.remote.schedule") {
+      remoteScheduleLoad();
+    }
   });
+
+  chrome.storage.onChanged.addListener(function(changes) {
+    var schedule;
+
+    if (!changes.hasOwnProperty("schedule")) { return; }
+    if (changes.schedule.oldValue.changeDate === 
+        changes.schedule.newValue.changeDate)
+    {return;}
+
+    schedule = changes.schedule.newValue;
+
+    reloadSchedule();
+  });
+
+  remoteScheduleLoad();
+  reloadSchedule();
+
+  function reloadSchedule() {
+    localScheduleLoader().then(function(scheduleData) {
+      scheduleHandler.setScheduleData(scheduleData);
+      scheduleHandler.cycleViews
+      (contentViewController.createContentViews(scheduleData.items));
+    });
+  }
 }());
 
-},{"./content-view-controller.js":1,"./local-schedule-loader.js":2,"./schedule-handler.js":3}]},{},[4]);
+},{"./content-view-controller.js":2,"./local-schedule-loader.js":3,"./remote-schedule-retriever.js":4,"./schedule-handler.js":5}]},{},[6]);
