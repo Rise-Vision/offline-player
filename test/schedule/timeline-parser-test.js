@@ -11,7 +11,7 @@ describe("timeline parser", function() {
     assert.equal(parser.canPlay(), false);
   });
 
-  it("refuses play of time defined as false", function() {
+  it("refuses play if time defined as false", function() {
     assert.equal(parser.canPlay({timeDefined: "false"}), false);
   });
 
