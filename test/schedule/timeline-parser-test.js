@@ -47,14 +47,14 @@ describe("timeline parser", function() {
     assert.equal(checkPlay(), "time defined");
   });
 
-  it("refuses play if time defined as false", function() {
+  it("allows play if no time defined", function() {
     timeline.timeDefined = false;
-    assert.equal(checkPlay(), "time defined false");
+    assert.equal(checkPlay(), true);
   });
 
-  it("refuses play if no start date", function() {
+  it("allows play if no start date", function() {
     delete timeline.startDate;
-    assert.equal(checkPlay(), "start date");
+    assert.equal(checkPlay(), true);
   });
 
   it("forces a sane recurrenceFrequency", function() {

@@ -27,7 +27,10 @@
 
       checkStartEndDateRange();
       checkStartEndTimeRange();
-      checkRecurrence[timeline.recurrenceType]();
+
+      if (checkRecurrence.hasOwnProperty(timeline.recurrenceType)) {
+        checkRecurrence[timeline.recurrenceType]();
+      }
 
       return true;
     }
@@ -37,8 +40,8 @@
 
   function checkStartEndDateRange() {
     if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
-    if (timeline.timeDefined === false) {err("time defined false"); }
-    if (!timeline.hasOwnProperty("startDate")) {err("start date"); }
+    if (timeline.timeDefined === false) {return true; }
+    if (!timeline.hasOwnProperty("startDate")) {return true; }
 
     if (startDate > compareDate) {err("before start"); }
     if (endDate < compareDate) {err("after end"); }
