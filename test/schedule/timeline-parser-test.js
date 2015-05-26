@@ -63,4 +63,41 @@ describe("timeline parser", function() {
       endTime: "01/01/01 10:55 AM"
     }, new Date("1/1/2020 10:56 AM")), false);
   });
+  
+  it("refuses play if daily recurrence is not met", function() {
+    assert.equal(parser.canPlay({
+      timeDefined: "true",
+      startDate: "01/01/2001",
+      endDate: "12/31/2022",
+      startTime: "01/01/01 9:55 AM",
+      endTime: "01/01/01 10:55 AM",
+      recurrenceType: "Daily",
+      recurrenceFrequency: 3
+    }, new Date("01/03/2001 10:52 AM")), false);
+  });
+
+  it("refuses play if weekly recurrence is not met", function() {
+    assert.equal(parser.canPlay({
+      timeDefined: "true",
+      startDate: "01/01/2001",
+      endDate: "12/31/2022",
+      startTime: "01/01/01 9:55 AM",
+      endTime: "01/01/01 10:55 AM",
+      recurrenceType: "Weekly",
+      recurrenceFrequency: 3
+    }, new Date("01/18/2001 10:52 AM")), false);
+  });
+
+  it("refuses play if weekly recurrence is met on wrong day",  function() {
+    assert.equal(parser.canPlay({
+      timeDefined: "true",
+      startDate: "01/01/2001",
+      endDate: "12/31/2022",
+      startTime: "01/01/01 9:55 AM",
+      endTime: "01/01/01 10:55 AM",
+      recurrenceType: "Weekly",
+      recurrenceFrequency: 3,
+      recurrenceDaysOfWeek: ["Sun", "Mon"]
+    }, new Date("01/02/2001 10:52 AM")), false);
+  });
 });
