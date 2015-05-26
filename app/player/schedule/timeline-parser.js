@@ -1,6 +1,13 @@
 (function() {
   "use strict";
-  var startTime, compareTime, endTime, timeline, compareDate, recurrenceFrequency, recurrenceType, startDate, endDate;
+  var startTime, compareTime, endTime, timeline, compareDate, recurrenceFrequency, recurrenceType, startDate, endDate,
+  checkRecurrence = {
+    "Daily": checkDailyRecurrence,
+    "Weekly": checkWeeklyRecurrence,
+    "Monthly": checkMonthlyRecurrence,
+    "Yearly": checkYearlyRecurrence
+  };
+
 
   module.exports = {
     canPlay: function(timelineObject, compareTo) {
@@ -23,14 +30,13 @@
 
       return checkStartEndDateRange() &&
              checkStartEndTimeRange() &&
-             checkDailyRecurrence() &&
-             checkWeeklyRecurrence();
+             checkRecurrence[timeline.recurrenceType]();
     }
   };
 
   function checkStartEndDateRange() {
     if (!timeline.hasOwnProperty("timeDefined")) { return false; }
-    if (timeline.timeDefined === "false") { return false; }
+    if (timeline.timeDefined === false) { return false; }
     if (!timeline.hasOwnProperty("startDate")) { return false; }
 
     if (startDate > compareDate) { return false; }
@@ -55,12 +61,46 @@
 
   function checkDailyRecurrence() {
     if (recurrenceType != "Daily") {return true;}
-    console.log(daysPassed());
     if (daysPassed() % recurrenceFrequency !== 0) { return false; }
     return true;
   }
 
   function checkWeeklyRecurrence() {
+    if (timeline.recurrenceType != "Weekly") { return true; }
+    if (weeksPassed() % recurrenceFrequency !==0) { return false;}
+    if (!playsThisWeekday()) {return false;}
+    return true;
+  }
+
+  function checkMonthlyRecurrence() {
+    if (timeline.recurrenceType != "Monthly") { return true; }
+    if (monthsPassed() % recurrenceFrequency !==0) { return false;}
+
+    if (timeline.recurrenceAbsolute) {
+      if (timeline.recurrenceDayOfMonth !== compareDate.getDate()) { return false;}
+    } else {
+      if (timeline.recurrenceDayOfWeek !== compareDate.getDay()) {return false;}
+      if (timeline.recurrenceWeekOfMonth === 4) {
+        if (compareDate.getDate() <= (daysInMonth(compareDate) - 7)) { return false;}
+      } else {
+        if ((timeline.recurrenceWeekOfMonth !== (parseInt((compareDate.getDate() - 1) / 7, 10)))) {return false;}
+      }
+    }
+
+    return true;
+  }
+
+  function daysInMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  }
+
+  function monthsPassed() {
+    return ((compareDate.getFullYear() - startDate.getFullYear()) * 12) +
+    compareDate.getMonth() - startDate.getMonth();
+  }
+
+  function checkYearlyRecurrence() {
+    if (timeline.recurrenceType != "Monthly") { return true; }
     if (weeksPassed() % recurrenceFrequency !==0) { return false;}
     if (!playsThisWeekday()) {return false;}
     return true;
@@ -91,7 +131,6 @@
   }
 
   function playsThisWeekday() {
-    console.log("HI");
     if (!timeline.recurrenceDaysOfWeek) { return false;}
     if (!Array.isArray(timeline.recurrenceDaysOfWeek)) { return false;}
 
