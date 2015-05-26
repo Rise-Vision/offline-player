@@ -90,6 +90,22 @@
     return true;
   }
 
+  function checkYearlyRecurrence() {
+    if (timeline.recurrenceType != "Yearly") { return true; }
+    if (timeline.recurrenceMonthOfYear !== compareDate.getMonth()) {return false;}
+
+    if (timeline.recurrenceAbsolute) {
+      if (timeline.recurrenceDayOfMonth !== compareDate.getDate()) {return false;}
+    } else {
+      if (compareDate.getDay() !== timeline.recurrenceDayOfWeek) {return false;}
+      if (compareDate.getMonth() !== timeline.recurrenceMonthOfYear) {return false;}
+      console.log(compareDate.getDate(), timeline.recurrenceWeekOfMonth);
+      if (compareDate.getDate() < (timeline.recurrenceWeekOfMonth * 7) || compareDate.getDate() > timeline.recurrenceWeekOfMonth * 7 + 7) {return false;}
+    }
+
+    return true;
+  }
+
   function daysInMonth(date) {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   }
@@ -97,13 +113,6 @@
   function monthsPassed() {
     return ((compareDate.getFullYear() - startDate.getFullYear()) * 12) +
     compareDate.getMonth() - startDate.getMonth();
-  }
-
-  function checkYearlyRecurrence() {
-    if (timeline.recurrenceType != "Monthly") { return true; }
-    if (weeksPassed() % recurrenceFrequency !==0) { return false;}
-    if (!playsThisWeekday()) {return false;}
-    return true;
   }
 
   function playsOvernight() {
