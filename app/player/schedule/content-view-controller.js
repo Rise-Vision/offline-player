@@ -4,7 +4,7 @@ function contentViewControllerFactory(platformUIController) {
 
   function removePreviousContentViews() {
     contentViews.forEach(function(item) {
-      platformUIController.removeChild(platformUIController.getPrimaryElement(), item);
+      platformUIController.removeView(item);
     });
 
     contentViews = [];
@@ -16,17 +16,12 @@ function contentViewControllerFactory(platformUIController) {
       removePreviousContentViews();
 
       items.forEach(function(item) {
-        if (item.type === "url") {
-          var wv = platformUIController.createElement("webview");
-          platformUIController.setElementHeight(wv, platformUIController.getUIHeight());
-          platformUIController.setElementWidth(wv, platformUIController.getUIWidth());
-          platformUIController.setVisibility(wv, false);
-          wv.partition = "persist:" + item.name;
-          wv.src = item.objectReference;
+        var view = platformUIController.createViewWindow();
+        platformUIController.setPersistence(view, item.name);
+        platformUIController.setViewContent(view, item.objectReference);
 
-          contentViews.push(wv);
-          platformUIController.appendChild(platformUIController.getPrimaryElement(), wv);
-        }
+        contentViews.push(view);
+        platformUIController.addView(view);
       });
 
       return contentViews;

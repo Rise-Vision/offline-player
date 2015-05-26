@@ -4,14 +4,14 @@ var assert = require("assert"),
 platformMock = require("../platform/platform-controller-mock.js"),
 contentViewController = require("../../app/player/schedule/content-view-controller.js")(platformMock);
 
-describe("content view Controller", function(){
-  var scheduleItems = [{type: "url"}, {type: "url"}, {type: "presentation"}];
+describe("content view controller", function(){
+  var scheduleItems = [{type: "url"}, {type: "url"}];
 
   it("exists", function(){
     assert.notEqual(contentViewController, undefined);
   });
 
-  it("creates views for url items types", function() {
+  it("creates views", function() {
     var contentViews = contentViewController.createContentViews(scheduleItems);
 
     assert.equal(contentViews.length, 2);
@@ -36,7 +36,7 @@ describe("content view Controller", function(){
     newViews;
 
     assert.equal(contentViews.length, 2);
-    newViews = contentViewController.createContentViews([{type: "presentation"}]);
+    newViews = contentViewController.createContentViews([]);
     assert.deepEqual(newViews, []);
   });
 });

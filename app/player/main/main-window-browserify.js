@@ -20,26 +20,29 @@ module.exports = coreUrls;
 
 },{}],2:[function(require,module,exports){
 module.exports = {
-  createElement: document.createElement.bind(document),
-  setElementHeight: function(el, height) {
-    el.style.height = height + "px";
+  createViewWindow: function() {
+    var view =  document.createElement("webview");
+    view.style.height = document.body.clientHeight + "px";
+    view.style.width = document.body.clientWidth + "px";
+    view.style.display = "none";
+    return view;
   },
-  setElementWidth: function(el, width) {
-    el.style.width = width + "px";
-  },
+
   setVisibility: function(el, vis) {
     return vis ? el.style.display = "block" : el.style.display = "none";
   },
-  appendChild: function(el, child) {
-    el.appendChild(child);
+
+  setPersistence: function(el, name) {
+    el.partition = "persist:" + name;
   },
-  removeChild: function(el, child) {
-    el.removeChild(child);
+
+  setViewContent(el, target) {
+    el.src = target;
   },
-  getPrimaryElement: function() {return document.body;},
-  requestElementPointerLock: function(el) {el.requestPointerLock();},
-  getUIHeight: function() {return document.body.clientHeight;},
-  getUIWidth: function() {return document.body.clientWidth;}
+
+  addView: function(view) {document.body.appendChild(view);},
+  removeView: function(view) {document.body.removeChild(view);},
+  requestElementPointerLock: function(el) {el.requestPointerLock();}
 };
 
 },{}],3:[function(require,module,exports){
@@ -49,7 +52,7 @@ function contentViewControllerFactory(platformUIController) {
 
   function removePreviousContentViews() {
     contentViews.forEach(function(item) {
-      platformUIController.removeChild(platformUIController.getPrimaryElement(), item);
+      platformUIController.removeView(item);
     });
 
     contentViews = [];
@@ -61,17 +64,12 @@ function contentViewControllerFactory(platformUIController) {
       removePreviousContentViews();
 
       items.forEach(function(item) {
-        if (item.type === "url") {
-          var wv = platformUIController.createElement("webview");
-          platformUIController.setElementHeight(wv, platformUIController.getUIHeight());
-          platformUIController.setElementWidth(wv, platformUIController.getUIWidth());
-          platformUIController.setVisibility(wv, false);
-          wv.partition = "persist:" + item.name;
-          wv.src = item.objectReference;
+        var view = platformUIController.createViewWindow();
+        platformUIController.setPersistence(view, item.name);
+        platformUIController.setViewContent(view, item.objectReference);
 
-          contentViews.push(wv);
-          platformUIController.appendChild(platformUIController.getPrimaryElement(), wv);
-        }
+        contentViews.push(view);
+        platformUIController.addView(view);
       });
 
       return contentViews;
@@ -139,7 +137,7 @@ module.exports = contentViewControllerFactory;
 module.exports = emptySchedule;
 
 },{}],5:[function(require,module,exports){
-function localScheduleLoader() {
+module.exports = function localScheduleLoader(timelineParser) {
   "use strict";
   var emptySchedule = require("./empty-schedule.js");
 
@@ -150,21 +148,36 @@ function localScheduleLoader() {
         return reject(new Error("error retrieving local schedule"));
       }
 
-      if (!schedule || !schedule.hasOwnProperty("items") ||
-      schedule.items.length === 0 ||
-      !schedule.items.some(isUrlType)) {
-        console.info("Local schedule loader: schedule is invalid");
+      if (!schedule || !schedule.hasOwnProperty("items")) {
+        console.info("Local schedule loader: invalid schedule format");
         return resolve(emptySchedule);
       }
 
-      schedule.items = schedule.items.filter(isUrlType);
+      console.info(JSON.stringify(schedule.items[0]));
+      schedule.items = schedule.items.filter(isUrlType).filter(isPlayable);
+
+      if (schedule.items.length === 0) {
+        console.info("Local schedule loader: schedule is empty");
+        return resolve(emptySchedule);
+      }
+
       resolve(schedule);
     });
   });
-}
 
-function isUrlType(item) {return item.type === "url";}
-module.exports = localScheduleLoader;
+  function isUrlType(item) {return item.type === "url";}
+
+  function isPlayable(item) {
+    try {
+      timelineParser.isPlayable(item, new Date());
+    } catch(e) {
+      console.info("Local schedule loader: not playable - " + e.message);
+      return false;
+    }
+    return true;
+  }
+};
+
 
 },{"./empty-schedule.js":4}],6:[function(require,module,exports){
 function remoteScheduleLoad() {
@@ -191,6 +204,7 @@ function remoteScheduleLoad() {
   })
   .then(function(json) {
     if (!json.content || !json.content.schedule) {
+      console.info(JSON.stringify(json));
       throw new Error("Remote schedule retriever: no schedule data in response");
     }
     return json.content.schedule;
@@ -219,7 +233,7 @@ function remoteScheduleLoad() {
 module.exports = remoteScheduleLoad;
 
 },{"../options/core-urls.js":1}],7:[function(require,module,exports){
-function scheduleHandlerFactory(contentViewController) {
+function scheduleHandler(contentViewController) {
   "use strict";
   var scheduleData = {},
   timeoutHandle = null;
@@ -261,13 +275,163 @@ function scheduleHandlerFactory(contentViewController) {
   }
 }
 
-module.exports = scheduleHandlerFactory;
+module.exports = scheduleHandler;
 
 },{}],8:[function(require,module,exports){
+function timelineParser() {
+  "use strict";
+  var startTime, compareTime, endTime, timeline, compareDate, recurrenceFrequency, recurrenceType, startDate, endDate,
+  checkRecurrence = {
+    "Daily": checkDailyRecurrence,
+    "Weekly": checkWeeklyRecurrence,
+    "Monthly": checkMonthlyRecurrence,
+    "Yearly": checkYearlyRecurrence
+  };
+
+  return {
+    isPlayable: function(timelineObject, compareTo) {
+      if (!timelineObject) {err("no timeline");}
+      timeline = timelineObject;
+
+      compareDate = compareTo ? getDateComponent(compareTo) : getDateComponent(new Date());
+      compareTime = getTimeComponent(compareTo);
+
+      startTime = timeline.startTime ? getTimeComponent(timeline.startTime) : 0;
+      endTime = timeline.endTime ? getTimeComponent(timeline.endTime) : 0;
+
+      startDate = getDateComponent(timelineObject.startDate);
+      endDate = getDateComponent(timelineObject.endDate);
+
+      recurrenceFrequency = timeline.recurrenceFrequency;
+      if (recurrenceFrequency < 1) {recurrenceFrequency = 1;}
+
+      checkStartEndDateRange();
+      checkStartEndTimeRange();
+
+      if (checkRecurrence.hasOwnProperty(timeline.recurrenceType)) {
+        checkRecurrence[timeline.recurrenceType]();
+      }
+
+      return true;
+    }
+  };
+
+  function err(msg) {throw new Error(msg); }
+
+  function checkStartEndDateRange() {
+    if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
+    if (timeline.timeDefined === "false") {return true; }
+    if (!timeline.hasOwnProperty("startDate")) {return true; }
+
+    if (startDate > compareDate) {err("before start"); }
+    if (endDate < compareDate) {err("after end"); }
+  }
+
+  function checkStartEndTimeRange() {
+    if (startTime === 0 && endTime === 0) {return true;}
+
+    if (playsOvernight()) {
+      if (compareTime < startTime && compareTime > endTime) {
+        err("play at night");
+      }
+    } else {
+      if (compareTime < startTime || compareTime > endTime) {
+        err("play during day");
+      }
+    }
+  }
+
+  function checkDailyRecurrence() {
+    if (timeline.recurrenceType != "Daily") {return true;}
+    if (daysPassed() % recurrenceFrequency !== 0) {err("wrong day frequency");}
+  }
+
+  function checkWeeklyRecurrence() {
+    if (timeline.recurrenceType != "Weekly") { return true; }
+    if (weeksPassed() % recurrenceFrequency !==0) {err("wrong weekly frequency");}
+    if (!playsThisWeekday()) {err("wrong weekday");}
+  }
+
+  function checkMonthlyRecurrence() {
+    if (timeline.recurrenceType != "Monthly") { return true; }
+    if (monthsPassed() % recurrenceFrequency !==0) {err("wrong monthly frequency") ;}
+
+    if (timeline.recurrenceAbsolute) {
+      if (timeline.recurrenceDayOfMonth !== compareDate.getDate()) {err("wrong day of month");}
+    } else {
+      if (timeline.recurrenceDayOfWeek !== compareDate.getDay()) {err("wrong day of week");}
+      if (timeline.recurrenceWeekOfMonth === 4) {
+        if (compareDate.getDate() <= (daysInMonth(compareDate) - 7)) {err("not last week of month");}
+      } else {
+        if ((timeline.recurrenceWeekOfMonth !== (parseInt((compareDate.getDate() - 1) / 7, 10)))) {err("wrong week of month");}
+      }
+    }
+  }
+
+  function checkYearlyRecurrence() {
+    if (timeline.recurrenceType != "Yearly") { return true; }
+    if (timeline.recurrenceMonthOfYear !== compareDate.getMonth()) {err("wrong month of year");}
+
+    if (timeline.recurrenceAbsolute) {
+      if (timeline.recurrenceDayOfMonth !== compareDate.getDate()) {err("wrong day of month");}
+    } else {
+      if (compareDate.getDay() !== timeline.recurrenceDayOfWeek) {err("wrong day of week");}
+      if (compareDate.getDate() < (timeline.recurrenceWeekOfMonth * 7) || compareDate.getDate() > timeline.recurrenceWeekOfMonth * 7 + 7) {err("wrong week of month");}
+    }
+  }
+
+  function daysInMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  }
+
+  function monthsPassed() {
+    return ((compareDate.getFullYear() - startDate.getFullYear()) * 12) +
+    compareDate.getMonth() - startDate.getMonth();
+  }
+
+  function playsOvernight() {
+    return startTime > endTime;
+  }
+
+  function getTimeComponent(dateText) {
+    var date = new Date(dateText);
+    return (date.getHours() * 60 * 60) +
+           (date.getMinutes() * 60) +
+           (date.getSeconds());
+  }
+
+  function getDateComponent(dateText) {
+    var date = new Date(dateText);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  function daysPassed() {
+    return (compareDate - startDate) / (1000 * 60 * 60 * 24);
+  }
+
+  function weeksPassed() {
+    return parseInt(daysPassed() / 7, 10);
+  }
+
+  function playsThisWeekday() {
+    if (!timeline.recurrenceDaysOfWeek) { return false;}
+    if (!Array.isArray(timeline.recurrenceDaysOfWeek)) { return false;}
+
+    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return timeline.recurrenceDaysOfWeek.some(function(item) {
+      return item === days[compareDate.getDay()];
+    });
+  }
+}
+
+module.exports = timelineParser;
+
+},{}],9:[function(require,module,exports){
 (function() {
   "use strict";
   var contentViewController = require("./content-view-controller.js")(require("../platform/dom-platform-ui-controller.js")),
   localScheduleLoader = require("./local-schedule-loader.js"),
+  timelineParser = require("./timeline-parser.js")(),
   remoteScheduleLoad = require("./remote-schedule-retriever.js"),
   scheduleHandler = require("./schedule-handler.js")(contentViewController);
 
@@ -302,12 +466,14 @@ module.exports = scheduleHandlerFactory;
   reloadSchedule();
 
   function reloadSchedule() {
-    localScheduleLoader().then(function(scheduleData) {
+    localScheduleLoader(timelineParser)
+    .then(function(scheduleData) {
       scheduleHandler.setScheduleData(scheduleData);
+
       scheduleHandler.cycleViews
       (contentViewController.createContentViews(scheduleData.items));
     });
   }
 }());
 
-},{"../platform/dom-platform-ui-controller.js":2,"./content-view-controller.js":3,"./local-schedule-loader.js":5,"./remote-schedule-retriever.js":6,"./schedule-handler.js":7}]},{},[8]);
+},{"../platform/dom-platform-ui-controller.js":2,"./content-view-controller.js":3,"./local-schedule-loader.js":5,"./remote-schedule-retriever.js":6,"./schedule-handler.js":7,"./timeline-parser.js":8}]},{},[9]);

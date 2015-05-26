@@ -2,6 +2,7 @@
   "use strict";
   var contentViewController = require("./content-view-controller.js")(require("../platform/dom-platform-ui-controller.js")),
   localScheduleLoader = require("./local-schedule-loader.js"),
+  timelineParser = require("./timeline-parser.js")(),
   remoteScheduleLoad = require("./remote-schedule-retriever.js"),
   scheduleHandler = require("./schedule-handler.js")(contentViewController);
 
@@ -36,8 +37,10 @@
   reloadSchedule();
 
   function reloadSchedule() {
-    localScheduleLoader().then(function(scheduleData) {
+    localScheduleLoader(timelineParser)
+    .then(function(scheduleData) {
       scheduleHandler.setScheduleData(scheduleData);
+
       scheduleHandler.cycleViews
       (contentViewController.createContentViews(scheduleData.items));
     });

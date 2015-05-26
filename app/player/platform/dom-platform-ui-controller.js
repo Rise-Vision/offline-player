@@ -1,22 +1,25 @@
 module.exports = {
-  createElement: document.createElement.bind(document),
-  setElementHeight: function(el, height) {
-    el.style.height = height + "px";
+  createViewWindow: function() {
+    var view =  document.createElement("webview");
+    view.style.height = document.body.clientHeight + "px";
+    view.style.width = document.body.clientWidth + "px";
+    view.style.display = "none";
+    return view;
   },
-  setElementWidth: function(el, width) {
-    el.style.width = width + "px";
-  },
+
   setVisibility: function(el, vis) {
     return vis ? el.style.display = "block" : el.style.display = "none";
   },
-  appendChild: function(el, child) {
-    el.appendChild(child);
+
+  setPersistence: function(el, name) {
+    el.partition = "persist:" + name;
   },
-  removeChild: function(el, child) {
-    el.removeChild(child);
+
+  setViewContent(el, target) {
+    el.src = target;
   },
-  getPrimaryElement: function() {return document.body;},
-  requestElementPointerLock: function(el) {el.requestPointerLock();},
-  getUIHeight: function() {return document.body.clientHeight;},
-  getUIWidth: function() {return document.body.clientWidth;}
+
+  addView: function(view) {document.body.appendChild(view);},
+  removeView: function(view) {document.body.removeChild(view);},
+  requestElementPointerLock: function(el) {el.requestPointerLock();}
 };
