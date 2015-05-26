@@ -3,11 +3,9 @@
   "white": true,
   "globals": {
     "window": false,
-    "exports": false,
     "module": false,
     "describe": false,
     "document": false,
-    "it": false,
     "chrome": false,
     "setTimeout": false,
     "setInterval": false,
@@ -17,7 +15,6 @@
     "console": false,
     "process": false,
     "driver": false,
-    "$rv": true,
     "fs": false,
     "XMLHttpRequest": false
   }

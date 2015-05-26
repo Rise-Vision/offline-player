@@ -1,279 +1,255 @@
 "use strict";
 var assert = require("assert"),
-parser = require("../../app/player/schedule/timeline-parser.js");
+parser = require("../../app/player/schedule/timeline-parser.js"),
+timeline,
+compareDate;
+
+function checkPlay() {
+  try {
+    parser.canPlay(timeline, compareDate);
+  } catch(e) {
+    return e.message;
+  }
+
+  return true;
+}
 
 describe("timeline parser", function() {
+  beforeEach("set up a sample timeline", function() {
+    timeline = {
+      timeDefined: true,
+      startDate: "05/12/2015",
+      endDate: "12/31/2022",
+      startTime: "01/01/01 9:55 AM",
+      endTime: "01/01/01 10:55 AM",
+      recurrenceType: "Yearly",
+      recurrenceAbsolute: false,
+      recurrenceDaysOfWeek: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      recurrenceDayOfMonth: 22,
+      recurrenceMonthOfYear: 4,
+      recurrenceDayOfWeek: 4
+    };
+
+    compareDate = new Date("05/14/2015 9:57 AM");
+  });
+
   it("exists", function() {
     assert.notEqual(parser, undefined);
   });
 
   it("refuses play on empty schedule", function() {
-    assert.equal(parser.canPlay(), false);
+    timeline = null;
+    assert.equal(checkPlay(), "no timeline");
+  });
+
+  it("refuses play if no time defined", function() {
+    delete timeline.timeDefined;
+    assert.equal(checkPlay(), "time defined");
   });
 
   it("refuses play if time defined as false", function() {
-    assert.equal(parser.canPlay({timeDefined: false}), false);
+    timeline.timeDefined = false;
+    assert.equal(checkPlay(), "time defined false");
   });
 
   it("refuses play if no start date", function() {
-    assert.equal(parser.canPlay({timeDefined: true}), false);
+    delete timeline.startDate;
+    assert.equal(checkPlay(), "start date");
+  });
+
+  it("forces a sane recurrenceFrequency", function() {
+    timeline.recurrenceFrequency = -1;
+    timeline.recurrenceType = "Daily";
+    assert.equal(checkPlay(), true);
   });
 
   it("refuses play if start date is in the future", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "12/31/2099"
-    }), false);
+    timeline.startDate = "12/31/2099";
+    assert.equal(checkPlay(), "before start");
   });
 
   it("refuses play if end date has passed", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "12/31/2000",
-      endDate: "12/31/2002"
-    }), false);
+    timeline.endDate = "05/13/2015";
+    assert.equal(checkPlay(), "after end");
   });
 
   it("refuses play if not within overnight play time", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "12/31/2000",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 PM",
-      endTime: "01/01/01 10:55 AM"
-    }, new Date("1/1/2020 9:52 PM")), false);
+    compareDate = new Date("1/1/2020 9:52 PM");
+    timeline.startTime = "01/01/01 9:55 PM";
+    timeline.endTime = "01/01/01 10:55 AM";
+
+    assert.equal(checkPlay(), "play at night");
   });
 
   it("refuses play if before daytime play time", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "12/31/2000",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM"
-    }, new Date("1/1/2020 9:52 AM")), false);
+    compareDate = new Date("1/1/2020 8:00 AM");
+    timeline.startTime = "01/01/01 9:00 AM";
+    timeline.endTime = "01/01/01 10:55 PM";
+
+    assert.equal(checkPlay(), "play during day");
   });
 
   it("refuses play if after daytime play time", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "12/31/2000",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM"
-    }, new Date("1/1/2020 10:56 AM")), false);
+    compareDate = new Date("1/1/2020 11:00 PM");
+    timeline.startTime = "01/01/01 9:00 AM";
+    timeline.endTime = "01/01/01 10:55 PM";
+
+    assert.equal(checkPlay(), "play during day");
   });
   
   it("refuses play if daily recurrence is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Daily",
-      recurrenceFrequency: 3
-    }, new Date("01/03/2001 10:52 AM")), false);
+    timeline.recurrenceType = "Daily";
+    timeline.recurrenceFrequency = 3;
+    assert.equal(checkPlay(), "wrong day frequency");
   });
 
-  it("refuses play if weekly recurrence is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Weekly",
-      recurrenceFrequency: 3
-    }, new Date("01/18/2001 10:52 AM")), false);
+  it("ensures correct weekly recurrence is met", function() {
+    compareDate = new Date("01/09/2001 10:55:00 AM");
+    timeline.startDate = "01/01/2001";
+    timeline.recurrenceType = "Weekly";
+
+    timeline.recurrenceFrequency = 3;
+    assert.equal(checkPlay(), "wrong weekly frequency");
+
+    timeline.recurrenceFrequency = 1;
+    assert.equal(checkPlay(), true);
   });
 
-  it("refuses play if weekly recurrence is met on wrong day",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Weekly",
-      recurrenceFrequency: 3,
-      recurrenceDaysOfWeek: ["Sun", "Mon"]
-    }, new Date("01/02/2001 10:52 AM")), false);
+  it("ensures weekly recurrence is met on correct week day",  function() {
+    compareDate = new Date("01/06/2001 10:55:00 AM");
+    timeline.startDate = "01/01/2001";
+    timeline.recurrenceType = "Weekly";
+    timeline.recurrenceFrequency = 3;
+
+    timeline.recurrenceDaysOfWeek = ["Sun"];
+    assert.equal(checkPlay(), "wrong weekday");
+
+    timeline.recurrenceDaysOfWeek = ["Sat", "Sun"];
+    assert.equal(checkPlay(), true);
   });
 
-  it("refuses play if absolute monthly recurrence is not met",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: true,
-      recurrenceFrequency: 3,
-      recurrenceDayOfMonth: 2
-    }, new Date("05/02/2001 10:52 AM")), false);
+  it("ensures absolute monthly recurrence frequency is met",  function() {
+    timeline.recurrenceType = "Monthly";
+    timeline.startDate = "01/01/2001";
+    timeline.recurrenceDayOfWeek = 0;
+    timeline.recurrenceWeekOfMonth = 0;
+    compareDate = new Date("04/01/2001 10:55:00 AM");
+
+    timeline.recurrenceFrequency = 3;
+    assert.equal(checkPlay(), true);
+
+    timeline.recurrenceFrequency = 2;
+    assert.equal(checkPlay(), "wrong monthly frequency");
   });
 
-  it("refuses play if absolute monthly recurrence is not met on correct day of month",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: true,
-      recurrenceFrequency: 3,
-      recurrenceDayOfMonth: 3
-    }, new Date("04/02/2001 10:52 AM")), false);
+  it("ensures absolute monthly recurrence is met on correct day of month",  function() {
+    timeline.recurrenceType = "Monthly";
+    timeline.startDate = "01/01/2001";
+    timeline.recurrenceFrequency = 3;
+    timeline.recurrenceAbsolute = true;
+    compareDate = new Date("04/01/2001 10:55:00 AM");
+
+    timeline.recurrenceDayOfMonth = 1;
+    assert.equal(checkPlay(), true);
+
+    timeline.recurrenceDayOfMonth = 2;
+    assert.equal(checkPlay(), "wrong day of month");
   });
 
   it("refuses play if monthly recurrence is wrong day of week",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "01/01/2001",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: false,
-      recurrenceFrequency: 3,
-      recurrenceDayOfWeek: 0,
-      recurrenceDayOfMonth: 3
-    }, new Date("04/02/2001 10:52 AM")), false);
+    timeline.recurrenceType = "Monthly";
+    timeline.startDate = "01/01/2001";
+    timeline.recurrenceFrequency = 3;
+    timeline.recurrenceDayOfMonth = 1;
+    compareDate = new Date("04/01/2001 10:55:00 AM");
+
+    timeline.recurrenceDayOfWeek = 2;
+    assert.equal(checkPlay(), "wrong day of week");
   });
 
   it("refuses play if monthly recurrence is last week of month and compare date is not in last week",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/28/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: false,
-      recurrenceFrequency: 1,
-      recurrenceDayOfWeek: 1,
-      recurrenceWeekOfMonth: 4
-    }, new Date("04/29/2015 10:52 AM")), false);
+    timeline.recurrenceType = "Monthly";
+    timeline.startDate = "04/22/2015";
+    timeline.recurrenceFrequency = 1;
+    timeline.recurrenceDayOfMonth = 1;
+    timeline.recurrenceDayOfWeek = 3;
+    timeline.recurrenceWeekOfMonth = 4;
+    compareDate = new Date("04/22/2015 10:52 AM");
+
+    assert.equal(checkPlay(), "not last week of month");
   });
 
   it("refuses play if monthly recurrence is not last week of month and compare date is in wrong week",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: false,
-      recurrenceFrequency: 1,
-      recurrenceDayOfWeek: 3,
-      recurrenceWeekOfMonth: 3
-    }, new Date("05/20/2015 10:52 AM")), false);
+    timeline.recurrenceType = "Monthly";
+    timeline.startDate = "04/22/2015";
+    timeline.recurrenceFrequency = 1;
+    timeline.recurrenceDayOfMonth = 1;
+    timeline.recurrenceDayOfWeek = 3;
+    compareDate = new Date("04/22/2015 10:52 AM");
+
+    timeline.recurrenceWeekOfMonth = 2;
+    assert.equal(checkPlay(), "wrong week of month");
+
+    timeline.recurrenceWeekOfMonth = 3;
+    assert.equal(checkPlay(), true);
   });
 
-  it("allows play if monthly recurrence is not last week of month and compare date is in correct week",  function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Monthly",
-      recurrenceAbsolute: false,
-      recurrenceFrequency: 1,
-      recurrenceDayOfWeek: 5,
-      recurrenceWeekOfMonth: 3
-    }, new Date("05/22/2015 10:52 AM")), true);
-  });
-  
-  it("allows play if absolute yearly recurrence day is met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: true,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 4
-    }, new Date("05/22/2015 10:52 AM")), true);
+  it("ensures correct month of year is met", function() {
+    timeline.recurrenceType = "Yearly";
+    timeline.startDate = "04/22/2015";
+    timeline.recurrenceDayOfWeek = 3;
+    timeline.recurrenceWeekOfMonth = 3;
+    compareDate = new Date("04/22/2015 10:52 AM");
+
+    timeline.recurrenceMonthOfYear = 5;
+    assert.equal(checkPlay(), "wrong month of year");
+
+    timeline.recurrenceMonthOfYear = 3;
+    assert.equal(checkPlay(), true);
   });
 
-  it("refuses play if absolute yearly recurrence month is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: true,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 3
-    }, new Date("05/22/2015 10:52 AM")), false);
+  it("ensures absolute yearly recurrence day is met", function() {
+    timeline.recurrenceType = "Yearly";
+    timeline.recurrenceAbsolute = true;
+    timeline.startDate = "04/22/2015";
+    timeline.recurrenceMonthOfYear = 3;
+    compareDate = new Date("04/22/2015 10:52 AM");
+
+    timeline.recurrenceDayOfMonth = 3;
+    assert.equal(checkPlay(), "wrong day of month");
+
+    timeline.recurrenceDayOfMonth = 22;
+    assert.equal(checkPlay(), true);
   });
 
-  it("allows play if absolute yearly recurrence month is met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: true,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 4
-    }, new Date("05/22/2015 10:52 AM")), true);
+  it("ensures yearly recurrence day of week is met", function() {
+    timeline.recurrenceType = "Yearly";
+    timeline.startDate = "05/12/2015";
+    timeline.recurrenceMonthOfYear = 3;
+    timeline.recurrenceDayOfMonth = 22;
+    timeline.recurrenceMonthOfYear = 4;
+    compareDate = new Date("05/22/2015 10:52 AM");
+
+    timeline.recurrenceDayOfWeek = 4;
+    assert.equal(checkPlay(), "wrong day of week");
+
+    timeline.recurrenceDayOfWeek = 5;
+    assert.equal(checkPlay(), true);
   });
 
-  it("refuses play if yearly recurrence day of week is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: false,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 4,
-      recurrenceDayOfWeek: 4
-    }, new Date("05/22/2015 10:52 AM")), false);
-  });
+  it("ensures yearly recurrence week of month is met", function() {
+    timeline.recurrenceType = "Yearly";
+    timeline.startDate = "05/12/2015";
+    timeline.recurrenceMonthOfYear = 3;
+    timeline.recurrenceDayOfMonth = 22;
+    timeline.recurrenceDayOfWeek = 5;
+    timeline.recurrenceMonthOfYear = 4;
+    compareDate = new Date("05/22/2015 10:52 AM");
 
-  it("refuses play if yearly recurrence month of year is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: false,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 3,
-      recurrenceDayOfWeek: 5
-    }, new Date("05/22/2015 10:52 AM")), false);
-  });
+    timeline.recurrenceWeekOfMonth = 2;
+    assert.equal(checkPlay(), "wrong week of month");
 
-  it("refuses play if yearly recurrence week number is not met", function() {
-    assert.equal(parser.canPlay({
-      timeDefined: true,
-      startDate: "05/12/2015",
-      endDate: "12/31/2022",
-      startTime: "01/01/01 9:55 AM",
-      endTime: "01/01/01 10:55 AM",
-      recurrenceType: "Yearly",
-      recurrenceAbsolute: false,
-      recurrenceDayOfMonth: 22,
-      recurrenceMonthOfYear: 4,
-      recurrenceDayOfWeek: 5,
-      recurrenceWeekOfMonth: 4
-    }, new Date("05/22/2015 10:52 AM")), false);
+    timeline.recurrenceWeekOfMonth = 3;
+    assert.equal(checkPlay(), true);
   });
 });
