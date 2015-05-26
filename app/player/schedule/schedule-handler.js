@@ -1,4 +1,4 @@
-function scheduleHandlerFactory(contentViewController) {
+function scheduleHandler(contentViewController) {
   "use strict";
   var scheduleData = {},
   timeoutHandle = null;
@@ -40,4 +40,4 @@ function scheduleHandlerFactory(contentViewController) {
   }
 }
 
-module.exports = scheduleHandlerFactory;
+module.exports = scheduleHandler;

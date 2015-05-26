@@ -1,4 +1,4 @@
-(function() {
+function timelineParser() {
   "use strict";
   var startTime, compareTime, endTime, timeline, compareDate, recurrenceFrequency, recurrenceType, startDate, endDate,
   checkRecurrence = {
@@ -8,8 +8,8 @@
     "Yearly": checkYearlyRecurrence
   };
 
-  module.exports = {
-    canPlay: function(timelineObject, compareTo) {
+  return {
+    isPlayable: function(timelineObject, compareTo) {
       if (!timelineObject) {err("no timeline");}
       timeline = timelineObject;
 
@@ -40,7 +40,7 @@
 
   function checkStartEndDateRange() {
     if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
-    if (timeline.timeDefined === false) {return true; }
+    if (timeline.timeDefined === "false") {return true; }
     if (!timeline.hasOwnProperty("startDate")) {return true; }
 
     if (startDate > compareDate) {err("before start"); }
@@ -142,4 +142,6 @@
       return item === days[compareDate.getDay()];
     });
   }
-}());
+}
+
+module.exports = timelineParser;

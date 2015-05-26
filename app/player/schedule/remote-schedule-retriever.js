@@ -22,6 +22,7 @@ function remoteScheduleLoad() {
   })
   .then(function(json) {
     if (!json.content || !json.content.schedule) {
+      console.info(JSON.stringify(json));
       throw new Error("Remote schedule retriever: no schedule data in response");
     }
     return json.content.schedule;

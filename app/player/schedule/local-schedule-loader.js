@@ -1,4 +1,4 @@
-function localScheduleLoader() {
+module.exports = function localScheduleLoader(timelineParser) {
   "use strict";
   var emptySchedule = require("./empty-schedule.js");
 
@@ -9,18 +9,33 @@ function localScheduleLoader() {
         return reject(new Error("error retrieving local schedule"));
       }
 
-      if (!schedule || !schedule.hasOwnProperty("items") ||
-      schedule.items.length === 0 ||
-      !schedule.items.some(isUrlType)) {
-        console.info("Local schedule loader: schedule is invalid");
+      if (!schedule || !schedule.hasOwnProperty("items")) {
+        console.info("Local schedule loader: invalid schedule format");
         return resolve(emptySchedule);
       }
 
-      schedule.items = schedule.items.filter(isUrlType);
+      console.info(JSON.stringify(schedule.items[0]));
+      schedule.items = schedule.items.filter(isUrlType).filter(isPlayable);
+
+      if (schedule.items.length === 0) {
+        console.info("Local schedule loader: schedule is empty");
+        return resolve(emptySchedule);
+      }
+
       resolve(schedule);
     });
   });
-}
 
-function isUrlType(item) {return item.type === "url";}
-module.exports = localScheduleLoader;
+  function isUrlType(item) {return item.type === "url";}
+
+  function isPlayable(item) {
+    try {
+      timelineParser.isPlayable(item, new Date());
+    } catch(e) {
+      console.info("Local schedule loader: not playable - " + e.message);
+      return false;
+    }
+    return true;
+  }
+};
+

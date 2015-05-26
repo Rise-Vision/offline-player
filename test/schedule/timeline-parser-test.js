@@ -1,12 +1,12 @@
 "use strict";
 var assert = require("assert"),
-parser = require("../../app/player/schedule/timeline-parser.js"),
+parser = require("../../app/player/schedule/timeline-parser.js")(),
 timeline,
 compareDate;
 
 function checkPlay() {
   try {
-    parser.canPlay(timeline, compareDate);
+    parser.isPlayable(timeline, compareDate);
   } catch(e) {
     return e.message;
   }
