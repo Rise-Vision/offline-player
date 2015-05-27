@@ -49,6 +49,7 @@ describe("timeline parser", function() {
 
   it("allows play if no time defined", function() {
     timeline.timeDefined = false;
+    timeline.endTime = "01/01/01 9:56 AM";
     assert.equal(checkPlay(), true);
   });
 

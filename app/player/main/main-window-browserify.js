@@ -153,8 +153,15 @@ module.exports = function localScheduleLoader(timelineParser) {
         return resolve(emptySchedule);
       }
 
-      console.info(JSON.stringify(schedule.items[0]));
+      if (!isPlayable(schedule)) {
+        console.info("Local schedule loader: schedule timeline is not met");
+        console.info(JSON.stringify(schedule));
+        return resolve(emptySchedule);
+      }
+
+      console.log("item count: " + schedule.items.length);
       schedule.items = schedule.items.filter(isUrlType).filter(isPlayable);
+      console.info(JSON.stringify(schedule.items));
 
       if (schedule.items.length === 0) {
         console.info("Local schedule loader: schedule is empty");
@@ -168,12 +175,15 @@ module.exports = function localScheduleLoader(timelineParser) {
   function isUrlType(item) {return item.type === "url";}
 
   function isPlayable(item) {
+    console.info("checking playability for " + item.name);
+
     try {
       timelineParser.isPlayable(item, new Date());
     } catch(e) {
-      console.info("Local schedule loader: not playable - " + e.message);
+      console.info("Local schedule loader: " + item.name + " not playable - " + e.message);
       return false;
     }
+    console.log(item.name + " is okay");
     return true;
   }
 };
@@ -319,15 +329,15 @@ function timelineParser() {
   function err(msg) {throw new Error(msg); }
 
   function checkStartEndDateRange() {
-    if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
-    if (timeline.timeDefined === "false") {return true; }
     if (!timeline.hasOwnProperty("startDate")) {return true; }
-
     if (startDate > compareDate) {err("before start"); }
+    if (!timeline.endDate) {return true;}
     if (endDate < compareDate) {err("after end"); }
   }
 
   function checkStartEndTimeRange() {
+    if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
+    if (timeline.timeDefined === false || timeline.timeDefined === "false") {return true; }
     if (startTime === 0 && endTime === 0) {return true;}
 
     if (playsOvernight()) {

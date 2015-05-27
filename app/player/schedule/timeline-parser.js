@@ -39,15 +39,15 @@ function timelineParser() {
   function err(msg) {throw new Error(msg); }
 
   function checkStartEndDateRange() {
-    if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
-    if (timeline.timeDefined === "false") {return true; }
     if (!timeline.hasOwnProperty("startDate")) {return true; }
-
     if (startDate > compareDate) {err("before start"); }
+    if (!timeline.endDate) {return true;}
     if (endDate < compareDate) {err("after end"); }
   }
 
   function checkStartEndTimeRange() {
+    if (!timeline.hasOwnProperty("timeDefined")) {err("time defined"); }
+    if (timeline.timeDefined === false || timeline.timeDefined === "false") {return true; }
     if (startTime === 0 && endTime === 0) {return true;}
 
     if (playsOvernight()) {

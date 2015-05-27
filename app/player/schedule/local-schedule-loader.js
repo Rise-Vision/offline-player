@@ -14,8 +14,15 @@ module.exports = function localScheduleLoader(timelineParser) {
         return resolve(emptySchedule);
       }
 
-      console.info(JSON.stringify(schedule.items[0]));
+      if (!isPlayable(schedule)) {
+        console.info("Local schedule loader: schedule timeline is not met");
+        console.info(JSON.stringify(schedule));
+        return resolve(emptySchedule);
+      }
+
+      console.log("item count: " + schedule.items.length);
       schedule.items = schedule.items.filter(isUrlType).filter(isPlayable);
+      console.info(JSON.stringify(schedule.items));
 
       if (schedule.items.length === 0) {
         console.info("Local schedule loader: schedule is empty");
@@ -29,12 +36,15 @@ module.exports = function localScheduleLoader(timelineParser) {
   function isUrlType(item) {return item.type === "url";}
 
   function isPlayable(item) {
+    console.info("checking playability for " + item.name);
+
     try {
       timelineParser.isPlayable(item, new Date());
     } catch(e) {
-      console.info("Local schedule loader: not playable - " + e.message);
+      console.info("Local schedule loader: " + item.name + " not playable - " + e.message);
       return false;
     }
+    console.log(item.name + " is playable");
     return true;
   }
 };
