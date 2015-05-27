@@ -1,8 +1,8 @@
 "use strict";
 
 var assert = require("assert"),
-platformMock = require("../platform/platform-controller-mock.js"),
-contentViewController = require("../../app/player/schedule/content-view-controller.js")(platformMock);
+platformUIMock = require("../platform/platform-ui-controller-mock.js"),
+contentViewController = require("../../app/player/schedule/content-view-controller.js")(platformUIMock);
 
 describe("content view controller", function(){
   var scheduleItems = [{type: "url"}, {type: "url"}];

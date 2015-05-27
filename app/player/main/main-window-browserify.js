@@ -67,7 +67,6 @@ function contentViewControllerFactory(platformUIController) {
         var view = platformUIController.createViewWindow();
         platformUIController.setPersistence(view, item.name);
         platformUIController.setViewContent(view, item.objectReference);
-
         contentViews.push(view);
         platformUIController.addView(view);
       });
@@ -183,7 +182,7 @@ module.exports = function localScheduleLoader(timelineParser) {
       console.info("Local schedule loader: " + item.name + " not playable - " + e.message);
       return false;
     }
-    console.log(item.name + " is okay");
+    console.log(item.name + " is playable");
     return true;
   }
 };
@@ -439,11 +438,17 @@ module.exports = timelineParser;
 },{}],9:[function(require,module,exports){
 (function() {
   "use strict";
-  var contentViewController = require("./content-view-controller.js")(require("../platform/dom-platform-ui-controller.js")),
+  var contentViewController = require("./content-view-controller.js")
+  (require("../platform/dom-platform-ui-controller.js")),
+
   localScheduleLoader = require("./local-schedule-loader.js"),
+
   timelineParser = require("./timeline-parser.js")(),
+
   remoteScheduleLoad = require("./remote-schedule-retriever.js"),
-  scheduleHandler = require("./schedule-handler.js")(contentViewController);
+
+  scheduleHandler = require("./schedule-handler.js")
+  (contentViewController);
 
   chrome.alarms.create("load.remote.schedule", {periodInMinutes: 1});
 
@@ -460,7 +465,7 @@ module.exports = timelineParser;
       (changes.schedule.oldValue.changeDate !== 
       changes.schedule.newValue.changeDate)) {
         console.log("local schedule changed - reloading content");
-        reloadSchedule();
+        reloadLocalSchedule();
       }
     }
 
@@ -473,9 +478,9 @@ module.exports = timelineParser;
   });
 
   remoteScheduleLoad();
-  reloadSchedule();
+  reloadLocalSchedule();
 
-  function reloadSchedule() {
+  function reloadLocalSchedule() {
     localScheduleLoader(timelineParser)
     .then(function(scheduleData) {
       scheduleHandler.setScheduleData(scheduleData);

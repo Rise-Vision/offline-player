@@ -1,10 +1,16 @@
 (function() {
   "use strict";
-  var contentViewController = require("./content-view-controller.js")(require("../platform/dom-platform-ui-controller.js")),
+  var contentViewController = require("./content-view-controller.js")
+  (require("../platform/dom-platform-ui-controller.js")),
+
   localScheduleLoader = require("./local-schedule-loader.js"),
+
   timelineParser = require("./timeline-parser.js")(),
+
   remoteScheduleLoad = require("./remote-schedule-retriever.js"),
-  scheduleHandler = require("./schedule-handler.js")(contentViewController);
+
+  scheduleHandler = require("./schedule-handler.js")
+  (contentViewController);
 
   chrome.alarms.create("load.remote.schedule", {periodInMinutes: 1});
 
@@ -21,7 +27,7 @@
       (changes.schedule.oldValue.changeDate !== 
       changes.schedule.newValue.changeDate)) {
         console.log("local schedule changed - reloading content");
-        reloadSchedule();
+        reloadLocalSchedule();
       }
     }
 
@@ -34,9 +40,9 @@
   });
 
   remoteScheduleLoad();
-  reloadSchedule();
+  reloadLocalSchedule();
 
-  function reloadSchedule() {
+  function reloadLocalSchedule() {
     localScheduleLoader(timelineParser)
     .then(function(scheduleData) {
       scheduleHandler.setScheduleData(scheduleData);
