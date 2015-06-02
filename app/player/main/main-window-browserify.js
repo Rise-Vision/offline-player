@@ -42,7 +42,12 @@ module.exports = {
 
   addView: function(view) {document.body.appendChild(view);},
   removeView: function(view) {document.body.removeChild(view);},
-  requestElementPointerLock: function(el) {el.requestPointerLock();}
+  requestElementPointerLock: function(el) {el.requestPointerLock();},
+  registerChromeAppWindow: function(el) {
+    el.addEventListener("contentload", function() {
+      el.contentWindow.postMessage("register.chrome.app.window", "*");
+    });
+  }
 };
 
 },{}],3:[function(require,module,exports){
@@ -69,6 +74,7 @@ function contentViewControllerFactory(platformUIController) {
         platformUIController.setViewContent(view, item.objectReference);
         contentViews.push(view);
         platformUIController.addView(view);
+        platformUIController.registerChromeAppWindow(view);
       });
 
       return contentViews;

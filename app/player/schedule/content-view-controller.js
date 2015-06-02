@@ -21,6 +21,7 @@ function contentViewControllerFactory(platformUIController) {
         platformUIController.setViewContent(view, item.objectReference);
         contentViews.push(view);
         platformUIController.addView(view);
+        platformUIController.registerChromeAppWindow(view);
       });
 
       return contentViews;
