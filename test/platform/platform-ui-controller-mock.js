@@ -13,4 +13,5 @@ module.exports = {
     view.removedChildCount += 1;
   },
   requestElementPointerLock: function(el) {el.pointerLocked = true;},
+  registerChromeAppWindow: function(el) {},
 };

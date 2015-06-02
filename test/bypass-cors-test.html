@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+(function() {
+  "use strict";
+  var message = {
+    type: "bypasscors",
+    url: "http://rss.cnn.com/rss/cnn_topstories.rss"
+  },
+  chromeAppWindow;
+
+  window.addEventListener("message", function(evt) {
+    if (evt.data === "register.chrome.app.window") {
+      chromeAppWindow = evt.source;
+      chromeAppWindow.postMessage(message, evt.origin);
+      return;
+    }
+
+    return checkResult(evt.data.response);
+  });
+
+  function checkResult(resp) {
+    document.body.innerHTML = resp;
+  }
+}());
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
