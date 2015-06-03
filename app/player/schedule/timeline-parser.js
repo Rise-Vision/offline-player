@@ -11,6 +11,7 @@ function timelineParser() {
   return {
     isPlayable: function(timelineObject, compareTo) {
       if (!timelineObject) {err("no timeline");}
+      if (!timelineObject.hasOwnProperty("startDate")) {return true; }
       timeline = timelineObject;
 
       compareDate = compareTo ? getDateComponent(compareTo) : getDateComponent(new Date());
@@ -39,7 +40,6 @@ function timelineParser() {
   function err(msg) {throw new Error(msg); }
 
   function checkStartEndDateRange() {
-    if (!timeline.hasOwnProperty("startDate")) {return true; }
     if (startDate > compareDate) {err("before start"); }
     if (!timeline.endDate) {return true;}
     if (endDate < compareDate) {err("after end"); }

@@ -104,6 +104,13 @@ describe("timeline parser", function() {
     assert.equal(checkPlay(), "wrong day frequency");
   });
 
+  it("allows play if no start date", function() {
+    timeline.recurrenceType = "Daily";
+    timeline.recurrenceFrequency = 3;
+    delete timeline.startDate;
+    assert.equal(checkPlay(), true);
+  });
+
   it("ensures correct weekly recurrence is met", function() {
     compareDate = new Date("01/09/2001 10:55:00 AM");
     timeline.startDate = "01/01/2001";
