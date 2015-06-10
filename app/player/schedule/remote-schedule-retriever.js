@@ -1,22 +1,25 @@
-module.exports = function remoteScheduleLoad(platformIOFunctions, coreUrls) {
+module.exports = function(platformIOFunctions, coreUrls) {
   "use strict";
   var url = coreUrls.scheduleFetchUrl;
 
-  if (!platformIOFunctions.isNetworkConnected) {return Promise.resolve();}
+  return {
+    loadRemoteSchedule: function() {
+      if (!platformIOFunctions.isNetworkConnected()) {
+        return Promise.resolve(false);
+      }
 
-  return getDisplayIdFromLocalStorage()
-  .then(fetchRemoteScheduleContentJson)
-  .then(retrieveScheduleFromContentObject) 
-  .then(saveNewLocalSchedule)
-  .catch(function(err) {
-    console.error(err);
-  });
+      return getDisplayIdFromLocalStorage()
+      .then(fetchRemoteScheduleContentJson)
+      .then(retrieveScheduleFromContentObject) 
+      .then(saveNewLocalSchedule);
+    }
+  };
 
   function getDisplayIdFromLocalStorage() {
     return new Promise(function(resolve, reject) {
-      chrome.storage.local.get(["displayId"], function(item) {
-        if (chrome.runtime.lastError || !item.displayId) {
-          return reject(new Error("Remote schedule retriever: error retrieving display id from local storage"));
+      platformIOFunctions.localStorage.get(["displayId"], function(item) {
+        if (platformIOFunctions.hasErrorState() || !item.displayId) {
+          return reject(err("error retrieving display id from local storage"));
         }
 
         resolve(item.displayId);
@@ -25,7 +28,7 @@ module.exports = function remoteScheduleLoad(platformIOFunctions, coreUrls) {
   }
   
   function fetchRemoteScheduleContentJson(displayId) {
-    var url = url.replace("DISPLAY_ID", displayId);
+    url = url.replace("DISPLAY_ID", displayId);
     console.log("Remote schedule retriever: retrieval for: " + displayId);
 
     return platformIOFunctions.httpFetcher(url, {credentials: "include"})
@@ -37,7 +40,7 @@ module.exports = function remoteScheduleLoad(platformIOFunctions, coreUrls) {
   function retrieveScheduleFromContentObject(json) {
     if (!json.content || !json.content.schedule) {
       console.info(JSON.stringify(json));
-      throw new Error("Remote schedule retriever: no schedule data in response");
+      throw new Error(err("no schedule data in response"));
     }
     return json.content.schedule;
   }
@@ -45,12 +48,16 @@ module.exports = function remoteScheduleLoad(platformIOFunctions, coreUrls) {
   function saveNewLocalSchedule(schedule) {
     return new Promise(function (resolve, reject) {
       platformIOFunctions.localStorage.set({schedule: schedule}, function() {
-        if (platformIOFunctions.hasErrorState) {
-          return reject(new Error("Remote schedule retriever: error saving schedule"));
+        if (platformIOFunctions.hasErrorState()) {
+          return reject(err("error saving schedule"));
         }
         console.log("Remote schedule retriever: saved schedule");
-        resolve();
+        resolve(true);
       });
     });
+  }
+
+  function err(msg) {
+    return new Error("Remote schedule retriever: " + msg);
   }
 };

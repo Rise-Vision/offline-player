@@ -10,7 +10,7 @@
 
   coreUrls = require("../options/core-urls.js")(navigator.platform.replace(" ", "/")),
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
-  (platformIOFunction, coreUrls);
+  (platformIOFunctions, coreUrls);
 
   scheduleHandler = require("../schedule/schedule-handler.js")
   (contentViewController);
