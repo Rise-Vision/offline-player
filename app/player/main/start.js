@@ -1,13 +1,16 @@
 (function() {
   "use strict";
-  var contentViewController = require("../schedule/content-view-controller.js")
-  (require("../platform/dom-platform-ui-controller.js")),
+  var platformIOFunctions = require("../platform/io-provider.js"),
+  contentViewController = require("../schedule/content-view-controller.js")
+  (require("../platform/ui-controller.js")),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
   timelineParser = require("../schedule/timeline-parser.js")(),
 
-  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js"),
+  coreUrls = require("../options/core-urls.js")(navigator.platform.replace(" ", "/")),
+  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
+  (platformIOFunction, coreUrls);
 
   scheduleHandler = require("../schedule/schedule-handler.js")
   (contentViewController);

@@ -1,7 +1,7 @@
 "use strict";
 
 var assert = require("assert"),
-platformUIMock = require("../platform/platform-ui-controller-mock.js"),
+platformUIMock = require("../platform/mock-ui-controller.js"),
 contentViewController = require("../../app/player/schedule/content-view-controller.js")(platformUIMock);
 
 describe("content view controller", function(){
