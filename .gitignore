@@ -13,4 +13,4 @@ e2e-log/
 .idea
 *.iml
 .sonar
-*-browserify.js
+**/*-browserify.js
