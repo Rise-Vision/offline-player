@@ -1,5 +1,5 @@
 "use strict";
-var domPlatformController = require("../../app/player/platform/dom-platform-ui-controller.js"),
+var domPlatformController = require("../../app/player/platform/ui-controller.js"),
 assert = require("assert"),
 view = domPlatformController.createViewWindow();
 
