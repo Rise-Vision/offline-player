@@ -12,22 +12,22 @@
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
   (platformIOFunctions, coreUrls);
 
-  scheduleHandler = require("../schedule/schedule-handler.js")
+  contentCycler = require("../schedule/content-cycler.js")
   (contentViewController);
 
   require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
-  require("../storageMonitors/local-schedule-monitor.js")(reloadLocalSchedule);
+  require("../storageMonitors/local-schedule-monitor.js")(resetContent);
   require("../storageMonitors/display-id-monitor.js")(remoteScheduleLoader);
 
   remoteScheduleLoader();
-  reloadLocalSchedule();
+  resetContent();
 
-  function reloadLocalSchedule() {
+  function resetContent() {
     localScheduleLoader(timelineParser)
     .then(function(scheduleData) {
-      scheduleHandler.setScheduleData(scheduleData);
+      contentCycler.setScheduleData(scheduleData);
 
-      scheduleHandler.cycleViews
+      contentCycler.cycleViews
       (contentViewController.createContentViews(scheduleData.items));
     });
   }

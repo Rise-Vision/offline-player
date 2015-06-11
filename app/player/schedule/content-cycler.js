@@ -1,4 +1,4 @@
-function scheduleHandler(contentViewController) {
+function contentCycler(contentViewController) {
   "use strict";
   var scheduleData = {},
   timeoutHandle = null;
@@ -40,4 +40,4 @@ function scheduleHandler(contentViewController) {
   }
 }
 
-module.exports = scheduleHandler;
+module.exports = contentCycler;

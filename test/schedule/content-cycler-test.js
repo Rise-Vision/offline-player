@@ -1,9 +1,9 @@
 "use strict";
 
 var assert = require("assert"),
-scheduleHandlerFactory = require("../../app/player/schedule/schedule-handler.js");
+scheduleHandlerFactory = require("../../app/player/schedule/content-cycler.js");
 
-describe("schedule handler", function(){
+describe("content cycler", function(){
   it("exists", function(){
     assert.notEqual(scheduleHandlerFactory(), undefined);
   });

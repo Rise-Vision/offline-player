@@ -1,3 +1,4 @@
+"use strict";
 var assert = require("assert"),
 platformIO = require("../../app/player/platform/io-provider.js");
 
