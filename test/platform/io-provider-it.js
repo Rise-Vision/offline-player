@@ -7,13 +7,33 @@ describe("io provider platform functions", function() {
     assert.ok(platformIO, "existence");
   });
 
-  it("fetches urls", function() {
+  it("fetches urls with a text promise return value", function() {
     return platformIO.httpFetcher("http://localhost:7654", {})
     .then(function(resp) {
       return resp.text();
     })
     .then(function(resp) {
-        assert.equal(resp, "local-http-ok");
+        assert.ok(resp.indexOf("local-http-ok") > -1);
+    });
+  });
+
+  it("fetches urls with a blob promise return value", function() {
+    return platformIO.httpFetcher("http://localhost:7654", {})
+    .then(function(resp) {
+      return resp.blob();
+    })
+    .then(function(resp) {
+        assert.ok(resp);
+    });
+  });
+
+  it("fetches urls with a json promise return value", function() {
+    return platformIO.httpFetcher("http://localhost:7654", {})
+    .then(function(resp) {
+      return resp.json();
+    })
+    .then(function(resp) {
+        assert.equal(resp.response, "local-http-ok");
     });
   });
 
