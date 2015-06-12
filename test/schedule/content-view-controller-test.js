@@ -3,7 +3,10 @@
 var assert = require("assert"),
 contentViewControllerPath = "../../app/player/schedule/content-view-controller.js",
 platformUIMock = require("../platform/mock-ui-controller.js"),
-contentViewController = require(contentViewControllerPath)(platformUIMock);
+platformIOMock = require("../platform/mock-io-provider.js")(),
+contentCacheMock = require("../cache/mock-url-data-cacher.js"),
+
+contentViewController = require(contentViewControllerPath)(platformUIMock, contentCacheMock, platformIOMock);
 
 describe("content view controller", function(){
   var scheduleItems = [

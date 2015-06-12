@@ -65,14 +65,6 @@ describe("io provider platform functions", function() {
     var blob = new Blob([1, 2, 3]);
     return platformIO.filesystemSave("test", blob)
     .then(function() {
-      assert.ok(blob, "blob test");
-    });
-  });
-
-  it("retrieves blobs from filesystem", function() {
-    var blob = new Blob([1, 2, 3]);
-    return platformIO.filesystemSave("test", blob)
-    .then(function() {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
           fs.root.getFile("test", {}, function(entry) {
@@ -85,6 +77,18 @@ describe("io provider platform functions", function() {
     })
     .then(function(resp) {
       assert.ok(URL.createObjectURL(resp).indexOf("//") > -1);
+    });
+  });
+
+  it("retrieves files and their objectURLs from filesystem", function() {
+    var blob = new Blob([1, 2, 3]);
+    return platformIO.filesystemSave("test", blob)
+    .then(function() {
+      return platformIO.filesystemRetrieve("test");
+    })
+    .then(function(resp) {
+      assert.ok(resp[0].indexOf("blob:") > -1);
+      assert.equal(resp[1].size, 3);
     });
   });
 

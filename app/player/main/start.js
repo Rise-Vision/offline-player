@@ -1,8 +1,9 @@
 (function() {
   "use strict";
-  var platformIOFunctions = require("../platform/io-provider.js"),
+  var platformIOProvider = require("../platform/io-provider.js"),
+  contentCache = require("../cache/url-data-cacher.js"),
   contentViewController = require("../schedule/content-view-controller.js")
-  (require("../platform/ui-controller.js")),
+  (require("../platform/ui-controller.js"), contentCache, platformIOProvider),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
@@ -10,7 +11,7 @@
 
   coreUrls = require("../options/core-urls.js")(navigator.platform.replace(" ", "/")),
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
-  (platformIOFunctions, coreUrls);
+  (platformIOProvider, coreUrls);
 
   contentCycler = require("../schedule/content-cycler.js")
   (contentViewController);
@@ -28,13 +29,13 @@
     localScheduleLoader(timelineParser)
     .then(function(scheduleData) {
       schedule = scheduleData;
-      urlDataCacher.setSchedule(schedule);
-      return urlDataCacher.saveUrlDataToFilesystem();
+      contentCache.setSchedule(schedule);
+      return contentCache.saveUrlDataToFilesystem();
     })
     .then(function() {
+      contentViewController.createContentViews(scheduleData.items);
       contentCycler.setScheduleData(scheduleData);
-      contentCycler.cycleViews
-      (contentViewController.createContentViews(scheduleData.items));
+      contentCycler.cycleViews();
     });
   }
 }());

@@ -1,4 +1,4 @@
-function contentViewControllerFactory(platformUIController) {
+function contentViewControllerFactory(platformUIController, contentCache, platformIOProvider) {
   "use strict";
   var contentViews = {};
 
@@ -16,7 +16,11 @@ function contentViewControllerFactory(platformUIController) {
       removePreviousContentViews();
 
       items.forEach(function(item) {
-        var view = platformUIController.createViewWindow(item.objectReference);
+        var cachedContentUrl = platformIOProvider.filesystemRetrieve
+        (contentCache.getUrlHashes()[item.objectReference])[0],
+
+        view = platformUIController.createViewWindow(cachedContentUrl);
+
         contentViews[item.objectReference] = view;
       });
 
