@@ -1,7 +1,12 @@
-module.exports = function(mockScenario) {
-  "use strict";
+"use strict";
+var crypto = require('crypto'); 
 
-  var calledParams = {}, errorState = false;
+module.exports = function(mockScenario) {
+  var calledParams = {
+    httpFetcher: [],
+    filesystemSave: [],
+    filesystemRetrieve: []
+  };
 
   if (!mockScenario) {mockScenario = {};}
 
@@ -12,6 +17,9 @@ module.exports = function(mockScenario) {
     failedLocalStorageSet: mockScenario.failedLocalStorageSet ?
     mockScenario.failedLocalStorageSet : false,
 
+    failedFilesystemSave: mockScenario.failedFilesystemSave ?
+    mockScenario.failedFilesystemSave : false,
+
     fetchContent: mockScenario.fetchContent ? mockScenario.fetchContent : {
       content: {schedule: {}}
     } 
@@ -19,24 +27,41 @@ module.exports = function(mockScenario) {
 
   return {
     httpFetcher: function(param) {
-      calledParams.httpFetcher = param;
+      calledParams.httpFetcher.push(param);
       return Promise.resolve({
-        json: function() {return mockScenario.fetchContent;}
+        json: function() {return Promise.resolve(mockScenario.fetchContent);},
+        blob: function() {return Promise.resolve("mock-blob");}
       });
     },
-    localStorage: {
-      set: function(target, cb){
-        if (mockScenario.failedLocalStorageSet) {
-          errorState = true;
-        }
-        return cb({});},
-      get: function(target, cb){
-        calledParams.localStorageGet = target;
-        return cb({displayId: "testId"});
-      }
+    localStorageObjectGet: function(itemArray) {
+        calledParams.localStorageGet = itemArray;
+        return Promise.resolve({displayId: "testId"});
     },
-    hasErrorState: function() {return errorState;},
+    localStorageObjectSet: function(itemArray) {
+      calledParams.localStorageSet = itemArray;
+
+      if (mockScenario.failedLocalStorageSet) {
+        return Promise.reject(new Error("failed local object set"));
+      }
+      return Promise.resolve();
+    },
+    filesystemSave: function(hash, blob) {
+      calledParams.filesystemSave.push([hash, blob]);
+      if (mockScenario.failedFilesystemSave) {
+        return console.log("Failed filesystem save");
+      }
+      return true;
+    },
+    filesystemRetrieve: function(hash) {
+      calledParams.filesystemRetrieve.push(hash);
+      return true;
+    },
     isNetworkConnected: function() {return !mockScenario.disconnected;},
-    getCalledParams: function() {return calledParams;}
+    getCalledParams: function() {return calledParams;},
+    hash: function(str) {
+      var sha1sum = crypto.createHash('sha1');
+      sha1sum.update(str);
+      return sha1sum.digest("hex");
+    }
   };
 };

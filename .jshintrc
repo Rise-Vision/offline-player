@@ -15,7 +15,6 @@
     "console": false,
     "process": false,
     "driver": false,
-    "fs": false,
     "XMLHttpRequest": false
   }
 }

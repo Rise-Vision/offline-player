@@ -17,12 +17,12 @@ module.exports = function(platformIOFunctions, coreUrls) {
 
   function getDisplayIdFromLocalStorage() {
     return new Promise(function(resolve, reject) {
-      platformIOFunctions.localStorage.get(["displayId"], function(item) {
-        if (platformIOFunctions.hasErrorState() || !item.displayId) {
-          return reject(err("error retrieving display id from local storage"));
-        }
-
-        resolve(item.displayId);
+      platformIOFunctions.localStorageObjectGet(["displayId"])
+      .then(function(items) {
+        resolve(items.displayId);
+      })
+      .catch(function(err) {
+        reject(err("error retrieving display id from local storage"));
       });
     });
   }
@@ -46,14 +46,14 @@ module.exports = function(platformIOFunctions, coreUrls) {
   }
 
   function saveNewLocalSchedule(schedule) {
-    return new Promise(function (resolve, reject) {
-      platformIOFunctions.localStorage.set({schedule: schedule}, function() {
-        if (platformIOFunctions.hasErrorState()) {
-          return reject(err("error saving schedule"));
-        }
-        console.log("Remote schedule retriever: saved schedule");
-        resolve(true);
-      });
+    return platformIOFunctions.localStorageObjectSet({schedule: schedule})
+    .then(function() {
+      console.log("Remote schedule retriever: saved schedule");
+      return true;
+    })
+    .catch(function(err) {
+      console.log("Remote schedule retriever: error saving schedule");
+      throw new Error("Remote schedule retriever: error saving schedule");
     });
   }
 
