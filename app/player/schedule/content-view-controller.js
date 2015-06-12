@@ -16,12 +16,8 @@ function contentViewControllerFactory(platformUIController) {
       removePreviousContentViews();
 
       items.forEach(function(item) {
-        var view = platformUIController.createViewWindow();
-        platformUIController.setPersistence(view, item.name);
-        platformUIController.setViewContent(view, item.objectReference);
+        var view = platformUIController.createViewWindow(item.objectReference);
         contentViews.push(view);
-        platformUIController.addView(view);
-        platformUIController.registerChromeAppWindow(view);
       });
 
       return contentViews;
@@ -29,7 +25,6 @@ function contentViewControllerFactory(platformUIController) {
 
     showView: function(item) {
       platformUIController.setVisibility(contentViews[item], true);
-      platformUIController.requestElementPointerLock(contentViews[item]);
       return true;
     },
 

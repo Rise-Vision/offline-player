@@ -1,29 +1,22 @@
 "use strict";
 var domPlatformController = require("../../app/player/platform/ui-controller.js"),
-assert = require("assert"),
-view = domPlatformController.createViewWindow();
+assert = require("assert");
 
-assert.equal(view.nodeName, "WEBVIEW");
+describe("platform ui controller", function() {
+  it("creates and removes view windows from source content", function() {
+    var view = domPlatformController.createViewWindow("TESTCONTENT");
+    assert.ok(document.querySelector("webview"));
+    assert.equal(document.querySelector("webview").src, "TESTCONTENT");
+    domPlatformController.removeView(view);
+    assert.equal(document.querySelectorAll("webview").length, 0);
+  });
 
-domPlatformController.setElementHeight(view, 500);
-assert.equal(view.style.height, "500px");
 
-domPlatformController.setElementWidth(view, 500);
-assert.equal(view.style.width, "500px");
-
-domPlatformController.setVisibility(view, true);
-assert.equal(view.style.display, "block");
-
-domPlatformController.setVisibility(view, false);
-assert.equal(view.style.display, "none");
-
-domPlatformController.addView(view);
-assert.equal(document.body.childNodes.length, 1);
-
-domPlatformController.removeChild(view, view.childNodes[0]);
-assert.equal(view.childNodes.length, 0);
-
-assert.equal(domPlatformController.getUIHeight(), 0);
-assert.equal(domPlatformController.getUIWidth(), 0);
-
-assert.equal(domPlatformController.requestElementPointerLock(view), undefined);
+  it("can change view window visibility", function() {
+    var view = domPlatformController.createViewWindow("TESTCONTENT");
+    domPlatformController.setVisibility(view, false);
+    assert.equal(document.querySelector("webview").style.display, "none");
+    domPlatformController.setVisibility(view, true);
+    assert.equal(document.querySelector("webview").style.display, "block");
+  });
+});
