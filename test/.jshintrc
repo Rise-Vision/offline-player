@@ -19,10 +19,15 @@
     "clearTimeout": false,
     "require": false,
     "console": false,
+    "Blob": false,
     "process": false,
     "driver": false,
     "$rv": true,
     "fs": false,
-    "XMLHttpRequest": false
+    "XMLHttpRequest": false,
+    "PERSISTENT": false,
+    "webkitRequestFileSystem": false,
+    "URL": false,
+    "navigator": false
   }
 }

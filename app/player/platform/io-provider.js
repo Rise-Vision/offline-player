@@ -23,7 +23,7 @@ function localStorage(getOrSet, itemArray) {
 }
 
 module.exports = {
-  httpFetcher: fetch,
+  httpFetcher: fetch.bind(window),
   localObjectStore: {
     get: function(itemArray) {return localStorage("get", itemArray);},
     set: function(itemArray) {return localStorage("set", itemArray);}
