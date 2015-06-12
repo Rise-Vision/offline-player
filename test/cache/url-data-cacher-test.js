@@ -20,14 +20,24 @@ describe("url data cache", function() {
     assert.deepEqual(urlDataCacher.getUrlHashes(), {"A": "", "B": ""});
   });
 
-  it("saves the url data", function() {
+  it("saves the url data and retains hashes", function() {
+    var sha1sums = {
+      A: "6dcd4ce23d88e2ee9568ba546c007c63d9131c1b",
+      B: "ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec"
+    };
+
     urlDataCacher.setSchedule(mockSchedule);
+
     return urlDataCacher.saveUrlDataToFilesystem()
     .then(function() {
       assert.deepEqual(mockIOProvider.getCalledParams().httpFetcher, ["A", "B"]);
+
+      assert.equal(urlDataCacher.getUrlHashes().A, sha1sums.A);
+      assert.equal(urlDataCacher.getUrlHashes().B, sha1sums.B);
+
       assert.deepEqual((mockIOProvider.getCalledParams().filesystemSave),
-      [["6dcd4ce23d88e2ee9568ba546c007c63d9131c1b", "mock-blob"],
-      ["ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec", "mock-blob"]]);
+      [[sha1sums.A, "mock-blob"],
+      [sha1sums.B, "mock-blob"]]);
     });
   });
 });
