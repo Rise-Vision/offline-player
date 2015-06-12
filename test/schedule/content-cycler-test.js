@@ -1,7 +1,13 @@
 "use strict";
 
 var assert = require("assert"),
-scheduleHandlerFactory = require("../../app/player/schedule/content-cycler.js");
+scheduleHandlerFactory = require("../../app/player/schedule/content-cycler.js"),
+scheduleData = {
+  items: [
+    {duration: 0, objectReference: "test1"},
+    {duration: 0, objectReference: "test2"}
+  ]
+};
 
 describe("content cycler", function(){
   it("exists", function(){
@@ -11,7 +17,7 @@ describe("content cycler", function(){
   it("accepts schedule data", function(){
     var scheduleHandler = scheduleHandlerFactory();
 
-    scheduleHandler.setScheduleData({items: [{duration: 5}, {duration: 5}]});
+    scheduleHandler.setScheduleData(scheduleData);
     assert.equal(scheduleHandler.getScheduleData().items.length, 2);
   });
 
@@ -22,18 +28,18 @@ describe("content cycler", function(){
       return {
         showView: function(item){shownViews[item] = true;},
         hideView: function(){},
-        getShownViews: function() {return shownViews;}
+        getShownViewCount: function() {return Object.keys(shownViews).length;}
       };
 
     }()),
 
     scheduleHandler = scheduleHandlerFactory(contentViewController);
-    scheduleHandler.setScheduleData({items: [{duration: 0}, {duration: 0}]});
+    scheduleHandler.setScheduleData(scheduleData);
     scheduleHandler.cycleViews();
 
     return new Promise(function(resolve) {
       var intervalHandle = setInterval(function() {
-        if (Object.keys(contentViewController.getShownViews()).length === 2) {
+        if (contentViewController.getShownViewCount() === 2) {
           clearInterval(intervalHandle);
           resolve();
         }

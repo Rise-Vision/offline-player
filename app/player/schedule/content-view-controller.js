@@ -1,13 +1,13 @@
 function contentViewControllerFactory(platformUIController) {
   "use strict";
-  var contentViews = [];
+  var contentViews = {};
 
   function removePreviousContentViews() {
-    contentViews.forEach(function(item) {
-      platformUIController.removeView(item);
+    Object.keys(contentViews).forEach(function(key) {
+      platformUIController.removeView(contentViews[key]);
     });
 
-    contentViews = [];
+    contentViews = {};
     return contentViews;
   }
 
@@ -17,19 +17,19 @@ function contentViewControllerFactory(platformUIController) {
 
       items.forEach(function(item) {
         var view = platformUIController.createViewWindow(item.objectReference);
-        contentViews.push(view);
+        contentViews[item.objectReference] = view;
       });
 
       return contentViews;
     },
 
-    showView: function(item) {
-      platformUIController.setVisibility(contentViews[item], true);
+    showView: function(objectReference) {
+      platformUIController.setVisibility(contentViews[objectReference], true);
       return true;
     },
 
-    hideView: function(item) {
-      platformUIController.setVisibility(contentViews[item], false);
+    hideView: function(objectReference) {
+      platformUIController.setVisibility(contentViews[objectReference], false);
       return true;
     }
   };

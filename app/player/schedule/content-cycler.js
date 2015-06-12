@@ -18,25 +18,25 @@ function contentCycler(contentViewController) {
     }
   };
 
-  function showItem(item) {
-    var duration = parseInt(scheduleData.items[item].duration, 10);
+  function showItem(itemNumber) {
+    var duration = parseInt(scheduleData.items[itemNumber].duration, 10);
 
-    contentViewController.showView(item);
+    contentViewController.showView(scheduleData.items[itemNumber].objectReference);
 
     timeoutHandle = setTimeout(function() {
-      showNextItem(item);
+      showNextItem(itemNumber);
     }, duration * 1000);
   }
 
-  function showNextItem(item) {
-    contentViewController.hideView(item);
+  function showNextItem(itemNumber) {
+    contentViewController.hideView(scheduleData.items[itemNumber].objectReference);
 
-    item += 1;
-    if (item === scheduleData.items.length) {
-      item = 0;
+    itemNumber += 1;
+    if (itemNumber === scheduleData.items.length) {
+      itemNumber = 0;
     }
 
-    showItem(item);
+    showItem(itemNumber);
   }
 }
 

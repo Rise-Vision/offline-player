@@ -17,7 +17,7 @@ describe("url data cache", function() {
 
   it("extracts schedule urls", function() {
     urlDataCacher.setSchedule(mockSchedule);
-    assert.deepEqual(urlDataCacher.getUrls(), ["A", "B"]);
+    assert.deepEqual(urlDataCacher.getUrlHashes(), {"A": "", "B": ""});
   });
 
   it("saves the url data", function() {

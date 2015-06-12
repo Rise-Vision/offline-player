@@ -1,23 +1,24 @@
 module.exports = function(platformIOFunctions) {
-  var schedule = {}, urls = [];
+  var schedule = {}, urlHashes = {};
 
   return {
     setSchedule: function(sched) {
       schedule = sched;
       schedule.items.forEach(function(item) {
-        urls.push(item.objectReference);
+        urlHashes[item.objectReference] = "";
       });
     },
-    getUrls: function() {return urls;},
+    getUrlHashes: function() {return urlHashes;},
 
     saveUrlDataToFilesystem: function() {
-      return Promise.all(urls.map(function(url) {
+      return Promise.all(Object.keys(urlHashes).map(function(url) {
         return platformIOFunctions.httpFetcher(url)
         .then(function(resp) {
           return resp.blob();
         })
         .then(function(resp) {
           var urlHash = platformIOFunctions.hash(url);
+          urlHashes[url] = urlHash;
           return platformIOFunctions.filesystemSave(urlHash, resp);
         });
       }));

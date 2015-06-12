@@ -16,17 +16,23 @@
   (contentViewController);
 
   require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
-  require("../storageMonitors/local-schedule-monitor.js")(resetContent);
   require("../storageMonitors/display-id-monitor.js")(remoteScheduleLoader);
+  require("../storageMonitors/local-schedule-monitor.js")(resetContent);
 
   remoteScheduleLoader();
   resetContent();
 
   function resetContent() {
+    var scheduleData;
+
     localScheduleLoader(timelineParser)
     .then(function(scheduleData) {
+      schedule = scheduleData;
+      urlDataCacher.setSchedule(schedule);
+      return urlDataCacher.saveUrlDataToFilesystem();
+    })
+    .then(function() {
       contentCycler.setScheduleData(scheduleData);
-
       contentCycler.cycleViews
       (contentViewController.createContentViews(scheduleData.items));
     });
