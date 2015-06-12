@@ -1,4 +1,5 @@
-var fs;
+var fs,
+crypto = require("crypto");
 
 (function initFilesystem() {
   "use strict";
@@ -12,18 +13,21 @@ var fs;
   });
 }());
 
-module.exports = {
-  localStorageObjectGet: function(itemArray) {
-    return new Promise(function(resolve, reject) {
-      chrome.storage.local.get(itemArray, function(items) {
-        if (chrome.runtime.lastError) {return reject(chrome.runtime.lastError);}
-        resolve(items);
-      });
+function localStorage(getOrSet, itemArray) {
+  return new Promise(function(resolve, reject) {
+    chrome.storage.local[getOrSet](itemArray, function(items) {
+      if (chrome.runtime.lastError) {return reject(chrome.runtime.lastError);}
+      resolve(items);
     });
-  },
+  });
+}
+
+module.exports = {
   httpFetcher: fetch,
-  hasErrorState: function() {return chrome.runtime.lastError;},
-  isNetworkConnected: function() {return navigator.onLine;},
+  localObjectStore: {
+    get: function(itemArray) {return localStorage("get", itemArray);},
+    set: function(itemArray) {return localStorage("set", itemArray);}
+  },
   filesystemSave: function(hash, blob) {
     return fs.then(function(fs) {
       return new Promise(function(resolve, reject) {
@@ -53,5 +57,11 @@ module.exports = {
         }, function(err) {reject(err);});
       });
     });
+  },
+  isNetworkConnected: function() {return navigator.onLine;},
+  hash: function(str) {
+    var sha1sum = crypto.createHash('sha1');
+    sha1sum.update(str);
+    return sha1sum.digest("hex");
   }
 };

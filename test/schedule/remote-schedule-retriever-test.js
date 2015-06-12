@@ -53,7 +53,7 @@ describe("remote schedule retriever", function(){
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.equal(platformIOFunctions.getCalledParams().localStorageGet, "displayId");
+      assert.equal(platformIOFunctions.getCalledParams().localStorage.get, "displayId");
     });
   });
 
@@ -95,7 +95,7 @@ describe("remote schedule retriever", function(){
   it("rejects on local storage update failure", function() {
     var platformIOFunctions, retriever;
 
-    mockIOScenario.failedLocalStorageSet = true;
+    mockIOScenario.failedLocalStorage = {set: true};
     platformIOFunctions = require("../platform/mock-io-provider.js")(mockIOScenario);
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 

@@ -1,21 +1,28 @@
 "use strict";
-var crypto = require('crypto'); 
+var crypto = require("crypto"); 
 
 module.exports = function(mockScenario) {
   var calledParams = {
     httpFetcher: [],
     filesystemSave: [],
-    filesystemRetrieve: []
+    filesystemRetrieve: [],
+    localStorage: {}
   };
 
   if (!mockScenario) {mockScenario = {};}
+  if (!mockScenario.failedLocalStorage) {mockScenario.failedLocalStorage = {};}
 
   mockScenario = {
     disconnected: mockScenario.disconnected ?
     mockScenario.disconnected : false,
 
-    failedLocalStorageSet: mockScenario.failedLocalStorageSet ?
-    mockScenario.failedLocalStorageSet : false,
+    failedLocalStorage: {
+      get: mockScenario.failedLocalStorage.get ?
+      mockScenario.failedLocalStorage.get : false,
+
+      set: mockScenario.failedLocalStorage.set ?
+      mockScenario.failedLocalStorage.set : false
+    },
 
     failedFilesystemSave: mockScenario.failedFilesystemSave ?
     mockScenario.failedFilesystemSave : false,
@@ -25,6 +32,20 @@ module.exports = function(mockScenario) {
     } 
   };
 
+  function localStorage(getOrSet, itemArray) {
+    var retval = {};
+    if (getOrSet === "get") {
+      itemArray.forEach(function(item) {retval[item] = "mock-result";});
+    }
+
+    calledParams.localStorage[getOrSet] = itemArray;
+
+    if (mockScenario.failedLocalStorage[getOrSet]) {
+      return Promise.reject(new Error("failed local object " + getOrSet));
+    }
+    return Promise.resolve(retval);
+  }
+
   return {
     httpFetcher: function(param) {
       calledParams.httpFetcher.push(param);
@@ -33,17 +54,9 @@ module.exports = function(mockScenario) {
         blob: function() {return Promise.resolve("mock-blob");}
       });
     },
-    localStorageObjectGet: function(itemArray) {
-        calledParams.localStorageGet = itemArray;
-        return Promise.resolve({displayId: "testId"});
-    },
-    localStorageObjectSet: function(itemArray) {
-      calledParams.localStorageSet = itemArray;
-
-      if (mockScenario.failedLocalStorageSet) {
-        return Promise.reject(new Error("failed local object set"));
-      }
-      return Promise.resolve();
+    localObjectStore: {
+      get: function(itemArray) {return localStorage("get", itemArray);},
+      set: function(itemArray) {return localStorage("set", itemArray);}
     },
     filesystemSave: function(hash, blob) {
       calledParams.filesystemSave.push([hash, blob]);
@@ -57,11 +70,11 @@ module.exports = function(mockScenario) {
       return true;
     },
     isNetworkConnected: function() {return !mockScenario.disconnected;},
-    getCalledParams: function() {return calledParams;},
     hash: function(str) {
       var sha1sum = crypto.createHash('sha1');
       sha1sum.update(str);
       return sha1sum.digest("hex");
-    }
+    },
+    getCalledParams: function() {return calledParams;}
   };
 };
