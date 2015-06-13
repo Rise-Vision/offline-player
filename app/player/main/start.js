@@ -16,9 +16,14 @@
   contentCycler = require("../schedule/content-cycler.js")
   (contentViewController);
 
-  require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
-  require("../storageMonitors/display-id-monitor.js")(remoteScheduleLoader);
-  require("../storageMonitors/local-schedule-monitor.js")(resetContent);
+  (function loadTimedIntervalTasks() {
+    require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
+  }());
+
+  (function loadIOActivityMonitors() {
+    require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader);
+    require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
+  }());
 
   remoteScheduleLoader();
   resetContent();
