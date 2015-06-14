@@ -30,7 +30,7 @@ module.exports = function(platformIOFunctions) {
           return platformIOFunctions.filesystemSave(urlHash, resp);
         })
         .catch(function(err) {
-          console.log("Url data fetcher: Could not fetch data into filesystem");
+          console.log("Url data fetcher: Could not fetch url data into filesystem");
         });
       }));
     }

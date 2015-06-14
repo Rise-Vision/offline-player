@@ -10,7 +10,7 @@ describe("remote schedule retriever", function(){
   beforeEach("set up mock IO scenario", function() {
     mockIOScenario = {
       disconnected: false,
-      failedLocalStorageSet: false,
+      failedLocalStorage: {},
       fetchContent: {content: {schedule: {}}}
     };
   });
@@ -35,7 +35,9 @@ describe("remote schedule retriever", function(){
   });
 
   it("rejects when local storage retrieval fails", function() {
-    var platformIOFunctions = require("../platform/mock-io-provider.js")(),
+    var platformIOFunctions, retriever;
+    mockIOScenario.failedLocalStorage.get = true;
+    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -43,12 +45,27 @@ describe("remote schedule retriever", function(){
       assert.fail(resp, "rejection", "expected rejected promise");
     })
     .catch(function(err) {
-      assert.ok(true, "caught expected rejection");
+      assert.ok(err.message.indexOf("error retrieving display id") > - 1);
+    });
+  });
+
+  it("rejects when no display id is stored", function() {
+    var platformIOFunctions, retriever;
+    mockIOScenario.failedLocalStorage.emptyGet = true;
+    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
+    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+
+    return retriever.loadRemoteSchedule()
+    .then(function(resp) {
+      assert.fail(resp, "rejection", "expected rejected promise");
+    })
+    .catch(function(err) {
+      assert.ok(err.message.indexOf("no display id") > -1);
     });
   });
 
   it("retrieves displayId from local storage", function() {
-    var platformIOFunctions = require("../platform/mock-io-provider.js")(),
+    var platformIOFunctions = require(mockIOProviderPath)(),
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -58,7 +75,7 @@ describe("remote schedule retriever", function(){
   });
 
   it("fetches remote schedule url", function() {
-    var platformIOFunctions = require("../platform/mock-io-provider.js")(),
+    var platformIOFunctions = require(mockIOProviderPath)(),
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -70,7 +87,7 @@ describe("remote schedule retriever", function(){
   it("throws if no schedule in response", function() {
     var platformIOFunctions, retriever;
     mockIOScenario.fetchContent = {content:{empty:{}}};
-    platformIOFunctions = require("../platform/mock-io-provider.js")(mockIOScenario);
+    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -83,7 +100,7 @@ describe("remote schedule retriever", function(){
   });
 
   it("saves local schedule", function() {
-    var platformIOFunctions = require("../platform/mock-io-provider.js")(),
+    var platformIOFunctions = require(mockIOProviderPath)(),
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -96,7 +113,7 @@ describe("remote schedule retriever", function(){
     var platformIOFunctions, retriever;
 
     mockIOScenario.failedLocalStorage = {set: true};
-    platformIOFunctions = require("../platform/mock-io-provider.js")(mockIOScenario);
+    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
     retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
 
     return retriever.loadRemoteSchedule()
@@ -104,7 +121,7 @@ describe("remote schedule retriever", function(){
       assert.fail(null, null, "received resolved promise on failed storage update");
     })
     .catch(function(err) {
-      assert(err.message.indexOf("error saving schedule") > -1, "invalid failure message");
+      assert.ok(err.message.indexOf("error saving schedule") > -1);
     });
   });
 });

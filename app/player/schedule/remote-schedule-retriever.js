@@ -15,13 +15,18 @@ module.exports = function(platformIOFunctions, coreUrls) {
     }
   };
 
+  function err(msg) {
+    return new Error("Remote schedule retriever: " + msg);
+  }
+
   function getDisplayIdFromLocalStorage() {
     return platformIOFunctions.localObjectStore.get(["displayId"])
     .then(function(items) {
+      if (!items.displayId) {throw err("no display id found in local storage");}
       return items.displayId;
     })
-    .catch(function(err) {
-      throw err("error retrieving display id from local storage");
+    .catch(function(e) {
+      throw err("error retrieving display id from local storage - " + e.message);
     });
   }
   
@@ -38,7 +43,7 @@ module.exports = function(platformIOFunctions, coreUrls) {
   function retrieveScheduleFromContentObject(json) {
     if (!json.content || !json.content.schedule) {
       console.info(JSON.stringify(json));
-      throw new Error(err("no schedule data in response"));
+      throw err("no schedule data in response");
     }
     return json.content.schedule;
   }
@@ -49,13 +54,9 @@ module.exports = function(platformIOFunctions, coreUrls) {
       console.log("Remote schedule retriever: saved schedule");
       return true;
     })
-    .catch(function(err) {
+    .catch(function(e) {
       console.log("Remote schedule retriever: error saving schedule");
-      throw new Error("Remote schedule retriever: error saving schedule");
+      throw err("error saving schedule");
     });
-  }
-
-  function err(msg) {
-    return new Error("Remote schedule retriever: " + msg);
   }
 };

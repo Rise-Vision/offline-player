@@ -21,7 +21,10 @@ module.exports = function(mockScenario) {
       mockScenario.failedLocalStorage.get : false,
 
       set: mockScenario.failedLocalStorage.set ?
-      mockScenario.failedLocalStorage.set : false
+      mockScenario.failedLocalStorage.set : false,
+
+      emptyGet: mockScenario.failedLocalStorage.emptyGet ?
+      mockScenario.failedLocalStorage.emptyGet: false
     },
 
     failedFilesystemSave: mockScenario.failedFilesystemSave ?
@@ -42,6 +45,9 @@ module.exports = function(mockScenario) {
 
     if (mockScenario.failedLocalStorage[getOrSet]) {
       return Promise.reject(new Error("failed local object " + getOrSet));
+    }
+    if (mockScenario.failedLocalStorage.emptyGet === true) {
+      return Promise.resolve({});
     }
     return Promise.resolve(retval);
   }
