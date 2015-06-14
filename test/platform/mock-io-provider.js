@@ -66,6 +66,7 @@ module.exports = function(mockScenario) {
       return true;
     },
     filesystemRetrieve: function(hash) {
+      console.log(hash);
       calledParams.filesystemRetrieve.push(hash);
       return true;
     },

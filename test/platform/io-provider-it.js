@@ -87,8 +87,8 @@ describe("io provider platform functions", function() {
       return platformIO.filesystemRetrieve("test");
     })
     .then(function(resp) {
-      assert.ok(resp[0].indexOf("blob:") > -1);
-      assert.equal(resp[1].size, 3);
+      assert.ok(resp.url.indexOf("blob:") > -1);
+      assert.equal(resp.file.size, 3);
     });
   });
 

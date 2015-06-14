@@ -1,7 +1,7 @@
-(function() {
+module.exports = function(coreUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
-  contentCache = require("../cache/url-data-cacher.js"),
+  contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
   contentViewController = require("../schedule/content-view-controller.js")
   (require("../platform/ui-controller.js"), contentCache, platformIOProvider),
 
@@ -9,12 +9,14 @@
 
   timelineParser = require("../schedule/timeline-parser.js")(),
 
-  coreUrls = require("../options/core-urls.js")(navigator.platform.replace(" ", "/")),
+  contentCycler = require("../schedule/content-cycler.js")
+  (contentViewController),
+  
+  remoteScheduleLoader;
+
+  coreUrls = coreUrls || require("../options/core-urls.js")(navigator.platform.replace(" ", "/"));
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, coreUrls);
-
-  contentCycler = require("../schedule/content-cycler.js")
-  (contentViewController);
 
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
@@ -25,22 +27,23 @@
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 
-  remoteScheduleLoader();
-  resetContent();
+  remoteScheduleLoader.loadRemoteSchedule();
+  return resetContent();
 
   function resetContent() {
-    var scheduleData;
+    var localSchedule;
 
-    localScheduleLoader(timelineParser)
-    .then(function(scheduleData) {
-      schedule = scheduleData;
-      contentCache.setSchedule(schedule);
-      return contentCache.saveUrlDataToFilesystem();
+    return localScheduleLoader(timelineParser)
+    .then(function(resp) {
+      localSchedule = resp;
+      contentCache.setSchedule(localSchedule);
+      return contentCache.fetchUrlDataIntoFilesystem();
     })
     .then(function() {
-      contentViewController.createContentViews(scheduleData.items);
-      contentCycler.setScheduleData(scheduleData);
+      contentViewController.createContentViews(localSchedule.items);
+      contentCycler.setScheduleData(localSchedule);
       contentCycler.cycleViews();
+      return true;
     });
   }
-}());
+};

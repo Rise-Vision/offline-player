@@ -3,7 +3,7 @@ module.exports = function(remoteScheduleLoader) {
     if (changes.hasOwnProperty("displayId")) {
       if (!changes.displayId.oldValue ||
       (changes.displayId.oldValue !== changes.displayId.newValue)) {
-        remoteScheduleLoader();
+        remoteScheduleLoader.loadRemoteSchedule();
       }
     } 
   });

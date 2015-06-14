@@ -4,7 +4,7 @@ module.exports = function(remoteScheduleLoader) {
   chrome.alarms.onAlarm.addListener(function(alarm) {
     if (alarm.name === "load.remote.schedule") {
       console.log("loading remote schedule at " + Date.now());
-      remoteScheduleLoader();
+      remoteScheduleLoader.loadRemoteSchedule()
     }
   });
 };

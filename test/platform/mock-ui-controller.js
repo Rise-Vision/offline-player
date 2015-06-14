@@ -1,6 +1,6 @@
 "use strict";
 module.exports = {
-  createViewWindow: function() {return {};},
+  createViewWindow: function(url) {return {src: url};},
   setVisibility: function(el, vis) {
     el.visibility = vis;
   },

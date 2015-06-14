@@ -52,7 +52,7 @@ module.exports = {
       return new Promise(function(resolve, reject) {
         fs.root.getFile(hash, {}, function(entry) {
           entry.file(function(file) {
-            resolve([URL.createObjectURL(file), file]);
+            resolve({url: URL.createObjectURL(file), file: file});
           }, function(err) {reject(err);});
         }, function(err) {reject(err);});
       });

@@ -10,7 +10,7 @@ module.exports = function localScheduleLoader(timelineParser) {
       }
 
       if (!schedule || !schedule.hasOwnProperty("items")) {
-        console.info("Local schedule loader: invalid schedule format");
+        console.info("Local schedule loader: schedule empty or invalid format");
         return resolve(emptySchedule);
       }
 
