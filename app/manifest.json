@@ -24,15 +24,15 @@
   "webview": {
      "partitions": [
        {
-         "name": "Restaurant-Template",
+         "name": "packaged",
          "accessible_resources": ["content/restaurant-promotion/*"]
        },
        {
-         "name": "Retail-QRCode-Template",
+         "name": "packaged",
          "accessible_resources": ["content/retail-qrcode/*"]
        },
        {
-         "name": "empty-schedule-screen",
+         "name": "packaged",
          "accessible_resources": ["content/empty-schedule-screen/*"]
        }
      ]

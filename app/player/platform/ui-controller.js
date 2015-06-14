@@ -4,7 +4,8 @@ module.exports = {
     view.style.height = document.body.clientHeight + "px";
     view.style.width = document.body.clientWidth + "px";
     view.style.display = "none";
-    view.partition = "persist:" + contentTarget;
+    view.partition = "persist:" + 
+    (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     view.src = contentTarget;
     document.body.appendChild(view);
 

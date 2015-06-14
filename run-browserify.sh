@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "running browserify"
-browserify --detect-globals=false app/player/main/start.js -o app/player/main/start-browserify.js;
+browserify --detect-globals=false app/player/main/call-start.js -o app/player/main/start-browserify.js;
 
 RETVAL=$?
 
