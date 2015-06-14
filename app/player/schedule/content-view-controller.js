@@ -19,22 +19,23 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
     createContentViews: function(items) {
       removePreviousContentViews();
 
-      items.forEach(function(item) {
-        var url, view;
-
-        if (isLocalFile(item.objectReference)) {
-          url = item.objectReference;
-        } else {
-          url = platformIOProvider.filesystemRetrieve
-          (contentCache.getUrlHashes()[item.objectReference]).url;
-        }
-          
-        view = platformUIController.createViewWindow(url);
-
-        contentViews[item.objectReference] = view;
+      return Promise.all(items.map(function(item) {
+        return new Promise(function(resolve, reject) {
+          if (isLocalFile(item.objectReference)) {
+            resolve({url: item.objectReference});
+          } else {
+            resolve(platformIOProvider.filesystemRetrieve
+            (contentCache.getUrlHashes()[item.objectReference]));
+          }
+        })
+        .then(function(urlObject) {
+          var view = platformUIController.createViewWindow(urlObject.url);
+          contentViews[item.objectReference] = view;
+        });
+      }))
+      .then(function() {
+        return contentViews;
       });
-
-      return contentViews;
     },
 
     showView: function(objectReference) {

@@ -40,7 +40,9 @@ module.exports = function(coreUrls) {
       return contentCache.fetchUrlDataIntoFilesystem();
     })
     .then(function() {
-      contentViewController.createContentViews(localSchedule.items);
+      return contentViewController.createContentViews(localSchedule.items);
+    })
+    .then(function() {
       contentCycler.setScheduleData(localSchedule);
       contentCycler.cycleViews();
       return true;

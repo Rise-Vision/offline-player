@@ -15,4 +15,25 @@ describe("starter", function() {
       assert.equal(resp, true);
     });
   });
+  
+  it("shows empty schedule", function() {
+    var webviewSource = document.body.querySelectorAll("webview")[0].src;
+    assert.ok(webviewSource.indexOf("empty-schedule") > -1);
+  });
+
+  it("updates on display id change", function() {
+    return new Promise(function(resolve, reject) {
+      chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
+        setInterval(function() {
+          if (document.body.querySelectorAll("webview").length === 1) {
+            resolve();
+          }
+        }, 300);
+      });
+    })
+    .then(function() {
+      var src = document.body.querySelectorAll("webview")[0].src;
+      assert.ok(src.indexOf("blob") > -1);
+    });
+  });
 });

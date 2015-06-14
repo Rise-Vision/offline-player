@@ -1,9 +1,9 @@
 module.exports = {
-  setPlatformDetailsUrl: "http://localhost/setPlatformDetailsUrl",
+  setPlatformDetailsUrl: "http://localhost:7654/setPlatformDetailsUrl",
 
-  scheduleFetchUrl: "http://localhost/scheduleFetchUrl",
+  scheduleFetchUrl: "http://localhost:7654/scheduleFetchUrl",
 
-  displayNameFetchUrl: "http://localhost/displayNameFetchUrl",
+  displayNameFetchUrl: "http://localhost:7654/displayNameFetchUrl",
 
-  registrationUrl: "http://localhost/registrationUrl"
+  registrationUrl: "http://localhost:7654/registrationUrl"
 };

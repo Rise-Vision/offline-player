@@ -1,15 +1,15 @@
 module.exports = function(resetContent) {
   chrome.storage.onChanged.addListener(function(changes) {
     if (changes.hasOwnProperty("schedule")) {
-      if (isNewSchedule()) {
+      if (isNewSchedule(changes.schedule)) {
         console.log("local schedule changed - reloading content");
         resetContent();
       }
     }
   });
 
-  function isNewSchedule() {
-    return !changes.schedule.oldValue ||
-    (changes.schedule.oldValue.changeDate !==  changes.schedule.newValue.changeDate);
+  function isNewSchedule(schedule) {
+    return !schedule.oldValue ||
+    (schedule.oldValue.changeDate !== schedule.newValue.changeDate);
   }
 };
