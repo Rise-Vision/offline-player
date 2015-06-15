@@ -21,7 +21,7 @@ describe("starter", function() {
     assert.ok(webviewSource.indexOf("empty-schedule") > -1);
   });
 
-  it("updates on display id change", function() {
+  it("updates on display on id change", function() {
     return new Promise(function(resolve, reject) {
       chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
         setInterval(function() {
@@ -32,8 +32,8 @@ describe("starter", function() {
       });
     })
     .then(function() {
-      var src = document.body.querySelectorAll("webview")[0].src;
-      assert.ok(src.indexOf("blob") > -1);
+      var wv = document.body.querySelectorAll("webview")[0];
+      assert.ok(wv.src.indexOf("blob") > -1);
     });
   });
 });
