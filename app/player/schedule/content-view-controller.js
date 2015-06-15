@@ -25,7 +25,7 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
             resolve({url: item.objectReference});
           } else {
             resolve(platformIOProvider.filesystemRetrieve
-            (contentCache.getUrlHashes()[item.objectReference]));
+            (contentCache.getUrlHashes()[item.objectReference], "html"));
           }
         })
         .then(function(urlObject) {

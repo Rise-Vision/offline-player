@@ -2,7 +2,7 @@
 var assert = require("assert"),
 platformIO = require("../../app/player/platform/io-provider.js");
 
-describe("io provider platform functions", function() {
+describe("io provider", function() {
   it("exists", function() {
     assert.ok(platformIO, "existence");
   });
@@ -63,11 +63,12 @@ describe("io provider platform functions", function() {
 
   it("saves blobs to filesystem", function() {
     var blob = new Blob([1, 2, 3]);
-    return platformIO.filesystemSave("test", blob)
+    var mimeTypeExtension = "html";
+    return platformIO.filesystemSave("test", mimeTypeExtension, blob)
     .then(function() {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
-          fs.root.getFile("test", {}, function(entry) {
+          fs.root.getFile("test.html", {}, function(entry) {
             entry.file(function(file) {
               resolve(file);
             });
@@ -82,9 +83,10 @@ describe("io provider platform functions", function() {
 
   it("retrieves files and their objectURLs from filesystem", function() {
     var blob = new Blob([1, 2, 3]);
-    return platformIO.filesystemSave("test", blob)
+    var mimeTypeExtension = "html";
+    return platformIO.filesystemSave("test", mimeTypeExtension, blob)
     .then(function() {
-      return platformIO.filesystemRetrieve("test");
+      return platformIO.filesystemRetrieve("test", mimeTypeExtension);
     })
     .then(function(resp) {
       assert.ok(resp.url.indexOf("blob:") > -1);

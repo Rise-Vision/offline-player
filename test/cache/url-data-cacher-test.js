@@ -48,8 +48,8 @@ describe("url data cache", function() {
       assert.equal(urlDataCacher.getUrlHashes().B, sha1sums.B);
 
       assert.deepEqual((mockIOProvider.getCalledParams().filesystemSave),
-      [[sha1sums.A, "mock-blob"],
-      [sha1sums.B, "mock-blob"]]);
+      [[sha1sums.A, "html", "mock-blob"],
+      [sha1sums.B, "html", "mock-blob"]]);
     });
   });
 });

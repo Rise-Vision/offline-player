@@ -64,15 +64,15 @@ module.exports = function(mockScenario) {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(hash, blob) {
-      calledParams.filesystemSave.push([hash, blob]);
+    filesystemSave: function(hash, extensionForMimeType, blob) {
+      calledParams.filesystemSave.push([hash, extensionForMimeType, blob]);
       if (mockScenario.failedFilesystemSave) {
         return console.log("Failed filesystem save");
       }
       return true;
     },
-    filesystemRetrieve: function(hash) {
-      calledParams.filesystemRetrieve.push(hash);
+    filesystemRetrieve: function(hash, extensionForMimeType) {
+      calledParams.filesystemRetrieve.push(hash, extensionForMimeType);
       return true;
     },
     isNetworkConnected: function() {return !mockScenario.disconnected;},
