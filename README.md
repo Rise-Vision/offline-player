@@ -19,6 +19,8 @@ This is a chrome app designed to run presentations locally as part of the [Rise 
  - Download javascript plugin http://dist.sonarsource.com/oss/org/codehaus/sonar-plugins/javascript/sonar-javascript-plugin/2.5/sonar-javascript-plugin-2.5.jar
  - Add sonar-javascript-plugin-2.5.jar to sonarqube-5.1/extensions/plugins
  - npm install -g istanbul
+ - npm install -g browserify
+ - npm install -g mocha
  - npm install
  - npm run test
 
