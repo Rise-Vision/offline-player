@@ -24,6 +24,20 @@ function localStorage(getOrSet, itemArray) {
 
 module.exports = {
   httpFetcher: fetch.bind(window),
+  getRemoteFolderItemsList: function(url) {
+    var listingUrl = 
+
+    return fetch(listingUrl)
+    .then(function(resp) {
+      return resp.json();
+    })
+    .then(function(json) {
+      //process json to return an array of objects, one for each file path
+      //{url: urlToFetchTheFile, filePath: theFilePath}
+
+      //return Promise.resolve(pathObjects);
+    });
+  },
   localObjectStore: {
     get: function(itemArray) {return localStorage("get", itemArray);},
     set: function(itemArray) {return localStorage("set", itemArray);}

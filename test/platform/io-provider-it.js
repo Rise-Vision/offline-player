@@ -37,6 +37,14 @@ describe("io provider", function() {
     });
   });
 
+  it("fetches a list of files related to a Url", function() {
+    var url = the-storage-server-url;
+    return platformIO.getRemoteFolderItemsList(url)
+    .then(function(resp) {
+      //assert.equal(Object.keys(resp).length, lengthOfListing);
+    });
+  });
+
   it("stores simple local objects", function() {
     return platformIO.localObjectStore.set({test1: "test1"})
     .then(function() {
