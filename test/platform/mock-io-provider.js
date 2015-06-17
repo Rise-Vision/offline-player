@@ -4,6 +4,7 @@ var crypto = require("crypto");
 module.exports = function(mockScenario) {
   var calledParams = {
     httpFetcher: [],
+    getRemoteFolderItemsList: [],
     filesystemSave: [],
     filesystemRetrieve: [],
     localStorage: {}
@@ -59,6 +60,10 @@ module.exports = function(mockScenario) {
         json: function() {return Promise.resolve(mockScenario.fetchContent);},
         blob: function() {return Promise.resolve("mock-blob");}
       });
+    },
+    getRemoteFolderItemsList: function(url) {
+      calledParams.getRemoteFolderItemsList.push(url);
+      return Promise.resolve({test: "test"});
     },
     localObjectStore: {
       get: function(itemArray) {return localStorage("get", itemArray);},
