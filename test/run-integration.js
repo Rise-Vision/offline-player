@@ -9,7 +9,7 @@ if (fileToSyntaxCheck) {
 }
 
 function integrationTestCommand(itFile) {
-  return "../../mocha-chrome-app-test-runner/run-test.sh " + process.cwd() + "/" + itFile;
+  return "node ../../mocha-chrome-app-test-runner/run-test.js " + process.cwd() + "/" + itFile;
 }
 
 itFiles = [
