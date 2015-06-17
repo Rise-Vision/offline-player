@@ -25,7 +25,7 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0], "hashtest1");
+      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0], "hashtest1.html");
     });
   });
 

@@ -63,22 +63,26 @@ module.exports = function(mockScenario) {
     },
     getRemoteFolderItemsList: function(url) {
       calledParams.getRemoteFolderItemsList.push(url);
-      return Promise.resolve({test: "test"});
+      return Promise.resolve([
+          {url: "url1", filePath: "filePath1"},
+          {url: "url2", filePath: "filePath2"},
+          {url: "url3", filePath: "filePath3"}
+      ]);
     },
     localObjectStore: {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(hash, extensionForMimeType, blob) {
-      calledParams.filesystemSave.push([hash, extensionForMimeType, blob]);
+    filesystemSave: function(fileName, blob) {
+      calledParams.filesystemSave.push([fileName, blob]);
       if (mockScenario.failedFilesystemSave) {
-        return console.log("Failed filesystem save");
+        return Promise.reject("Failed filesystem save");
       }
-      return true;
+      return Promise.resolve(true);
     },
-    filesystemRetrieve: function(hash, extensionForMimeType) {
-      calledParams.filesystemRetrieve.push(hash, extensionForMimeType);
-      return true;
+    filesystemRetrieve: function(fileName) {
+      calledParams.filesystemRetrieve.push(fileName);
+      return Promise.resolve(true);
     },
     isNetworkConnected: function() {return !mockScenario.disconnected;},
     hash: function(str) {

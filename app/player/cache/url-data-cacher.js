@@ -27,7 +27,7 @@ module.exports = function(platformIOFunctions) {
         .then(function(resp) {
           var urlHash = platformIOFunctions.hash(url);
           urlHashes[url] = urlHash;
-          return platformIOFunctions.filesystemSave(urlHash, "html", resp);
+          return platformIOFunctions.filesystemSave(urlHash + ".html", resp);
         })
         .catch(function(err) {
           console.log("Url data fetcher: Could not fetch url data into filesystem");

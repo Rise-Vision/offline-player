@@ -1,5 +1,5 @@
 module.exports = function(platformIOFunctions) {
-  var folderItems = [];
+  var folderItems = {};
 
   return {
     getUrlHashes: function() {return urlHashes;},
@@ -13,21 +13,34 @@ module.exports = function(platformIOFunctions) {
 
         return platformIOFunctions.getRemoteFolderItemsList(url)
         .then(function(resp) {
-          folderItems = resp;
+          folderItems[platformIOFunctions.hash(url)] = resp;
+        })
+        .then(function() {
+          return saveFolderItems(platformIOFunctions.hash(url));
         })
         .catch(function(err) {
-          console.log("Remote folder fetcher: Could not retrieve folder contents");
+          var msg = "Remote folder fetcher: Could not retrieve folder " +
+          "contents for " + url;
+          console.log(msg);
         });
       }));
     },
 
     getFolderItems: function() { return folderItems;}
   };
+
+  function saveFolderItems(mainUrlHash) {
+    return folderItems[mainUrlHash].reduce(function(prev, curr) {
+      return prev.then(function() {
+        return platformIOFunctions.httpFetcher(curr.url)
+        .then(function(resp) {
+          return resp.blob();
+        })
+        .then(function(blob) {
+          var fileName = mainUrlHash + curr.filePath;
+          return platformIOFunctions.filesystemSave(fileName, blob); 
+        });
+      });
+    }, Promise.resolve());
+  }
 };
-
-
-/*
-          var urlHash = platformIOFunctions.hash(url);
-          urlHashes[url] = urlHash;
-          return platformIOFunctions.filesystemSave(urlHash, "html", resp);
-*/

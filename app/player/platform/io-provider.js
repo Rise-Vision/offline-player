@@ -28,11 +28,10 @@ module.exports = {
     get: function(itemArray) {return localStorage("get", itemArray);},
     set: function(itemArray) {return localStorage("set", itemArray);}
   },
-  filesystemSave: function(hash, extensionForMimeType, blob) {
+  filesystemSave: function(fileName, blob) {
     return fs.then(function(fs) {
       return new Promise(function(resolve, reject) {
-        fs.root.getFile(hash + "." + extensionForMimeType,
-        {create: true}, function(entry) {
+        fs.root.getFile(filename, {create: true}, function(entry) {
           entry.createWriter(function(writer) {
             writer.onwriteend = function() {
               resolve();
@@ -48,10 +47,10 @@ module.exports = {
       });
     });
   },
-  filesystemRetrieve: function(hash, extensionForMimeType) {
+  filesystemRetrieve: function(fileName) {
     return fs.then(function(fs) {
       return new Promise(function(resolve, reject) {
-        fs.root.getFile(hash + "." + extensionForMimeType, {}, function(entry) {
+        fs.root.getFile(fileName, {}, function(entry) {
           entry.file(function(file) {
             resolve({url: URL.createObjectURL(file), file: file});
           }, function(err) {reject(err);});
