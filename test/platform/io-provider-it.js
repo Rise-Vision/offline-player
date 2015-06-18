@@ -76,14 +76,13 @@ describe("io provider", function() {
 
   it("saves blobs to filesystem", function() {
     var blob = new Blob([1, 2, 3]);
-    var mimeTypeExtension = "html";
     return platformIO.filesystemSave("test.html", blob)
-    .then(function() {
+    .then(function(resp) {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
           fs.root.getFile("test.html", {}, function(entry) {
             entry.file(function(file) {
-              resolve(file);
+              resolve({file: file, url: resp});
             });
           }, function(err) {
             reject(err);
@@ -92,7 +91,11 @@ describe("io provider", function() {
       });
     })
     .then(function(resp) {
-      assert.ok(URL.createObjectURL(resp).indexOf("//") > -1);
+      assert.ok(URL.createObjectURL(resp.file).indexOf("//") > -1);
+      assert.ok(resp.url.indexOf("//") > -1);
+    })
+    .catch(function(err) {
+      throw err;
     });
   });
 

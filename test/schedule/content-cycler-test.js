@@ -1,21 +1,21 @@
 "use strict";
 
 var assert = require("assert"),
-scheduleHandlerFactory = require("../../app/player/schedule/content-cycler.js"),
+contentCycler = require("../../app/player/schedule/content-cycler.js"),
 scheduleData = {
   items: [
-    {duration: 0, objectReference: "test1"},
-    {duration: 0, objectReference: "test2"}
+    {duration: 0.1, objectReference: "test1"},
+    {duration: 0.1, objectReference: "test2"}
   ]
 };
 
 describe("content cycler", function(){
   it("exists", function(){
-    assert.notEqual(scheduleHandlerFactory(), undefined);
+    assert.notEqual(contentCycler(), undefined);
   });
 
   it("accepts schedule data", function(){
-    var scheduleHandler = scheduleHandlerFactory();
+    var scheduleHandler = contentCycler();
 
     scheduleHandler.setScheduleData(scheduleData);
     assert.equal(scheduleHandler.getScheduleData().items.length, 2);
@@ -32,8 +32,8 @@ describe("content cycler", function(){
       };
 
     }()),
+    scheduleHandler = contentCycler(contentViewController);
 
-    scheduleHandler = scheduleHandlerFactory(contentViewController);
     scheduleHandler.setScheduleData(scheduleData);
     scheduleHandler.cycleViews();
 

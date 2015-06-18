@@ -28,7 +28,6 @@ function IOProvider(serviceUrls) {
     getRemoteFolderItemsList: function(url) {
       var regex = /risemedialibrary-(.{36})\/(.*)/;
       var match = regex.exec(url);
-
       if(!match || match.length !== 3) {
         return Promise.reject("Invalid URL");
       }
@@ -43,9 +42,6 @@ function IOProvider(serviceUrls) {
         return resp.json();
       })
       .then(function(json) {
-        //process json to return an array of objects, one for each file path
-        //{url: urlToFetchTheFile, filePath: theFilePath}
-
         return Promise.resolve(json.items.map(function(f) {
           return {
             url: f.mediaLink,
@@ -63,8 +59,10 @@ function IOProvider(serviceUrls) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {create: true}, function(entry) {
             entry.createWriter(function(writer) {
-              writer.onwrite = function() {
-                resolve();
+              writer.onwriteend = function() {
+                entry.file(function(file) {
+                  resolve(URL.createObjectURL(file));
+                }, function(err) {reject(err);});
               };
 
               writer.onerror = function(err) {
