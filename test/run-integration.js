@@ -1,6 +1,7 @@
 "use strict";
 var shelljs = require("shelljs"),
 execResult,
+path = require("path"),
 fileToSyntaxCheck,
 itFiles = [],
 serverProcess,
@@ -15,7 +16,7 @@ if (fileToSyntaxCheck) {
 }
 
 function integrationTestCommand(itFile) {
-  return ["../../mocha-chrome-app-test-runner/run-test.js", process.cwd() + "/" + itFile];
+  return ["../../mocha-chrome-app-test-runner/run-test.js", path.join(process.cwd(), itFile)];
 }
 
 itFiles = [
