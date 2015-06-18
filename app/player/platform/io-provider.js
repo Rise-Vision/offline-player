@@ -34,7 +34,7 @@ function IOProvider(serviceUrls) {
       }
 
       var companyId = match[1];
-      var folder = match[2].endsWith("/") ? match[2] : (match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/")) : match[2]);
+      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/")) : ""; // Assumes a file will always be provided, not a folder
 
       var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
 
