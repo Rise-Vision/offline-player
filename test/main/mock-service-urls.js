@@ -5,5 +5,7 @@ module.exports = {
 
   displayNameFetchUrl: "http://localhost:7654/displayNameFetchUrl",
 
-  registrationUrl: "http://localhost:7654/registrationUrl"
+  registrationUrl: "http://localhost:7654/registrationUrl",
+
+  folderContentsUrl: "http://localhost:7654/folderContentsUrl"
 };

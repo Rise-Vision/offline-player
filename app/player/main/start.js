@@ -1,4 +1,4 @@
-module.exports = function(coreUrls) {
+module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
   contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
@@ -14,9 +14,9 @@ module.exports = function(coreUrls) {
   
   remoteScheduleLoader;
 
-  coreUrls = coreUrls || require("../options/core-urls.js")(navigator.platform.replace(" ", "/"));
+  serviceUrls = serviceUrls || require("../options/service-urls.js")(navigator.platform.replace(" ", "/"));
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
-  (platformIOProvider, coreUrls);
+  (platformIOProvider, serviceUrls);
 
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);

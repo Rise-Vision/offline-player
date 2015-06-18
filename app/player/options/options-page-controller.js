@@ -1,4 +1,4 @@
-function optionsPageController(coreUrls) {
+function optionsPageController(serviceUrls) {
   "use strict";
   var uiFieldMap = {displayId: "", claimId: "", displayName: ""},
   dimensions = {width: 0, height: 0},
@@ -23,7 +23,7 @@ function optionsPageController(coreUrls) {
     },
 
     assembleRegistrationUrl: function() {
-      return coreUrls.registrationUrl
+      return serviceUrls.registrationUrl
       .replace("CLAIM_ID", uiFieldMap.claimId)
       .replace("WIDTH", dimensions.width)
       .replace("NAME", uiFieldMap.displayName)
@@ -32,12 +32,12 @@ function optionsPageController(coreUrls) {
 
     assembleDisplayNameFetchUrl: function(id) {
       id = id || uiFieldMap.displayId;
-      return coreUrls.displayNameFetchUrl.replace("DISPLAY_ID", id);
+      return serviceUrls.displayNameFetchUrl.replace("DISPLAY_ID", id);
     },
 
     assemblePlatformDetailsUrl: function(id) {
       id = id || uiFieldMap.displayId;
-      return coreUrls.setPlatformDetailsUrl.replace("DISPLAY_ID", id);
+      return serviceUrls.setPlatformDetailsUrl.replace("DISPLAY_ID", id);
     },
 
     setUIValues: function(valuesObj) {

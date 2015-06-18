@@ -1,12 +1,12 @@
 "use strict";
 var assert = require("assert"),
-coreUrls = {
+serviceUrls = {
   setPlatformDetailsUrl: "setplatformdetails",
   displayNameFetchUrl: "dnf-DISPLAY_ID-",
   registrationUrl: "reg-CLAIM_ID-WIDTH-NAME-HEIGHT"
 },
 
-controller = require("../../app/player/options/options-page-controller.js")(coreUrls);
+controller = require("../../app/player/options/options-page-controller.js")(serviceUrls);
 
 describe("options page controller", function() {
  it("exists", function() {

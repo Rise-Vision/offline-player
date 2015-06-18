@@ -1,6 +1,6 @@
-module.exports = function(platformIOFunctions, coreUrls) {
+module.exports = function(platformIOFunctions, serviceUrls) {
   "use strict";
-  var url = coreUrls.scheduleFetchUrl;
+  var url = serviceUrls.scheduleFetchUrl;
 
   return {
     loadRemoteSchedule: function() {

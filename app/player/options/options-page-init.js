@@ -1,6 +1,6 @@
 window.addEventListener("load", function() {
-  var coreUrls = require("./core-urls.js")(navigator.platform.replace(" ", "/")), 
-  controller = require("./options-page-controller.js")(coreUrls);
+  var serviceUrls = require("./service-urls.js")(navigator.platform.replace(" ", "/")), 
+  controller = require("./options-page-controller.js")(serviceUrls);
 
   (function setOptionsWindowCloseTimeout() {
     var timeoutHandle;
