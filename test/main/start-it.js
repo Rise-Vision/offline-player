@@ -32,6 +32,6 @@ describe("starter", function() {
           }
         }, 100);
       });
-    })
+    });
   });
 });

@@ -43,9 +43,10 @@ describe("io provider", function() {
 
     return platformIO.getRemoteFolderItemsList(url)
     .then(function(resp) {
-      assert.equal(resp.length, 2);
-      assert.equal(resp[0].filePath, "test/");
-      assert.equal(resp[1].filePath, "test/image.jpg");
+      assert.equal(resp.length, 3);
+      assert.equal(resp[0].filePath, "index.html");
+      assert.equal(resp[1].filePath, "test/");
+      assert.equal(resp[2].filePath, "test/image.jpg");
     });
   });
 
@@ -76,7 +77,7 @@ describe("io provider", function() {
   it("saves blobs to filesystem", function() {
     var blob = new Blob([1, 2, 3]);
     var mimeTypeExtension = "html";
-    return platformIO.filesystemSave("test.html", mimeTypeExtension, blob)
+    return platformIO.filesystemSave("test.html", blob)
     .then(function() {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
@@ -98,9 +99,9 @@ describe("io provider", function() {
   it("retrieves files and their objectURLs from filesystem", function() {
     var blob = new Blob([1, 2, 3]);
     var mimeTypeExtension = "html";
-    return platformIO.filesystemSave("test", mimeTypeExtension, blob)
+    return platformIO.filesystemSave("test", blob)
     .then(function() {
-      return platformIO.filesystemRetrieve("test", mimeTypeExtension);
+      return platformIO.filesystemRetrieve("test");
     })
     .then(function(resp) {
       assert.ok(resp.url.indexOf("blob:") > -1);

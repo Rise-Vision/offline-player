@@ -34,7 +34,7 @@ function IOProvider(serviceUrls) {
       }
 
       var companyId = match[1];
-      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/")) : ""; // Assumes a file will always be provided, not a folder
+      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/") + 1) : ""; // Assumes a file will always be provided, not a folder
 
       var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
 
@@ -49,7 +49,7 @@ function IOProvider(serviceUrls) {
         return Promise.resolve(json.items.map(function(f) {
           return {
             url: f.mediaLink,
-            filePath: f.objectId
+            filePath: f.objectId.substr(folder.length)
           };
         }));
       });
@@ -58,7 +58,7 @@ function IOProvider(serviceUrls) {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(fileName, mimeTypeExtension, blob) {
+    filesystemSave: function(fileName, blob) {
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {create: true}, function(entry) {
