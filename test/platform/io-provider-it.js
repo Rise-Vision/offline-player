@@ -38,15 +38,25 @@ describe("io provider", function() {
     });
   });
 
+  it("fetches a rejects a non valid url", function() {
+    var url = "https://www.google.com";
+
+    return platformIO.getRemoteFolderItemsList(url)
+    .then(function() {
+    }, function(err) {
+      assert(err !== null);
+    });
+  });
+
   it("fetches a list of files related to a Url", function() {
-    var url = "https://www.googleapi.com/storage/v1/b/risemedialibrary-832989832323298329898323232983298983/myPres/index.html";
+    var url = "https://www.googleapi.com/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/myPres/index.html";
 
     return platformIO.getRemoteFolderItemsList(url)
     .then(function(resp) {
-      assert.equal(resp.length, 3);
-      assert.equal(resp[0].filePath, "index.html");
-      assert.equal(resp[1].filePath, "test/");
-      assert.equal(resp[2].filePath, "test/image.jpg");
+      assert.equal(resp.length, 4);
+      assert.equal(resp[1].filePath, "index.html");
+      assert.equal(resp[2].filePath, "test/");
+      assert.equal(resp[3].filePath, "test/image.jpg");
     });
   });
 

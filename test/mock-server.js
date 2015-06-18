@@ -22,23 +22,30 @@ http.createServer(function(req, res) {
         message: "success",
         items: [
           {
+            objectId: "myPres/",
+            folder: true,
+            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/o/myPres%2F?generation=1434566804654000&alt=media",
+            etag: "CLCPseaxl8YCEAE=",
+            kind: "storage#resourcesItem"
+          },
+          {
             objectId: "myPres/index.html",
             folder: false,
-            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-23b0d348-9147-4527-825a-6dec36b602c2/o/myPres%2Findex.html?generation=1434566804654000&alt=media",
+            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/o/myPres%2Findex.html?generation=1434566804654000&alt=media",
             etag: "CLCPseaxl8YCEAE=",
             kind: "storage#resourcesItem"
           },
           {
             objectId: "myPres/test/",
             folder: true,
-            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-23b0d348-9147-4527-825a-6dec36b602c2/o/myPres%2Ftest%2F?generation=1434566804654000&alt=media",
+            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/o/myPres%2Ftest%2F?generation=1434566804654000&alt=media",
             etag: "CLCPseaxl8YCEAE=",
             kind: "storage#resourcesItem"
           },
           {
             objectId: "myPres/test/image.jpg",
             folder: false,
-            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-23b0d348-9147-4527-825a-6dec36b602c2/o/myPres%2Ftest%2Fimage.jpg?generation=1434566804654000&alt=media",
+            mediaLink: "https://www.googleapis.com/download/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/o/myPres%2Ftest%2Fimage.jpg?generation=1434566804654000&alt=media",
             etag: "ALSPseaxl65GEAE=",
             kind: "storage#resourcesItem"
           }
