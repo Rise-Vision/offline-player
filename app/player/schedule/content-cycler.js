@@ -21,6 +21,12 @@ function contentCycler(contentViewController) {
   function showItem(itemNumber) {
     var duration = parseInt(scheduleData.items[itemNumber].duration, 10);
 
+    if (!scheduleData.items[itemNumber].duration) {
+      console.log("Content cycler: no duration in schedule item" + 
+      JSON.stringify(scheduleData.items[itemNumber]));
+      return false;
+    }
+
     contentViewController.showView(scheduleData.items[itemNumber].objectReference);
 
     timeoutHandle = setTimeout(function() {

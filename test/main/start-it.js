@@ -24,8 +24,10 @@ describe("starter", function() {
   it("updates on display on id change", function() {
     return new Promise(function(resolve, reject) {
       chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
-        setInterval(function() {
+        var intervalHandle = setInterval(function() {
+          console.log("trying " + document.body.querySelectorAll("webview").length);
           if (document.body.querySelectorAll("webview").length === 1) {
+            clearInterval(intervalHandle);
             resolve();
           }
         }, 300);
