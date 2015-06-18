@@ -1,6 +1,7 @@
 "use strict";
 var assert = require("assert"),
-platformIO = require("../../app/player/platform/io-provider.js");
+serviceUrls = require("../main/mock-service-urls.js"),
+platformIO = require("../../app/player/platform/io-provider.js")(serviceUrls);
 
 describe("io provider", function() {
   it("exists", function() {
@@ -38,10 +39,13 @@ describe("io provider", function() {
   });
 
   it("fetches a list of files related to a Url", function() {
-    var url = the-storage-server-url;
+    var url = "https://www.googleapi.com/storage/v1/b/risemedialibrary-832989832323298329898323232983298983/myPres/index.html";
+
     return platformIO.getRemoteFolderItemsList(url)
     .then(function(resp) {
-      //assert.equal(Object.keys(resp).length, lengthOfListing);
+      assert.equal(resp.length, 2);
+      assert.equal(resp[0].filePath, "test/");
+      assert.equal(resp[1].filePath, "test/image.jpg");
     });
   });
 
@@ -72,7 +76,7 @@ describe("io provider", function() {
   it("saves blobs to filesystem", function() {
     var blob = new Blob([1, 2, 3]);
     var mimeTypeExtension = "html";
-    return platformIO.filesystemSave("test", mimeTypeExtension, blob)
+    return platformIO.filesystemSave("test.html", mimeTypeExtension, blob)
     .then(function() {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
@@ -80,6 +84,8 @@ describe("io provider", function() {
             entry.file(function(file) {
               resolve(file);
             });
+          }, function(err) {
+            reject(err);
           });
         });
       });
