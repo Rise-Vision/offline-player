@@ -25,7 +25,6 @@ describe("starter", function() {
     return new Promise(function(resolve, reject) {
       chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
         var intervalHandle = setInterval(function() {
-          console.log("trying " + document.body.querySelectorAll("webview").length);
           if (document.body.querySelectorAll("webview").length === 1) {
             clearInterval(intervalHandle);
             resolve();
