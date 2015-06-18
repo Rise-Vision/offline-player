@@ -22,60 +22,79 @@ function localStorage(getOrSet, itemArray) {
   });
 }
 
-module.exports = {
-  httpFetcher: fetch.bind(window),
-  getRemoteFolderItemsList: function(url) {
-    var listingUrl = 
+function IOProvider(serviceUrls) {
+  return {
+    httpFetcher: fetch.bind(window),
+    getRemoteFolderItemsList: function(url) {
+      var regex = /risemedialibrary-(.{36})\/(.*)/;
+      var match = regex.exec(url);
 
-    return fetch(listingUrl)
-    .then(function(resp) {
-      return resp.json();
-    })
-    .then(function(json) {
-      //process json to return an array of objects, one for each file path
-      //{url: urlToFetchTheFile, filePath: theFilePath}
+      if(!match || match.length !== 3) {
+        return Promise.reject("Invalid URL");
+      }
 
-      //return Promise.resolve(pathObjects);
-    });
-  },
-  localObjectStore: {
-    get: function(itemArray) {return localStorage("get", itemArray);},
-    set: function(itemArray) {return localStorage("set", itemArray);}
-  },
-  filesystemSave: function(fileName, blob) {
-    return fs.then(function(fs) {
-      return new Promise(function(resolve, reject) {
-        fs.root.getFile(filename, {create: true}, function(entry) {
-          entry.createWriter(function(writer) {
-            writer.onwriteend = function() {
-              resolve();
-            };
+      var companyId = match[1];
+      var folder = match[2].endsWith("/") ? match[2] : (match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/")) : match[2]);
 
-            writer.onerror = function(err) {
-              reject(err);
-            };
+      var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
 
-            writer.write(blob);
+      return fetch(listingUrl)
+      .then(function(resp) {
+        return resp.json();
+      })
+      .then(function(json) {
+        //process json to return an array of objects, one for each file path
+        //{url: urlToFetchTheFile, filePath: theFilePath}
+
+        return Promise.resolve(json.items.map(function(f) {
+          return {
+            url: f.mediaLink,
+            filePath: f.objectId
+          };
+        }));
+      });
+    },
+    localObjectStore: {
+      get: function(itemArray) {return localStorage("get", itemArray);},
+      set: function(itemArray) {return localStorage("set", itemArray);}
+    },
+    filesystemSave: function(fileName, mimeTypeExtension, blob) {
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getFile(fileName, {create: true}, function(entry) {
+            entry.createWriter(function(writer) {
+              writer.onwrite = function() {
+                resolve();
+              };
+
+              writer.onerror = function(err) {
+                reject(err);
+              };
+
+              writer.write(blob);
+            }, function(err) {return reject(err);});
           }, function(err) {return reject(err);});
-        }, function(err) {return reject(err);});
+        });
       });
-    });
-  },
-  filesystemRetrieve: function(fileName) {
-    return fs.then(function(fs) {
-      return new Promise(function(resolve, reject) {
-        fs.root.getFile(fileName, {}, function(entry) {
-          entry.file(function(file) {
-            resolve({url: URL.createObjectURL(file), file: file});
+    },
+    filesystemRetrieve: function(fileName) {
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getFile(fileName, {}, function(entry) {
+            entry.file(function(file) {
+              resolve({url: URL.createObjectURL(file), file: file});
+            }, function(err) {reject(err);});
           }, function(err) {reject(err);});
-        }, function(err) {reject(err);});
+        });
       });
-    });
-  },
-  isNetworkConnected: function() {return navigator.onLine;},
-  hash: function(str) {
-    var sha1sum = crypto.createHash('sha1');
-    sha1sum.update(str);
-    return sha1sum.digest("hex");
-  }
-};
+    },
+    isNetworkConnected: function() {return navigator.onLine;},
+    hash: function(str) {
+      var sha1sum = crypto.createHash('sha1');
+      sha1sum.update(str);
+      return sha1sum.digest("hex");
+    }
+  };
+}
+
+module.exports = IOProvider;

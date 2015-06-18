@@ -1,6 +1,6 @@
 module.exports = function(serviceUrls) {
   "use strict";
-  var platformIOProvider = require("../platform/io-provider.js"),
+  var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
   contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
   contentViewController = require("../schedule/content-view-controller.js")
   (require("../platform/ui-controller.js"), contentCache, platformIOProvider),
