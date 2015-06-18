@@ -14,5 +14,5 @@ e2e-log/
 .idea
 *.iml
 .sonar
-**/*-browserify.js
+**/*-browserified.js
 test/mock-server-log.txt
