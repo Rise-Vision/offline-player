@@ -1,5 +1,11 @@
 "use strict";
-var shelljs = require("shelljs"), execResult, fileToSyntaxCheck, itFiles = [];
+var shelljs = require("shelljs"),
+execResult,
+fileToSyntaxCheck,
+itFiles = [],
+serverProcess,
+spawn = require("child_process").spawn,
+childProcess;
 
 fileToSyntaxCheck = process.argv[2] || "";
 
@@ -9,7 +15,7 @@ if (fileToSyntaxCheck) {
 }
 
 function integrationTestCommand(itFile) {
-  return "node ../../mocha-chrome-app-test-runner/run-test.js " + process.cwd() + "/" + itFile;
+  return ["../../mocha-chrome-app-test-runner/run-test.js", process.cwd() + "/" + itFile];
 }
 
 itFiles = [
@@ -18,13 +24,58 @@ itFiles = [
   "test/main/start-it.js"
 ];
 
-for (var i = 0; i < itFiles.length; i += 1) {
-  console.log("Running test " + itFiles[i]);
-  execResult = shelljs.exec(integrationTestCommand(itFiles[i]));
-  if (execResult.code !== 0) {
-    console.log("Test indicates unsuccessful result " + execResult.code);
-    break;
+runTest(itFiles.shift());
+
+function runTest(testToRun) {
+  if (testToRun === undefined) {
+    process.exit(0);
   }
+
+  startServer();
+  console.log("Running test " +testToRun);
+
+  childProcess = spawn("node", integrationTestCommand(testToRun));
+
+  childProcess.on("close", function(code) {
+    console.log("Closed child process");
+    stopServer();
+    runTest(itFiles.shift());
+  });
+
+  childProcess.stderr.on("data", function(data) {
+    var logOutput = data.toString();
+
+    if (logOutput.indexOf("CONSOLE") > -1
+    && logOutput.indexOf("CONSOLE(0)") === -1) {
+      console.log("Chrome stderr: " + data);
+    }
+
+    if (logOutput.indexOf("All tests completed!0")) {
+      //terminate child process automatically
+    }
+  });
+
+  childProcess.stdout.on("data", function(data) {
+    console.log("Chrome stdout: " + data);
+  });
 }
 
-return shelljs.exit(execResult);
+function startServer() {
+  console.log("Starting server");
+  serverProcess = spawn("node", ["test/mock-server.js"]);
+  console.log("Server pid: " + serverProcess.pid);
+  serverProcess.stdout.on("data", function(data) {
+    console.log("Mock server: " + data);
+  });
+  serverProcess.stderr.on("data", function(data) {
+    console.log("Mock server err: " + data);
+  });
+  serverProcess.on("close", function(code) {
+    console.log("Server closed " + code);
+  });
+}
+
+function stopServer() {
+  console.log("Stopping server");
+  serverProcess.kill();
+}
