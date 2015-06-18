@@ -1,6 +1,11 @@
 "use strict";
 module.exports = {
-  createViewWindow: function(url) {return {src: url};},
+  createViewWindow: function(url) {
+    return {src: url};
+  },
+  attachExternalFetchListener: function(view) {
+    view.attachedListener = true;
+  },
   setVisibility: function(el, vis) {
     el.visibility = vis;
   },

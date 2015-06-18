@@ -65,4 +65,13 @@ describe("content view controller", function(){
       assert.deepEqual(contentViews, {});
     });
   });
+
+  it("adds external fetch listener for Rise Storage presentations", function() {
+    scheduleItems.push({type: "url", objectReference: "risemedialibrary-test-url"});
+
+    return contentViewController.createContentViews(scheduleItems)
+    .then(function(views) {
+      assert.ok(views["risemedialibrary-test-url"].attachedListener);
+    });
+  });
 });
