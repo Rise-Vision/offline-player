@@ -1,19 +1,9 @@
 "use strict";
-var shelljs = require("shelljs"),
-execResult,
-path = require("path"),
-fileToSyntaxCheck,
+var path = require("path"),
 itFiles = [],
 serverProcess,
 spawn = require("child_process").spawn,
 childProcess;
-
-fileToSyntaxCheck = process.argv[2] || "";
-
-if (fileToSyntaxCheck) {
-  execResult = shelljs.exec("jshint " + fileToSyntaxCheck);
-  if (execResult.code !== 0) {return shelljs.exit(execResult.code);}
-}
 
 function integrationTestCommand(itFile) {
   return ["../../mocha-chrome-app-test-runner/run-test.js", path.join(process.cwd(), itFile)];
