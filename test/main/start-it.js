@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert"),
 start = require("../../app/player/main/start.js"),
-coreUrls = require("./mock-core-urls.js");
+serviceUrls = require("./mock-service-urls.js");
 
 
 describe("starter", function() {
@@ -10,7 +10,7 @@ describe("starter", function() {
   });
 
   it("starts", function() {
-    return start(coreUrls)
+    return start(serviceUrls)
     .then(function(resp) {
       assert.equal(resp, true);
     });
@@ -32,6 +32,6 @@ describe("starter", function() {
           }
         }, 100);
       });
-    })
+    });
   });
 });

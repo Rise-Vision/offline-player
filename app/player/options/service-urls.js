@@ -13,6 +13,10 @@ module.exports = function(platformDescription) {
 
     registrationUrl: "https://rvacore-test.appspot.com" +
     "/v2/viewer/display/CLAIM_ID/register?" +
-    "width=WIDTH&height=HEIGHT&name=NAME"
+    "width=WIDTH&height=HEIGHT&name=NAME",
+
+    folderContentsUrl: "https://storage-dot-rvacore-test.appspot.com" +
+    "/_ah/api/storage/v0.01/getFolderContents?" +
+    "companyId=COMPANY_ID&folderName=FOLDER_NAME&useSignedURIs=false"
   };
 };

@@ -22,47 +22,79 @@ function localStorage(getOrSet, itemArray) {
   });
 }
 
-module.exports = {
-  httpFetcher: fetch.bind(window),
-  localObjectStore: {
-    get: function(itemArray) {return localStorage("get", itemArray);},
-    set: function(itemArray) {return localStorage("set", itemArray);}
-  },
-  filesystemSave: function(hash, extensionForMimeType, blob) {
-    return fs.then(function(fs) {
-      return new Promise(function(resolve, reject) {
-        fs.root.getFile(hash + "." + extensionForMimeType,
-        {create: true}, function(entry) {
-          entry.createWriter(function(writer) {
-            writer.onwriteend = function() {
-              resolve();
-            };
+function IOProvider(serviceUrls) {
+  return {
+    httpFetcher: fetch.bind(window),
+    getRemoteFolderItemsList: function(url) {
+      var regex = /risemedialibrary-(.{36})\/(.*)/;
+      var match = regex.exec(url);
 
-            writer.onerror = function(err) {
-              reject(err);
-            };
+      if(!match || match.length !== 3) {
+        return Promise.reject("Invalid URL");
+      }
 
-            writer.write(blob);
+      var companyId = match[1];
+      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/") + 1) : ""; // Assumes a file will always be provided, not a folder
+
+      var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
+
+      return fetch(listingUrl)
+      .then(function(resp) {
+        return resp.json();
+      })
+      .then(function(json) {
+        //process json to return an array of objects, one for each file path
+        //{url: urlToFetchTheFile, filePath: theFilePath}
+
+        return Promise.resolve(json.items.map(function(f) {
+          return {
+            url: f.mediaLink,
+            filePath: f.objectId.substr(folder.length)
+          };
+        }));
+      });
+    },
+    localObjectStore: {
+      get: function(itemArray) {return localStorage("get", itemArray);},
+      set: function(itemArray) {return localStorage("set", itemArray);}
+    },
+    filesystemSave: function(fileName, blob) {
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getFile(fileName, {create: true}, function(entry) {
+            entry.createWriter(function(writer) {
+              writer.onwrite = function() {
+                resolve();
+              };
+
+              writer.onerror = function(err) {
+                reject(err);
+              };
+
+              writer.write(blob);
+            }, function(err) {return reject(err);});
           }, function(err) {return reject(err);});
-        }, function(err) {return reject(err);});
+        });
       });
-    });
-  },
-  filesystemRetrieve: function(hash, extensionForMimeType) {
-    return fs.then(function(fs) {
-      return new Promise(function(resolve, reject) {
-        fs.root.getFile(hash + "." + extensionForMimeType, {}, function(entry) {
-          entry.file(function(file) {
-            resolve({url: URL.createObjectURL(file), file: file});
+    },
+    filesystemRetrieve: function(fileName) {
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getFile(fileName, {}, function(entry) {
+            entry.file(function(file) {
+              resolve({url: URL.createObjectURL(file), file: file});
+            }, function(err) {reject(err);});
           }, function(err) {reject(err);});
-        }, function(err) {reject(err);});
+        });
       });
-    });
-  },
-  isNetworkConnected: function() {return navigator.onLine;},
-  hash: function(str) {
-    var sha1sum = crypto.createHash('sha1');
-    sha1sum.update(str);
-    return sha1sum.digest("hex");
-  }
-};
+    },
+    isNetworkConnected: function() {return navigator.onLine;},
+    hash: function(str) {
+      var sha1sum = crypto.createHash('sha1');
+      sha1sum.update(str);
+      return sha1sum.digest("hex");
+    }
+  };
+}
+
+module.exports = IOProvider;
