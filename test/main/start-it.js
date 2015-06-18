@@ -21,20 +21,17 @@ describe("starter", function() {
     assert.ok(webviewSource.indexOf("empty-schedule") > -1);
   });
 
-  it("updates on display on id change", function() {
+  it("updates webviews on display id change", function() {
     return new Promise(function(resolve, reject) {
       chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
         var intervalHandle = setInterval(function() {
-          if (document.body.querySelectorAll("webview").length === 1) {
+          var webviews = document.body.querySelectorAll("webview");
+          if (webviews[0] && webviews[0].src.indexOf("blob") > -1) {
             clearInterval(intervalHandle);
             resolve();
           }
-        }, 300);
+        }, 100);
       });
     })
-    .then(function() {
-      var wv = document.body.querySelectorAll("webview")[0];
-      assert.ok(wv.src.indexOf("blob") > -1);
-    });
   });
 });
