@@ -58,4 +58,31 @@ describe("remote folder fetcher", function() {
       assert.equal(Object.keys(localStorageSetParam).length, 1);
     });
   });
+
+  it("refreshes existing urls (because urls are invalidated after restart)",
+  function() {
+    mockIO = require("../platform/mock-io-provider.js")({
+      disconnected: true,
+      localStorageGetResult: {
+        "263e41a006548eccce33bf255660204412079777": [
+          {url: "url1", localUrl: "localUrl1", file: "file1"},
+          {url: "url2", localUrl: "localUrl2", file: "file2"}
+        ]
+      }
+    });
+
+    fetcher = require("../../app/player/cache/remote-folder-fetcher.js")(mockIO);
+    var scheduleItems = [
+      {objectReference: "risemedialibrary-url-1/"}
+    ];
+
+    return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
+    .then(function() {
+      var urlHash = "263e41a006548eccce33bf255660204412079777",
+      folderItems = fetcher.getFolderItems();
+
+      assert.equal(folderItems[urlHash][0].localUrl, "local-url-file1");
+      assert.equal(folderItems[urlHash][1].localUrl, "local-url-file2");
+    });
+  });
 });

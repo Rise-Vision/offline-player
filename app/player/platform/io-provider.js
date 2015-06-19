@@ -90,6 +90,9 @@ function IOProvider(serviceUrls) {
         });
       });
     },
+    generateUrl: function(file) {
+      return URL.createObjectURL(file);
+    },
     isNetworkConnected: function() {return navigator.onLine;},
     hash: function(str) {
       var sha1sum = crypto.createHash('sha1');
