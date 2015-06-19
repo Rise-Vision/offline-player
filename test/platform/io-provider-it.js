@@ -82,7 +82,7 @@ describe("io provider", function() {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
           fs.root.getFile("test.html", {}, function(entry) {
             entry.file(function(file) {
-              resolve({file: file, url: resp});
+              resolve({fileThatWasSaved: file, urlThatWasReturned: resp});
             });
           }, function(err) {
             reject(err);
@@ -91,8 +91,8 @@ describe("io provider", function() {
       });
     })
     .then(function(resp) {
-      assert.ok(URL.createObjectURL(resp.file).indexOf("//") > -1);
-      assert.ok(resp.url.indexOf("//") > -1);
+      assert.ok(URL.createObjectURL(resp.fileThatWasSaved).indexOf("//") > -1);
+      assert.ok(resp.urlThatWasReturned.indexOf("//") > -1);
     })
     .catch(function(err) {
       throw err;

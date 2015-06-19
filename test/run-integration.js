@@ -6,19 +6,24 @@ spawn = require("child_process").spawn,
 childProcess;
 
 function integrationTestCommand(itFile) {
-  return ["../../mocha-chrome-app-test-runner/run-test.js", path.join(process.cwd(), itFile)];
+  return ["../../mocha-chrome-app-test-runner/run-test.js", itFile];
 }
 
 itFiles = [
-  "test/platform/io-provider-it.js",
-  "test/platform/ui-controller-it.js",
-  "test/main/start-it.js"
+  path.join(process.cwd(), "test/platform/io-provider-it.js"),
+  path.join(process.cwd(), "test/platform/ui-controller-it.js"),
+  path.join(process.cwd(), "test/main/start-it.js")
 ];
+
+if (process.argv[2]) {
+  itFiles = [];
+  itFiles[0] = process.argv[2];
+}
 
 runTest(itFiles.shift());
 
 function runTest(testToRun) {
-  if (testToRun === undefined) {
+  if (testToRun === undefined || testToRun.indexOf("-it.js") === -1) {
     process.exit(0);
   }
 

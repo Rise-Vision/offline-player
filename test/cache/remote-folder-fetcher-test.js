@@ -29,9 +29,9 @@ describe("remote folder fetcher", function() {
     });
   });
 
-  it("saves items to filesystem as <mainurlhash>path/to/file.txt>", function() {
+  it("saves items to filesystem as <mainurlhash>path|to|file.txt>", function() {
     var scheduleItems = [
-      {objectReference: "risemedialibrary-url-1"},
+      {objectReference: "risemedialibrary-url-1/"},
       {objectReference: "risemedialibrary-url-2"},
       {objectReference: "risemedialibrary-url-3"}
     ],
@@ -42,8 +42,20 @@ describe("remote folder fetcher", function() {
       assert.equal(mockIO.getCalledParams().httpFetcher.length, 9);
       assert.equal(mockIO.getCalledParams().filesystemSave.length, 9);
       assert.ok(mockIO.getCalledParams().filesystemSave.some(function(params) {
-        return params[0] === sha1sumUrl2 + "filePath1";
+        return params[0] === sha1sumUrl2 + "filePath2|file";
       }));
+    });
+  });
+
+  it("retains a list of all folder items and local urls", function() {
+    var scheduleItems = [
+      {objectReference: "risemedialibrary-url-1/"}
+    ];
+
+    return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
+    .then(function() {
+      var localStorageSetParam = mockIO.getCalledParams().localStorage.set; 
+      assert.equal(Object.keys(localStorageSetParam).length, 1);
     });
   });
 });
