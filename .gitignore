@@ -16,4 +16,5 @@ e2e-log/
 .sonar
 **/*-browserified.js
 !app/player/main/start-browserified.js
+!app/player/options/options-page-browserified.js
 test/mock-server-log.txt
