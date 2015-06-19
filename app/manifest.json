@@ -10,8 +10,6 @@
   },
   "permissions": [
     "webview",
-    "webRequest",
-    "webRequestBlocking",
     "alarms",
     "alwaysOnTopWindows",
     "geolocation",
