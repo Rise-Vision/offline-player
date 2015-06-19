@@ -10,3 +10,4 @@ if (process.platform === "win32") {
 ret = require("child_process").spawnSync("istanbul", ["cover", "--", mochaPath, "--colors", "-t", "5000", "test/*-test.js", "test/**/*-test.js"]);
 
 console.log(ret.stdout.toString());
+console.log(ret.stderr.toString());

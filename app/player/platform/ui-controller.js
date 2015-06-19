@@ -7,6 +7,7 @@ module.exports = {
     view.partition = "persist:" + 
     (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     view.src = contentTarget;
+    console.log("appending " + contentTarget);
     document.body.appendChild(view);
 
     view.addEventListener("contentload", function() {
@@ -14,6 +15,13 @@ module.exports = {
     });
 
     return view;
+  },
+
+  attachExternalFetchListener: function(view, listener) {
+    view.request.onBeforeRequest.addListener
+    (listener, {urls: ["<all_urls>"]}, ["blocking"]);
+
+    return true;
   },
 
   setVisibility: function(el, vis) {

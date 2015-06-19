@@ -1,4 +1,4 @@
-function contentViewControllerFactory(platformUIController, contentCache, platformIOProvider) {
+function contentViewControllerFactory(platformUIController, contentCache, platformIOProvider, externalFetchListener) {
   "use strict";
   var contentViews = {};
 
@@ -15,6 +15,10 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
     return url.indexOf("../") === 0;
   }
 
+  function isRiseStorage(url) {
+    return url.indexOf("risemedialibrary-") > -1;
+  }
+
   return {
     createContentViews: function(items) {
       removePreviousContentViews();
@@ -29,7 +33,13 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
           }
         })
         .then(function(urlObject) {
-          var view = platformUIController.createViewWindow(urlObject.url);
+          var view = platformUIController.createViewWindow(urlObject.url),
+          hash = platformIOProvider.hash(urlObject.url),
+          fetchListener = externalFetchListener.createListener(hash);
+
+          if (isRiseStorage(item.objectReference)) {
+            platformUIController.attachExternalFetchListener(view, fetchListener);
+          }
           contentViews[item.objectReference] = view;
         });
       }))

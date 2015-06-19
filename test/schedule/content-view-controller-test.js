@@ -5,9 +5,10 @@ contentViewControllerPath = "../../app/player/schedule/content-view-controller.j
 platformUIMock = require("../platform/mock-ui-controller.js"),
 platformIOMock = require("../platform/mock-io-provider.js")(),
 contentCacheMock = require("../cache/mock-url-data-cacher.js"),
+externalFetchListenerMock = require("../cache/mock-external-fetch-listener.js")(),
 scheduleItems, 
 
-contentViewController = require(contentViewControllerPath)(platformUIMock, contentCacheMock, platformIOMock);
+contentViewController = require(contentViewControllerPath)(platformUIMock, contentCacheMock, platformIOMock, externalFetchListenerMock);
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
@@ -63,6 +64,16 @@ describe("content view controller", function(){
     })
     .then(function(contentViews) {
       assert.deepEqual(contentViews, {});
+    });
+  });
+
+  it("adds external fetch listener for Rise Storage presentations", function() {
+    scheduleItems.push({type: "url", objectReference: "risemedialibrary-test-url"});
+
+    return contentViewController.createContentViews(scheduleItems)
+    .then(function(views) {
+      console.log(views);
+      assert.ok(views["risemedialibrary-test-url"].attachedListener);
     });
   });
 });
