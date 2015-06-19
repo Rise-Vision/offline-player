@@ -82,7 +82,7 @@ module.exports = function(mockScenario) {
     },
     filesystemRetrieve: function(fileName) {
       calledParams.filesystemRetrieve.push(fileName);
-      return Promise.resolve(true);
+      return Promise.resolve({url: "url-for-" + fileName, file: true});
     },
     isNetworkConnected: function() {return !mockScenario.disconnected;},
     hash: function(str) {

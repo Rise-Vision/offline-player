@@ -34,11 +34,11 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
         })
         .then(function(urlObject) {
           var view = platformUIController.createViewWindow(urlObject.url),
-          hahs = platformIOProvider.hash(urlObject.url);
+          hash = platformIOProvider.hash(urlObject.url),
           fetchListener = externalFetchListener.createListener(hash);
 
           if (isRiseStorage(item.objectReference)) {
-            platformUIController.attachExternalFetchListener(fetchListener);
+            platformUIController.attachExternalFetchListener(view, fetchListener);
           }
           contentViews[item.objectReference] = view;
         });

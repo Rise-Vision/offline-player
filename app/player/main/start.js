@@ -1,9 +1,13 @@
 module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
+  platformUIController = require("../platform/ui-controller.js"),
+  remoteFolderFetcher = require("../cache/remote-folder-fetcher.js"),
+  externalFetchListener = require("../cache/external-fetch-listener.js")
+  (remoteFolderFetcher(platformIOProvider)),
   contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
   contentViewController = require("../schedule/content-view-controller.js")
-  (require("../platform/ui-controller.js"), contentCache, platformIOProvider),
+  (platformUIController, contentCache, platformIOProvider, externalFetchListener),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 

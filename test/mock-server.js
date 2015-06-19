@@ -10,7 +10,7 @@ http.createServer(function(req, res) {
 
   if (req.url.indexOf("mock-remote-page") > -1) {
     res.writeHead(200, {"Content-Type": "text/html"});
-    return res.end("<!doctype html><html><head></head><body>test</body></html>");
+    return res.end("<!doctype html><html><head></head><body>test remote page from mock server<img src='image-src' /></body></html>");
   }
 
   if (req.url.indexOf("folderContentsUrl") > -1) {

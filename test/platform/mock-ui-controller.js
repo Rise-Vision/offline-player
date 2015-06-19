@@ -3,8 +3,8 @@ module.exports = {
   createViewWindow: function(url) {
     return {src: url};
   },
-  attachExternalFetchListener: function(view) {
-    view.attachedListener = true;
+  attachExternalFetchListener: function(view, listener) {
+    view.attachedListener = listener;
   },
   setVisibility: function(el, vis) {
     el.visibility = vis;
