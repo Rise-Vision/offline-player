@@ -9,6 +9,10 @@ module.exports = function(platformIOFunctions) {
           return Promise.resolve("not fetching unless Rise Storage folder");
         }
 
+        if (!platformIOFunctions.isNetworkConnected()) {
+          return refreshPreviouslySavedFolders(platformIOFunctions.hash(url));
+        }
+
         return platformIOFunctions.getRemoteFolderItemsList(url)
         .then(function(resp) {
           folderItems[platformIOFunctions.hash(url)] = resp;
@@ -46,5 +50,24 @@ module.exports = function(platformIOFunctions) {
         });
       });
     }, Promise.resolve());
+  }
+
+  function refreshPreviouslySavedFolders(urlHash) {
+    return new Promise(function(resolve, reject) {
+      platformIOFunctions.localObjectStore.get(["folderItems"])
+      .then(function(storageItems) {
+        storageItems.folderItems[urlHash].forEach(function(folderItem) {
+          folderItem.localUrl = platformIOFunctions.generateUrl(folderItem.file);
+        });
+
+        folderItems = storageItems.folderItems;
+        resolve();
+      })
+      .catch(function(err) {
+        console.log("Could not refresh previously saved folders");
+        console.log(err);
+        resolve();
+      });
+    });
   }
 };

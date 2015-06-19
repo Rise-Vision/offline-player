@@ -28,6 +28,9 @@ module.exports = function(mockScenario) {
       mockScenario.failedLocalStorage.emptyGet: false
     },
 
+    localStorageGetResult: mockScenario.localStorageGetResult ?
+    mockScenario.localStorageGetResult : "mock-result",
+
     failedFilesystemSave: mockScenario.failedFilesystemSave ?
     mockScenario.failedFilesystemSave : false,
 
@@ -39,7 +42,9 @@ module.exports = function(mockScenario) {
   function localStorage(getOrSet, itemArray) {
     var retval = {};
     if (getOrSet === "get") {
-      itemArray.forEach(function(item) {retval[item] = "mock-result";});
+      itemArray.forEach(function(item) {
+        retval[item] = mockScenario.localStorageGetResult;
+      });
     }
 
     calledParams.localStorage[getOrSet] = itemArray;
@@ -84,6 +89,7 @@ module.exports = function(mockScenario) {
       calledParams.filesystemRetrieve.push(fileName);
       return Promise.resolve({url: "url-for-" + fileName, file: true});
     },
+    generateUrl: function(file) {return "local-url-" + file;},
     isNetworkConnected: function() {return !mockScenario.disconnected;},
     hash: function(str) {
       var sha1sum = crypto.createHash('sha1');

@@ -121,6 +121,21 @@ describe("io provider", function() {
       assert.equal(resp.file.size, 3);
     });
   });
+  
+  it("generates a url for a local filesystem file", function() {
+    var blob = new Blob(["sometext"]);
+    return platformIO.filesystemSave("testfile.css", blob)
+    .then(function(resp) {
+      return platformIO.filesystemRetrieve("testfile.css");
+    })
+    .then(function(resp) {
+      return platformIO.generateUrl(resp.file);
+    })
+    .then(function(resp) {
+      console.log(resp);
+      assert.ok(resp.indexOf("blob:chrome-extension%3A//") > -1);
+    });
+  });
 
   it("knows when disconnected", function() {
     assert.equal(platformIO.isNetworkConnected(), navigator.onLine);
