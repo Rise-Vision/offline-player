@@ -42,7 +42,11 @@ function IOProvider(serviceUrls) {
         return resp.json();
       })
       .then(function(json) {
-        return Promise.resolve(json.items.map(function(f) {
+        var filteredItems = json.items.filter(function(f) {
+          return f.folder === false;
+        });
+
+        return Promise.resolve(filteredItems.map(function(f) {
           return {
             url: f.mediaLink,
             filePath: f.objectId.substr(folder.length)

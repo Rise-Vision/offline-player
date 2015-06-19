@@ -53,10 +53,9 @@ describe("io provider", function() {
 
     return platformIO.getRemoteFolderItemsList(url)
     .then(function(resp) {
-      assert.equal(resp.length, 4);
-      assert.equal(resp[1].filePath, "index.html");
-      assert.equal(resp[2].filePath, "test/");
-      assert.equal(resp[3].filePath, "test/image.jpg");
+      assert.equal(resp.length, 2);
+      assert.equal(resp[0].filePath, "index.html");
+      assert.equal(resp[1].filePath, "test/image.jpg");
     });
   });
 
