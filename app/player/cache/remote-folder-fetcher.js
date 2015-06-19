@@ -2,8 +2,6 @@ module.exports = function(platformIOFunctions) {
   var folderItems = {};
 
   return {
-    getUrlHashes: function() {return urlHashes;},
-
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       return Promise.all(scheduleItems.map(function(scheduleItem) {
         var url = scheduleItem.objectReference;
@@ -17,6 +15,9 @@ module.exports = function(platformIOFunctions) {
         })
         .then(function() {
           return saveFolderItems(platformIOFunctions.hash(url));
+        })
+        .then(function() {
+          platformIOFunctions.localObjectStore.set({folderItems: folderItems});
         })
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
@@ -37,8 +38,11 @@ module.exports = function(platformIOFunctions) {
           return resp.blob();
         })
         .then(function(blob) {
-          var fileName = mainUrlHash + curr.filePath;
+          var fileName = mainUrlHash + curr.filePath.replace("/", "|");
           return platformIOFunctions.filesystemSave(fileName, blob); 
+        })
+        .then(function(url) {
+          curr.localUrl = url;
         });
       });
     }, Promise.resolve());

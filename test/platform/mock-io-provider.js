@@ -64,8 +64,8 @@ module.exports = function(mockScenario) {
     getRemoteFolderItemsList: function(url) {
       calledParams.getRemoteFolderItemsList.push(url);
       return Promise.resolve([
-          {url: "url1", filePath: "filePath1"},
-          {url: "url2", filePath: "filePath2"},
+          {url: "url1", filePath: "file1"},
+          {url: "url2", filePath: "filePath2/file"},
           {url: "url3", filePath: "filePath3"}
       ]);
     },
@@ -78,7 +78,7 @@ module.exports = function(mockScenario) {
       if (mockScenario.failedFilesystemSave) {
         return Promise.reject("Failed filesystem save");
       }
-      return Promise.resolve(true);
+      return Promise.resolve("local-url");
     },
     filesystemRetrieve: function(fileName) {
       calledParams.filesystemRetrieve.push(fileName);
