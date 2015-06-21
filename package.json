@@ -11,9 +11,10 @@
   },
   "devDependencies": {
     "browserify": "^10.1.3",
+    "chrome-app-test-runner": "~0.0.5",
+    "glob": "^5.0.10",
     "mocha": "^2.2.4",
     "selenium-webdriver": "^2.45.1",
-    "shelljs": "^0.5.1",
-    "chrome-app-test-runner": "~0.0.1"
+    "shelljs": "^0.5.1"
   }
 }
