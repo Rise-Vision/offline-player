@@ -18,14 +18,16 @@ describe("platform ui controller", function() {
     assert.equal(document.querySelectorAll("webview").length, 0);
   });
 
-  it("attaches listeners to view window", function() {
+  it("attaches working listeners to view window", function() {
     var mockPageUrl = "http://localhost:7654/mock-remote-page",
     view = domPlatformController.createViewWindow(mockPageUrl);
 
     return new Promise(function(resolve, reject) {
       var listener = function(details) {
         console.log("request details: " + JSON.stringify(details));
-        resolve();
+        if (/image-src/.test(details.url)) {
+          resolve("This listener function fired on a webview's network fetch");
+        }
         return {};
       };
 

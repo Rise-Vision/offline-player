@@ -67,13 +67,14 @@ describe("content view controller", function(){
     });
   });
 
-  it("adds external fetch listener for Rise Storage presentations", function() {
-    scheduleItems.push({type: "url", objectReference: "risemedialibrary-test-url"});
+  it("adds external fetch listener for Rise Storage content", function() {
+    var url = "http://risemedialibrary-323232323232323232323232323232323232/";
+    scheduleItems.push({type: "url", objectReference: url});
 
     return contentViewController.createContentViews(scheduleItems)
     .then(function(views) {
       console.log(views);
-      assert.ok(views["risemedialibrary-test-url"].attachedListener);
+      assert.ok(views[url].attachedListener);
     });
   });
 });

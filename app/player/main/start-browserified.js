@@ -13,27 +13,28 @@ module.exports = function(remoteScheduleLoader) {
 },{}],2:[function(require,module,exports){
 module.exports = function(remoteFolderFetcher) {
   return {
-    createListener: function(hash) {
-      localFilesystemUrls = remoteFolderFetcher.getFolderItems()[hash];
+    createListener: function(mainUrlPath) {
+      localFilesystemUrls = remoteFolderFetcher.getFolderItems()[mainUrlPath];
 
-      function findUrlEntry(requestedPath) {
-        if (!localFilesystemUrls) {return false;}
-        for(var i = 0; i < localFilesystemUrls.length; i += 1) {
-          if (requestedPath.indexOf("/" + localFilesystemUrls[i].url) > -1) {
-            return localFilesystemUrls[i].localUrl;
-          }
-        }
-
-        return false;
-      }
-
-      return function(fetchDetails) {
+      return function fetchIntercept(fetchDetails) {
         var cacheUrl = findUrlEntry(fetchDetails.url);
         console.log("requesting url " + fetchDetails.url);
 
         if (!cacheUrl) {return {};}
         return {redirectUrl: cacheUrl};
       };
+
+      function findUrlEntry(requestedUrl) {
+        var requestedPath = requestedUrl.substr(mainUrlPath.length);
+        if (!localFilesystemUrls) {return false;}
+        for(var i = 0; i < localFilesystemUrls.length; i += 1) {
+          if (requestedPath === localFilesystemUrls[i].filePath) {
+            return localFilesystemUrls[i].localUrl;
+          }
+        }
+
+        return false;
+      }
     }
   };
 };
@@ -45,17 +46,24 @@ module.exports = function(platformIOFunctions) {
   return {
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       return Promise.all(scheduleItems.map(function(scheduleItem) {
-        var url = scheduleItem.objectReference;
-        if (url.indexOf("risemedialibrary-") === -1) {
+        var url = scheduleItem.objectReference,
+        mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
+
+        if (!/risemedialibrary-.{36}\//.test(url)) {
           return Promise.resolve("not fetching unless Rise Storage folder");
+        }
+
+        if (!platformIOFunctions.isNetworkConnected()) {
+          return refreshPreviouslySavedFolders(mainUrlPath);
         }
 
         return platformIOFunctions.getRemoteFolderItemsList(url)
         .then(function(resp) {
-          folderItems[platformIOFunctions.hash(url)] = resp;
+          folderItems[mainUrlPath] = resp;
+          return mainUrlPath;
         })
         .then(function() {
-          return saveFolderItems(platformIOFunctions.hash(url));
+          return saveFolderItems(mainUrlPath);
         })
         .then(function() {
           platformIOFunctions.localObjectStore.set({folderItems: folderItems});
@@ -71,15 +79,16 @@ module.exports = function(platformIOFunctions) {
     getFolderItems: function() { return folderItems;}
   };
 
-  function saveFolderItems(mainUrlHash) {
-    return folderItems[mainUrlHash].reduce(function(prev, curr) {
+  function saveFolderItems(mainUrlPath) {
+    return folderItems[mainUrlPath].reduce(function(prev, curr) {
       return prev.then(function() {
         return platformIOFunctions.httpFetcher(curr.url)
         .then(function(resp) {
           return resp.blob();
         })
         .then(function(blob) {
-          var fileName = mainUrlHash + curr.filePath.replace("/", "|");
+          var fileName = platformIOFunctions.hash(mainUrlPath + curr.filePath) +
+          getExt(curr.filePath);
           return platformIOFunctions.filesystemSave(fileName, blob); 
         })
         .then(function(url) {
@@ -87,6 +96,32 @@ module.exports = function(platformIOFunctions) {
         });
       });
     }, Promise.resolve());
+  }
+
+  function getExt(filePath) {
+    var lastDot = filePath.lastIndexOf("."), ext;
+    ext = lastDot === -1 ? "" :
+    filePath.substr(filePath.lastIndexOf("."));
+    return ext;
+  }
+
+  function refreshPreviouslySavedFolders(mainUrlPath) {
+    return platformIOFunctions.localObjectStore.get(["folderItems"])
+    .then(function(storageItems) {
+      folderItems = storageItems.folderItems;
+      return Promise.all
+      (folderItems[mainUrlPath].map(function(folderItem) {
+        var ext = getExt(folderItem.filePath);
+        return platformIOFunctions.filesystemRetrieve(
+        platformIOFunctions.hash(mainUrlPath + folderItem.filePath) + ext)
+        .then(function(obj) {
+          return (folderItem.localUrl = obj.url);
+        });
+    }));})
+    .catch(function(err) {
+      console.log("Could not refresh previously saved folders");
+      console.log(err);
+    });
   }
 };
 
@@ -272,26 +307,34 @@ function localStorage(getOrSet, itemArray) {
 function IOProvider(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
-    getRemoteFolderItemsList: function(url) {
+    getRemoteFolderItemsList: function(targetFileUrl) {
       var regex = /risemedialibrary-(.{36})\/(.*)/;
-      var match = regex.exec(url);
+      var match = regex.exec(targetFileUrl);
       if(!match || match.length !== 3) {
         return Promise.reject("Invalid URL");
       }
 
       var companyId = match[1];
-      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/") + 1) : ""; // Assumes a file will always be provided, not a folder
+      var folder = match[2].indexOf("/") >= 0 ? 
+      match[2].substr(0, match[2].lastIndexOf("/") + 1) :
+      ""; 
 
-      var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
+      var listingUrl = serviceUrls.folderContentsUrl
+      .replace("COMPANY_ID", companyId)
+      .replace("FOLDER_NAME", encodeURIComponent(folder));
 
       return fetch(listingUrl)
       .then(function(resp) {
         return resp.json();
       })
       .then(function(json) {
-        return Promise.resolve(json.items.map(function(f) {
-          return {
-            url: f.mediaLink,
+        var filteredItems = json.items.filter(function(f) {
+          return f.folder === false;
+        });
+
+        return Promise.resolve(filteredItems.map(function(f) {
+          return  {
+            remoteUrl: f.selfLink + "?alt=media",
             filePath: f.objectId.substr(folder.length)
           };
         }));
@@ -471,8 +514,10 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
         })
         .then(function(urlObject) {
           var view = platformUIController.createViewWindow(urlObject.url),
-          hash = platformIOProvider.hash(urlObject.url),
-          fetchListener = externalFetchListener.createListener(hash);
+          mainUrlPath = urlObject.url.substr(0, urlObject.url.lastIndexOf("/") + 1),
+          fetchListener;
+
+          fetchListener = externalFetchListener.createListener(mainUrlPath);
 
           if (isRiseStorage(item.objectReference)) {
             platformUIController.attachExternalFetchListener(view, fetchListener);

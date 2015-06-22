@@ -16,7 +16,7 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
   }
 
   function isRiseStorage(url) {
-    return url.indexOf("risemedialibrary-") > -1;
+    return /risemedialibrary-.{36}\//.test(url);
   }
 
   return {
@@ -34,8 +34,10 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
         })
         .then(function(urlObject) {
           var view = platformUIController.createViewWindow(urlObject.url),
-          hash = platformIOProvider.hash(urlObject.url),
-          fetchListener = externalFetchListener.createListener(hash);
+          mainUrlPath = urlObject.url.substr(0, urlObject.url.lastIndexOf("/") + 1),
+          fetchListener;
+
+          fetchListener = externalFetchListener.createListener(mainUrlPath);
 
           if (isRiseStorage(item.objectReference)) {
             platformUIController.attachExternalFetchListener(view, fetchListener);
