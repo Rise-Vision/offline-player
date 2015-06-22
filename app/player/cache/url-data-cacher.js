@@ -1,8 +1,8 @@
 module.exports = function(platformIOFunctions) {
   var schedule = {}, urlHashes = {};
 
-  function isLocalFile(url) {
-    return url.indexOf("../") === 0;
+  function isRiseStorage(url) {
+    return /risemedialibrary-.{36}\//.test(url);
   }
 
   return {
@@ -16,7 +16,7 @@ module.exports = function(platformIOFunctions) {
 
     fetchUrlDataIntoFilesystem: function() {
       return Promise.all(Object.keys(urlHashes).map(function(url) {
-        if (isLocalFile(url)) {
+        if (!isRiseStorage(url)) {
           return Promise.resolve(true);
         }
 

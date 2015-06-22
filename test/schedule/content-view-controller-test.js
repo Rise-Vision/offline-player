@@ -7,14 +7,15 @@ platformIOMock = require("../platform/mock-io-provider.js")(),
 contentCacheMock = require("../cache/mock-url-data-cacher.js"),
 externalFetchListenerMock = require("../cache/mock-external-fetch-listener.js")(),
 scheduleItems, 
+riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
 
 contentViewController = require(contentViewControllerPath)(platformUIMock, contentCacheMock, platformIOMock, externalFetchListenerMock);
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
     scheduleItems = [
-      {type: "url", objectReference: "test1"},
-      {type: "url", objectReference: "test2"}
+      {type: "url", objectReference: riseUrl},
+      {type: "url", objectReference: "someOtherUrl"}
     ];
   });
 
@@ -41,16 +42,16 @@ describe("content view controller", function(){
   it("shows views", function() {
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
-      contentViewController.showView("test1");
-      assert.equal(contentViews.test1.visibility, true);
+      contentViewController.showView("someOtherUrl");
+      assert.equal(contentViews.someOtherUrl.visibility, true);
     });
   });
 
   it("hides views", function() {
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
-      contentViewController.hideView("test1");
-      assert.equal(contentViews.test1.visibility, false);
+      contentViewController.hideView("someOtherUrl");
+      assert.equal(contentViews.someOtherUrl.visibility, false);
     });
   });
 

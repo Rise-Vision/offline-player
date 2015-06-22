@@ -11,10 +11,6 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
     return contentViews;
   }
 
-  function isLocalFile(url) {
-    return url.indexOf("../") === 0;
-  }
-
   function isRiseStorage(url) {
     return /risemedialibrary-.{36}\//.test(url);
   }
@@ -25,7 +21,7 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
 
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
-          if (isLocalFile(item.objectReference)) {
+          if (!isRiseStorage(item.objectReference)) {
             resolve({url: item.objectReference});
           } else {
             resolve(platformIOProvider.filesystemRetrieve

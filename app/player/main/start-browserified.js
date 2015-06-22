@@ -129,8 +129,8 @@ module.exports = function(platformIOFunctions) {
 module.exports = function(platformIOFunctions) {
   var schedule = {}, urlHashes = {};
 
-  function isLocalFile(url) {
-    return url.indexOf("../") === 0;
+  function isRiseStorage(url) {
+    return /risemedialibrary-.{36}\//.test(url);
   }
 
   return {
@@ -144,7 +144,7 @@ module.exports = function(platformIOFunctions) {
 
     fetchUrlDataIntoFilesystem: function() {
       return Promise.all(Object.keys(urlHashes).map(function(url) {
-        if (isLocalFile(url)) {
+        if (!isRiseStorage(url)) {
           return Promise.resolve(true);
         }
 
@@ -491,12 +491,8 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
     return contentViews;
   }
 
-  function isLocalFile(url) {
-    return url.indexOf("../") === 0;
-  }
-
   function isRiseStorage(url) {
-    return url.indexOf("risemedialibrary-") > -1;
+    return /risemedialibrary-.{36}\//.test(url);
   }
 
   return {
@@ -505,7 +501,7 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
 
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
-          if (isLocalFile(item.objectReference)) {
+          if (!isRiseStorage(item.objectReference)) {
             resolve({url: item.objectReference});
           } else {
             resolve(platformIOProvider.filesystemRetrieve
