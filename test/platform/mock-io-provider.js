@@ -70,8 +70,7 @@ module.exports = function(mockScenario) {
       calledParams.getRemoteFolderItemsList.push(url);
       return Promise.resolve([
           {url: "url1", filePath: "file1"},
-          {url: "url2", filePath: "filePath2/file"},
-          {url: "url3", filePath: "filePath3"}
+          {url: "url2", filePath: "filePath2/file.txt"}
       ]);
     },
     localObjectStore: {

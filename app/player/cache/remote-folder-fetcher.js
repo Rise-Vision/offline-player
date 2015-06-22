@@ -4,21 +4,24 @@ module.exports = function(platformIOFunctions) {
   return {
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       return Promise.all(scheduleItems.map(function(scheduleItem) {
-        var url = scheduleItem.objectReference;
-        if (url.indexOf("risemedialibrary-") === -1) {
+        var url = scheduleItem.objectReference,
+        mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
+
+        if (!/risemedialibrary-.{36}\//.test(url)) {
           return Promise.resolve("not fetching unless Rise Storage folder");
         }
 
         if (!platformIOFunctions.isNetworkConnected()) {
-          return refreshPreviouslySavedFolders(platformIOFunctions.hash(url));
+          return refreshPreviouslySavedFolders(mainUrlPath);
         }
 
         return platformIOFunctions.getRemoteFolderItemsList(url)
         .then(function(resp) {
-          folderItems[platformIOFunctions.hash(url)] = resp;
+          folderItems[mainUrlPath] = resp;
+          return mainUrlPath;
         })
         .then(function() {
-          return saveFolderItems(platformIOFunctions.hash(url));
+          return saveFolderItems(mainUrlPath);
         })
         .then(function() {
           platformIOFunctions.localObjectStore.set({folderItems: folderItems});
@@ -34,15 +37,16 @@ module.exports = function(platformIOFunctions) {
     getFolderItems: function() { return folderItems;}
   };
 
-  function saveFolderItems(mainUrlHash) {
-    return folderItems[mainUrlHash].reduce(function(prev, curr) {
+  function saveFolderItems(mainUrlPath) {
+    return folderItems[mainUrlPath].reduce(function(prev, curr) {
       return prev.then(function() {
         return platformIOFunctions.httpFetcher(curr.url)
         .then(function(resp) {
           return resp.blob();
         })
         .then(function(blob) {
-          var fileName = mainUrlHash + curr.filePath.replace("/", "|");
+          var fileName = platformIOFunctions.hash(mainUrlPath + curr.filePath) +
+          getExt(curr.filePath);
           return platformIOFunctions.filesystemSave(fileName, blob); 
         })
         .then(function(url) {
@@ -52,22 +56,29 @@ module.exports = function(platformIOFunctions) {
     }, Promise.resolve());
   }
 
-  function refreshPreviouslySavedFolders(urlHash) {
-    return new Promise(function(resolve, reject) {
-      platformIOFunctions.localObjectStore.get(["folderItems"])
-      .then(function(storageItems) {
-        storageItems.folderItems[urlHash].forEach(function(folderItem) {
-          folderItem.localUrl = platformIOFunctions.generateUrl(folderItem.file);
-        });
+  function getExt(filePath) {
+    var lastDot = filePath.lastIndexOf("."), ext;
+    ext = lastDot === -1 ? "" :
+    filePath.substr(filePath.lastIndexOf("."));
+    return ext;
+  }
 
-        folderItems = storageItems.folderItems;
-        resolve();
-      })
-      .catch(function(err) {
-        console.log("Could not refresh previously saved folders");
-        console.log(err);
-        resolve();
-      });
+  function refreshPreviouslySavedFolders(mainUrlPath) {
+    return platformIOFunctions.localObjectStore.get(["folderItems"])
+    .then(function(storageItems) {
+      folderItems = storageItems.folderItems;
+      return Promise.all
+      (folderItems[mainUrlPath].map(function(folderItem) {
+        var ext = getExt(folderItem.filePath);
+        return platformIOFunctions.filesystemRetrieve(
+        platformIOFunctions.hash(mainUrlPath + folderItem.filePath) + ext)
+        .then(function(obj) {
+          return (folderItem.localUrl = obj.url);
+        });
+    }));})
+    .catch(function(err) {
+      console.log("Could not refresh previously saved folders");
+      console.log(err);
     });
   }
 };
