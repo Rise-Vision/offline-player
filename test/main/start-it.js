@@ -26,7 +26,7 @@ describe("starter", function() {
       chrome.storage.local.set({displayId: "9XJUA6ESG8Y3"}, function() {
         var intervalHandle = setInterval(function() {
           var webviews = document.body.querySelectorAll("webview");
-          if (webviews[0] && webviews[0].src.indexOf("blob") > -1) {
+          if (webviews[0] && webviews[0].src.indexOf("mock-remote-page") > -1) {
             clearInterval(intervalHandle);
             resolve();
           }

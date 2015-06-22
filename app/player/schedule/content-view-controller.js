@@ -11,12 +11,8 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
     return contentViews;
   }
 
-  function isLocalFile(url) {
-    return url.indexOf("../") === 0;
-  }
-
   function isRiseStorage(url) {
-    return url.indexOf("risemedialibrary-") > -1;
+    return /risemedialibrary-.{36}\//.test(url);
   }
 
   return {
@@ -25,7 +21,7 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
 
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
-          if (isLocalFile(item.objectReference)) {
+          if (!isRiseStorage(item.objectReference)) {
             resolve({url: item.objectReference});
           } else {
             resolve(platformIOProvider.filesystemRetrieve
@@ -34,8 +30,10 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
         })
         .then(function(urlObject) {
           var view = platformUIController.createViewWindow(urlObject.url),
-          hash = platformIOProvider.hash(urlObject.url),
-          fetchListener = externalFetchListener.createListener(hash);
+          mainUrlPath = urlObject.url.substr(0, urlObject.url.lastIndexOf("/") + 1),
+          fetchListener;
+
+          fetchListener = externalFetchListener.createListener(mainUrlPath);
 
           if (isRiseStorage(item.objectReference)) {
             platformUIController.attachExternalFetchListener(view, fetchListener);

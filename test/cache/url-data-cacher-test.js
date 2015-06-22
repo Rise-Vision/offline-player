@@ -3,13 +3,18 @@ var assert = require("assert"),
 dataCacherPath = "../../app/player/cache/url-data-cacher.js",
 mockIOProvider,
 urlDataCacher,
+riseUrl = "http://risemedialibrary-323232323232323232323232323232323232/1/tst.html",
+someOtherUrl = "http://somewhereelse/test.html",
 mockSchedule;
 
 describe("url data cache", function() {
   beforeEach(function() {
     mockIOProvider = require("../platform/mock-io-provider.js")();
     urlDataCacher = require(dataCacherPath)(mockIOProvider);
-    mockSchedule = {items: [{objectReference: "A"}, {objectReference: "B"}]};
+    mockSchedule = {items: [
+      {objectReference: riseUrl},
+      {objectReference: someOtherUrl}
+    ]};
   });
 
   it("exists", function() {
@@ -17,13 +22,14 @@ describe("url data cache", function() {
   });
 
   it("extracts schedule urls", function() {
+    var expectedUrlHashes = {};
+    expectedUrlHashes[riseUrl] = "";
+    expectedUrlHashes[someOtherUrl] = "";
     urlDataCacher.setSchedule(mockSchedule);
-    assert.deepEqual(urlDataCacher.getUrlHashes(), {"A": "", "B": ""});
+    assert.deepEqual(urlDataCacher.getUrlHashes(), expectedUrlHashes);
   });
 
-  it("doesn't try to retrieve a local file", function() {
-    mockSchedule.items[0].objectReference = "../not a remote url";
-
+  it("doesn't try to retrieve files that aren't stored on RiseStorage", function() {
     urlDataCacher.setSchedule(mockSchedule);
 
     return urlDataCacher.fetchUrlDataIntoFilesystem()
@@ -33,23 +39,19 @@ describe("url data cache", function() {
   });
 
   it("saves the url data and retains hashes as filenames", function() {
-    var sha1sums = {
-      A: "6dcd4ce23d88e2ee9568ba546c007c63d9131c1b",
-      B: "ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec"
-    };
+    var sha1sums = {};
+    sha1sums[riseUrl] = "784b8f947401fa3606e4451e1a6c7314f0bdf107";
 
     urlDataCacher.setSchedule(mockSchedule);
 
     return urlDataCacher.fetchUrlDataIntoFilesystem()
     .then(function() {
-      assert.deepEqual(mockIOProvider.getCalledParams().httpFetcher, ["A", "B"]);
+      assert.deepEqual(mockIOProvider.getCalledParams().httpFetcher, [riseUrl]);
 
-      assert.equal(urlDataCacher.getUrlHashes().A, sha1sums.A);
-      assert.equal(urlDataCacher.getUrlHashes().B, sha1sums.B);
+      assert.equal(urlDataCacher.getUrlHashes()[riseUrl], sha1sums[riseUrl]);
 
       assert.deepEqual((mockIOProvider.getCalledParams().filesystemSave),
-      [[sha1sums.A + ".html", "mock-blob"],
-      [sha1sums.B + ".html", "mock-blob"]]);
+      [[sha1sums[riseUrl] + ".html", "mock-blob"]]);
     });
   });
 });

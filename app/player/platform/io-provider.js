@@ -25,17 +25,21 @@ function localStorage(getOrSet, itemArray) {
 function IOProvider(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
-    getRemoteFolderItemsList: function(url) {
+    getRemoteFolderItemsList: function(targetFileUrl) {
       var regex = /risemedialibrary-(.{36})\/(.*)/;
-      var match = regex.exec(url);
+      var match = regex.exec(targetFileUrl);
       if(!match || match.length !== 3) {
         return Promise.reject("Invalid URL");
       }
 
       var companyId = match[1];
-      var folder = match[2].indexOf("/") >= 0 ? match[2].substr(0, match[2].lastIndexOf("/") + 1) : ""; // Assumes a file will always be provided, not a folder
+      var folder = match[2].indexOf("/") >= 0 ? 
+      match[2].substr(0, match[2].lastIndexOf("/") + 1) :
+      ""; 
 
-      var listingUrl = serviceUrls.folderContentsUrl.replace("COMPANY_ID", companyId).replace("FOLDER_NAME", encodeURIComponent(folder));
+      var listingUrl = serviceUrls.folderContentsUrl
+      .replace("COMPANY_ID", companyId)
+      .replace("FOLDER_NAME", encodeURIComponent(folder));
 
       return fetch(listingUrl)
       .then(function(resp) {
@@ -47,8 +51,8 @@ function IOProvider(serviceUrls) {
         });
 
         return Promise.resolve(filteredItems.map(function(f) {
-          return {
-            url: f.mediaLink,
+          return  {
+            remoteUrl: f.selfLink + "?alt=media",
             filePath: f.objectId.substr(folder.length)
           };
         }));
@@ -89,9 +93,6 @@ function IOProvider(serviceUrls) {
           }, function(err) {reject(err);});
         });
       });
-    },
-    generateUrl: function(file) {
-      return URL.createObjectURL(file);
     },
     isNetworkConnected: function() {return navigator.onLine;},
     hash: function(str) {

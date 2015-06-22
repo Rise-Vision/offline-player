@@ -14,8 +14,9 @@ describe("remote folder fetcher", function() {
   });
 
   it("fetches Rise Storage remote folder contents", function() {
-    var url = "risemedialibrary-";
-    return fetcher.fetchFoldersIntoFilesystem([{objectReference: "risemedialibrary-"}])
+    var companyId = "121212211212121212121212121212121212",
+    url = "http://storage/risemedialibrary-" + companyId + "/myfolder/index.html";
+    return fetcher.fetchFoldersIntoFilesystem([{objectReference: url}])
     .then(function(resp) {
       assert.equal((mockIO.getCalledParams().getRemoteFolderItemsList)[0], url);
     });
@@ -29,27 +30,26 @@ describe("remote folder fetcher", function() {
     });
   });
 
-  it("saves items to filesystem as <mainurlhash>path|to|file.txt>", function() {
-    var scheduleItems = [
-      {objectReference: "risemedialibrary-url-1/"},
-      {objectReference: "risemedialibrary-url-2"},
-      {objectReference: "risemedialibrary-url-3"}
+  it("saves items to filesystem as <filePathHash>.ext", function() {
+    var companyId = "121212211212121212121212121212121212", scheduleItems = [
+      {objectReference: "http://risemedialibrary-" + companyId + "/1/test.html"},
+      {objectReference: "http://risemedialibrary-" + companyId + "/2/index.html"},
     ],
-    sha1sumUrl2 = "328495a9c79a2f11aa32397fc8c4dcf1b5de220d"; 
-
+    sha1sum = "42afffb9af8bfab45f29874ce39cc8d74353a2fd";
+    /*http://risemedialibrary-1212122112...../filePath2/file.txt*/
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
-      assert.equal(mockIO.getCalledParams().httpFetcher.length, 9);
-      assert.equal(mockIO.getCalledParams().filesystemSave.length, 9);
+      assert.equal(mockIO.getCalledParams().httpFetcher.length, 4);
+      assert.equal(mockIO.getCalledParams().filesystemSave.length, 4);
       assert.ok(mockIO.getCalledParams().filesystemSave.some(function(params) {
-        return params[0] === sha1sumUrl2 + "filePath2|file";
+        return params[0] === sha1sum + ".txt";
       }));
     });
   });
 
   it("retains a list of all folder items and local urls", function() {
-    var scheduleItems = [
-      {objectReference: "risemedialibrary-url-1/"}
+    var companyId = "121212211212121212121212121212121212", scheduleItems = [
+      {objectReference: "http://risemedialibrary-" + companyId + "/index.html"}
     ];
 
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
@@ -64,25 +64,28 @@ describe("remote folder fetcher", function() {
     mockIO = require("../platform/mock-io-provider.js")({
       disconnected: true,
       localStorageGetResult: {
-        "263e41a006548eccce33bf255660204412079777": [
-          {url: "url1", localUrl: "localUrl1", file: "file1"},
-          {url: "url2", localUrl: "localUrl2", file: "file2"}
+        "http://storage/risemedialibrary-121212211212121212121212121212121212/": [
+          {url: "url1", filePath: "tst1.css", localUrl: "localUrl1", file: "file1"},
+          {url: "url2", filePath: "tst2.css", localUrl: "localUrl2", file: "file2"}
         ]
       }
     });
 
     fetcher = require("../../app/player/cache/remote-folder-fetcher.js")(mockIO);
-    var scheduleItems = [
-      {objectReference: "risemedialibrary-url-1/"}
-    ];
+    var cid = "121212211212121212121212121212121212",
+    mainUrl = "http://storage/risemedialibrary-" + cid + "/test.html",
+    mainUrlPath = "http://storage/risemedialibrary-" + cid + "/",
+    scheduleItems = [
+      {objectReference: mainUrl}
+    ],
+    sha1sum = "432f431b805267ad60553509e8d7697d60ea8d9c";
+ /*http://storage/risemedialibrary-121212211212121212121212121212121212/tst2.css*/
 
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
-      var urlHash = "263e41a006548eccce33bf255660204412079777",
-      folderItems = fetcher.getFolderItems();
-
-      assert.equal(folderItems[urlHash][0].localUrl, "local-url-file1");
-      assert.equal(folderItems[urlHash][1].localUrl, "local-url-file2");
+      var folderItems = fetcher.getFolderItems();
+      assert.equal(folderItems[mainUrlPath][1].localUrl,
+      "url-for-" + sha1sum + ".css");
     });
   });
 });

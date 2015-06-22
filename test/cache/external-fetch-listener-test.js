@@ -14,15 +14,17 @@ describe("external fetch listener", function() {
   });
 
   it("provides listeners that return redirects for cached items", function() {
-    var listener = listenerProvider.createListener("urlHash");
-    assert.deepEqual(listener({url: "http://xxxx/url"}), {redirectUrl: "localUrl"});
+    var listener = listenerProvider.createListener("http://test/one/");
+
+    assert.deepEqual(listener({url: "http://test/one/main.css"}),
+    {redirectUrl: "localUrl"});
   });
 
   it("provides listeners that do not return redirects for uncached items",
   function() {
-    var listener = listenerProvider.createListener("someOtherHash");
-    assert.deepEqual(listener({url: "url"}), {});
-    listener = listenerProvider.createListener("urlHash");
+    var listener = listenerProvider.createListener("someOtherUrlPath");
+    assert.deepEqual(listener({url: "http://test/one/main.css"}), {});
+    listener = listenerProvider.createListener("http://test/one/");
     assert.deepEqual(listener({url: "someOtherUrl"}), {});
   });
 });

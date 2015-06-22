@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function() {
   var folderItems = {};
 
@@ -7,10 +8,10 @@ module.exports = function() {
 
     getFolderItems: function() {
       return {
-        "urlHash": [
-          {url: "url", localUrl: "localUrl", file: "file"}
+        "http://test/one/": [
+          {filePath: "main.css", localUrl: "localUrl", file: "file"}
          ]
       };
     }
   };
-}
+};
