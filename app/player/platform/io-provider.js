@@ -63,23 +63,37 @@ function IOProvider(serviceUrls) {
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
     filesystemSave: function(fileName, blob) {
+      function errorFunction(reject) {
+        return function(err) {
+          console.log("Platform IO: error on " + fileName + " " + err.message);
+          reject(err);
+        };
+      }
+
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
-          fs.root.getFile(fileName, {create: true}, function(entry) {
-            entry.createWriter(function(writer) {
-              writer.onwriteend = function() {
-                entry.file(function(file) {
-                  resolve(URL.createObjectURL(file));
-                }, function(err) {reject(err);});
-              };
+           fs.root.getFile(fileName, {create: false}, function(entry) {
+             entry.remove(function() {
+               resolve();
+             });
+           }, function() {resolve();});
+        })
+        .then(function() {
+          return new Promise(function(resolve, reject) {
+            fs.root.getFile(fileName, {create: true}, function(entry) {
+              entry.createWriter(function(writer) {
+                writer.onwriteend = function() {
+                  entry.file(function(file) {
+                    resolve(URL.createObjectURL(file));
+                  }, errorFunction(reject));
+                };
 
-              writer.onerror = function(err) {
-                reject(err);
-              };
+                writer.onerror = errorFunction(reject);
 
-              writer.write(blob);
-            }, function(err) {return reject(err);});
-          }, function(err) {return reject(err);});
+                writer.write(blob);
+              }, errorFunction(reject));
+            }, errorFunction(reject));
+          });
         });
       });
     },
