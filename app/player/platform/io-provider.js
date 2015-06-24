@@ -52,7 +52,7 @@ function IOProvider(serviceUrls) {
 
         return Promise.resolve(filteredItems.map(function(f) {
           return  {
-            remoteUrl: f.selfLink + "?alt=media",
+            remoteUrl: f.mediaLink,
             filePath: f.objectId.substr(folder.length)
           };
         }));
