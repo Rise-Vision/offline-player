@@ -5,11 +5,10 @@ contentViewControllerPath = "../../app/player/schedule/content-view-controller.j
 platformUIMock = require("../platform/mock-ui-controller.js"),
 platformIOMock = require("../platform/mock-io-provider.js")(),
 contentCacheMock = require("../cache/mock-url-data-cacher.js"),
-externalFetchListenerMock = require("../cache/mock-external-fetch-listener.js")(),
 scheduleItems, 
 riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
 
-contentViewController = require(contentViewControllerPath)(platformUIMock, contentCacheMock, platformIOMock, externalFetchListenerMock);
+contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock);
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
@@ -27,7 +26,8 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0], "hashtest1.html");
+      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0],
+      "253dd820037a4c80d83d233e4ac9f543ae4cb037.html");
     });
   });
 
@@ -65,17 +65,6 @@ describe("content view controller", function(){
     })
     .then(function(contentViews) {
       assert.deepEqual(contentViews, {});
-    });
-  });
-
-  it("adds external fetch listener for Rise Storage content", function() {
-    var url = "http://risemedialibrary-323232323232323232323232323232323232/";
-    scheduleItems.push({type: "url", objectReference: url});
-
-    return contentViewController.createContentViews(scheduleItems)
-    .then(function(views) {
-      console.log(views);
-      assert.ok(views[url].attachedListener);
     });
   });
 });
