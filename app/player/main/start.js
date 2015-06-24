@@ -4,7 +4,6 @@ module.exports = function(serviceUrls) {
   platformUIController = require("../platform/ui-controller.js"),
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
   (platformIOProvider),
-  contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider),
 
@@ -31,7 +30,7 @@ module.exports = function(serviceUrls) {
 
   return remoteScheduleLoader.loadRemoteSchedule()
   .catch(function(err) {
-    console.log("Remote schedule loader: " + err.message);
+    console.log("Remote schedule loader: " + err);
   })
   .then(resetContent);
 
@@ -41,8 +40,7 @@ module.exports = function(serviceUrls) {
     return localScheduleLoader(timelineParser)
     .then(function(resp) {
       localSchedule = resp;
-      contentCache.setSchedule(localSchedule);
-      return contentCache.fetchUrlDataIntoFilesystem();
+      return remoteFolderFetcher.fetchFoldersIntoFilesystem(resp.items);
     })
     .then(function() {
       return contentViewController.createContentViews(localSchedule.items);
