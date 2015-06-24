@@ -1,4 +1,4 @@
-module.exports = function(platformIOFunctions) {
+module.exports = function(platformIO) {
   var folderItems = {};
 
   return {
@@ -11,20 +11,17 @@ module.exports = function(platformIOFunctions) {
           return Promise.resolve("not fetching unless Rise Storage folder");
         }
 
-        if (!platformIOFunctions.isNetworkConnected()) {
+        if (!platformIO.isNetworkConnected()) {
           return refreshPreviouslySavedFolders(mainUrlPath);
         }
 
-        return platformIOFunctions.getRemoteFolderItemsList(url)
+        return platformIO.getRemoteFolderItemsList(url)
         .then(function(resp) {
           folderItems[mainUrlPath] = resp;
-          return mainUrlPath;
-        })
-        .then(function() {
           return saveFolderItems(mainUrlPath);
         })
         .then(function() {
-          platformIOFunctions.localObjectStore.set({folderItems: folderItems});
+          return platformIO.localObjectStore.set({folderItems: folderItems});
         })
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
@@ -40,14 +37,14 @@ module.exports = function(platformIOFunctions) {
   function saveFolderItems(mainUrlPath) {
     return folderItems[mainUrlPath].reduce(function(prev, curr) {
       return prev.then(function() {
-        return platformIOFunctions.httpFetcher(curr.url)
+        return platformIO.httpFetcher(curr.remoteUrl)
         .then(function(resp) {
           return resp.blob();
         })
         .then(function(blob) {
-          var fileName = platformIOFunctions.hash(mainUrlPath + curr.filePath) +
+          var fileName = platformIO.hash(mainUrlPath + curr.filePath) +
           getExt(curr.filePath);
-          return platformIOFunctions.filesystemSave(fileName, blob); 
+          return platformIO.filesystemSave(fileName, blob); 
         })
         .then(function(url) {
           curr.localUrl = url;
@@ -64,18 +61,19 @@ module.exports = function(platformIOFunctions) {
   }
 
   function refreshPreviouslySavedFolders(mainUrlPath) {
-    return platformIOFunctions.localObjectStore.get(["folderItems"])
+    return platformIO.localObjectStore.get(["folderItems"])
     .then(function(storageItems) {
       folderItems = storageItems.folderItems;
       return Promise.all
-      (folderItems[mainUrlPath].map(function(folderItem) {
+      (folderItems[mainUrlPath].map(function(folderItem, idx, arr) {
         var ext = getExt(folderItem.filePath);
-        return platformIOFunctions.filesystemRetrieve(
-        platformIOFunctions.hash(mainUrlPath + folderItem.filePath) + ext)
+        return platformIO.filesystemRetrieve(
+        platformIO.hash(mainUrlPath + folderItem.filePath) + ext)
         .then(function(obj) {
-          return (folderItem.localUrl = obj.url);
+          arr[idx].localUrl = obj.url;
         });
-    }));})
+      }));
+    })
     .catch(function(err) {
       console.log("Could not refresh previously saved folders");
       console.log(err);
