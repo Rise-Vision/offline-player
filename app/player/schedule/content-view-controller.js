@@ -1,4 +1,4 @@
-function contentViewControllerFactory(platformUIController, contentCache, platformIOProvider, externalFetchListener) {
+module.exports = function(platformUIController, platformIOProvider) {
   "use strict";
   var contentViews = {};
 
@@ -18,26 +18,18 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
   return {
     createContentViews: function(items) {
       removePreviousContentViews();
-
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
           if (!isRiseStorage(item.objectReference)) {
             resolve({url: item.objectReference});
           } else {
+      console.log(platformIOProvider.hash);
             resolve(platformIOProvider.filesystemRetrieve
-            (contentCache.getUrlHashes()[item.objectReference] + ".html"));
+            (platformIOProvider.hash(item.objectReference) + ".html"));
           }
         })
         .then(function(urlObject) {
-          var view = platformUIController.createViewWindow(urlObject.url),
-          mainUrlPath = urlObject.url.substr(0, urlObject.url.lastIndexOf("/") + 1),
-          fetchListener;
-
-          fetchListener = externalFetchListener.createListener(mainUrlPath);
-
-          if (isRiseStorage(item.objectReference)) {
-            platformUIController.attachExternalFetchListener(view, fetchListener);
-          }
+          var view = platformUIController.createViewWindow(urlObject.url);
           contentViews[item.objectReference] = view;
         });
       }))
@@ -56,6 +48,4 @@ function contentViewControllerFactory(platformUIController, contentCache, platfo
       return true;
     }
   };
-}
-
-module.exports = contentViewControllerFactory;
+};
