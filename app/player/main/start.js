@@ -31,8 +31,11 @@ module.exports = function(serviceUrls) {
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 
-  remoteScheduleLoader.loadRemoteSchedule();
-  return resetContent();
+  return remoteScheduleLoader.loadRemoteSchedule()
+  .catch(function(err) {
+    console.log("Remote schedule loader: " + err.message);
+  })
+  .then(resetContent);
 
   function resetContent() {
     var localSchedule;
