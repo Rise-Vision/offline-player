@@ -48,6 +48,10 @@ function optionsPageController(serviceUrls) {
 
     getUIValues: function() { return uiFieldMap; },
 
+    clearUIStatus: function() {
+      uiStatus.severity = null; uiStatus.message = null;
+    },
+
     setUIStatus: function(status) {
       uiStatus.severity = status.severity; uiStatus.message = status.message;
     },
