@@ -34,15 +34,14 @@ describe("remote folder fetcher", function() {
     var companyId = "121212211212121212121212121212121212", scheduleItems = [
       {objectReference: "http://risemedialibrary-" + companyId + "/1/test.html"},
       {objectReference: "http://risemedialibrary-" + companyId + "/2/index.html"},
-    ],
-    sha1sum = "42afffb9af8bfab45f29874ce39cc8d74353a2fd";
-    /*http://risemedialibrary-1212122112...../filePath2/file.txt*/
+    ];
+
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
       assert.equal(mockIO.getCalledParams().httpFetcher.length, 4);
       assert.equal(mockIO.getCalledParams().filesystemSave.length, 4);
       assert.ok(mockIO.getCalledParams().filesystemSave.some(function(params) {
-        return params[0] === sha1sum + ".txt";
+        return params[0] === "http://risemedialibrary-" + companyId + "/1/filePath2/file.txt";
       }));
     });
   });
@@ -77,15 +76,13 @@ describe("remote folder fetcher", function() {
     mainUrlPath = "http://storage/risemedialibrary-" + cid + "/",
     scheduleItems = [
       {objectReference: mainUrl}
-    ],
-    sha1sum = "432f431b805267ad60553509e8d7697d60ea8d9c";
- /*http://storage/risemedialibrary-121212211212121212121212121212121212/tst2.css*/
+    ];
 
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
       var folderItems = fetcher.getFolderItems();
       assert.equal(folderItems[mainUrlPath][1].localUrl,
-      "url-for-" + sha1sum + ".css");
+      "local-url-for-" + mainUrlPath + "tst2.css");
     });
   });
 });

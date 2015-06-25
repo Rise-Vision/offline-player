@@ -22,6 +22,24 @@ function localStorage(getOrSet, itemArray) {
   });
 }
 
+function getExt(url) {
+  var lastDot = require("url").parse(url).path.lastIndexOf("."), ext;
+
+  ext = lastDot === -1 ? "" :
+  url.substr(url.lastIndexOf("."));
+  return ext;
+}
+
+function hash(str) {
+  var sha1sum = crypto.createHash('sha1');
+  sha1sum.update(str);
+  return sha1sum.digest("hex");
+}
+
+function urlToFileName(url) {
+  return hash(url) + getExt(url);
+}
+
 function IOProvider(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
@@ -62,7 +80,9 @@ function IOProvider(serviceUrls) {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(fileName, blob) {
+    filesystemSave: function(url, blob) {
+      var fileName = urlToFileName(url);
+
       function errorFunction(reject) {
         return function(err) {
           console.log("Platform IO: error on " + fileName + " " + err.message);
@@ -97,7 +117,9 @@ function IOProvider(serviceUrls) {
         });
       });
     },
-    filesystemRetrieve: function(fileName) {
+    filesystemRetrieve: function(url) {
+      var fileName = urlToFileName(url);
+
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {}, function(entry) {
@@ -109,11 +131,6 @@ function IOProvider(serviceUrls) {
       });
     },
     isNetworkConnected: function() {return navigator.onLine;},
-    hash: function(str) {
-      var sha1sum = crypto.createHash('sha1');
-      sha1sum.update(str);
-      return sha1sum.digest("hex");
-    }
   };
 }
 

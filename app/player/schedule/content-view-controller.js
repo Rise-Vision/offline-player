@@ -23,9 +23,7 @@ module.exports = function(platformUIController, platformIOProvider) {
           if (!isRiseStorage(item.objectReference)) {
             resolve({url: item.objectReference});
           } else {
-      console.log(platformIOProvider.hash);
-            resolve(platformIOProvider.filesystemRetrieve
-            (platformIOProvider.hash(item.objectReference) + ".html"));
+            resolve(platformIOProvider.filesystemRetrieve(item.objectReference));
           }
         })
         .then(function(urlObject) {
