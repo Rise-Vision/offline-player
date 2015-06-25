@@ -21,13 +21,13 @@ module.exports = function(platformUIController, platformIOProvider, htmlParser) 
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
           if (!isRiseStorage(item.objectReference)) {
-            resolve({url: item.objectReference});
+            resolve(item.objectReference);
           } else {
             resolve(htmlParser.parseSavedHtmlFile(item.objectReference));
           }
         })
         .then(function(resp) {
-          var view = platformUIController.createViewWindow(resp.url);
+          var view = platformUIController.createViewWindow(resp);
           if (view) {contentViews[item.objectReference] = view;}
         });
       }))

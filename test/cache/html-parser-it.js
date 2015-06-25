@@ -11,17 +11,23 @@ describe("html parser", function() {
   });
 
   it("parses", function() {
-    var html = "<div><img src=\"myFolder/myImage.png\"></div>";
+    var html = "<div><img src=\"myFolder/myImage.png\"></div>",
+    fakeUrl = "http://sample-url/myHTML.html";
 
     return setupFilesystemAndLocalStorageScenario()
+    .then(function() {
+      return parser.parseSavedHtmlFile(fakeUrl);
+    })
     .then(function(resp) {
-      assert.equal(resp.url.indexOf("blob:"), 0);
+      assert.equal(resp.indexOf("blob:"), 0);
+      return platformIO.filesystemRetrieve("PARSED" + fakeUrl);
+    })
+    .then(function(resp) {
       assert.equal(resp.file, html.replace("myFolder/myImage.png", "test"));
     });
 
     function setupFilesystemAndLocalStorageScenario() {
-      var folderItemsFromFolderRetriever = {},
-      fakeUrl = "http://sample-url/myHTML.html";
+      var folderItemsFromFolderRetriever = {};
 
       folderItemsFromFolderRetriever["http://sample-url/"] = [
         {localUrl: "test", filePath: "myFolder/myImage.png"}
@@ -31,12 +37,6 @@ describe("html parser", function() {
       .then(function() {
         return platformIO.localObjectStore.set
         ({"folderItems": folderItemsFromFolderRetriever});
-      })
-      .then(function() {
-        return parser.parseSavedHtmlFile(fakeUrl);
-      })
-      .then(function() {
-        return platformIO.filesystemRetrieve("PARSED" + fakeUrl);
       });
     }
   });
