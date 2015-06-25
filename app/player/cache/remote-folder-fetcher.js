@@ -12,7 +12,10 @@ module.exports = function(platformIO) {
         }
 
         if (!platformIO.isNetworkConnected()) {
-          return refreshPreviouslySavedFolders(mainUrlPath);
+          return refreshPreviouslySavedFolders(mainUrlPath)
+          .then(function() {
+            return platformIO.localObjectStore.set({folderItems: folderItems});
+          });
         }
 
         return platformIO.getRemoteFolderItemsList(url)

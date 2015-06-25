@@ -83,6 +83,7 @@ describe("remote folder fetcher", function() {
       var folderItems = fetcher.getFolderItems();
       assert.equal(folderItems[mainUrlPath][1].localUrl,
       "local-url-for-" + mainUrlPath + "tst2.css");
+      assert.ok(mockIO.getCalledParams().localStorage.set.folderItems);
     });
   });
 });

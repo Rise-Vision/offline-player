@@ -1,10 +1,14 @@
 module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
+
   platformUIController = require("../platform/ui-controller.js"),
+
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
   (platformIOProvider),
+
   htmlParser = require("../cache/html-parser.js")(platformIOProvider),
+
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider, htmlParser),
 
@@ -13,11 +17,9 @@ module.exports = function(serviceUrls) {
   timelineParser = require("../schedule/timeline-parser.js")(),
 
   contentCycler = require("../schedule/content-cycler.js")
-  (contentViewController),
-  
-  remoteScheduleLoader;
+  (contentViewController),  
 
-  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
+  remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls);
 
   (function loadTimedIntervalTasks() {
