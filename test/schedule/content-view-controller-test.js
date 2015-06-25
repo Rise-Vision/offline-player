@@ -27,7 +27,7 @@ describe("content view controller", function(){
     .then(function(contentViews) {
       assert.equal(Object.keys(contentViews).length, 2);
       assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0],
-      "253dd820037a4c80d83d233e4ac9f543ae4cb037.html");
+      riseUrl);
     });
   });
 

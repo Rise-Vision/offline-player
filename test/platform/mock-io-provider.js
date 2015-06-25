@@ -84,9 +84,9 @@ module.exports = function(mockScenario) {
       }
       return Promise.resolve("local-url");
     },
-    filesystemRetrieve: function(fileName) {
-      calledParams.filesystemRetrieve.push(fileName);
-      return Promise.resolve({url: "url-for-" + fileName, file: true});
+    filesystemRetrieve: function(url) {
+      calledParams.filesystemRetrieve.push(url);
+      return Promise.resolve({url: "local-url-for-" + url, file: true});
     },
     generateUrl: function(file) {return "local-url-" + file;},
     isNetworkConnected: function() {return !mockScenario.disconnected;},
