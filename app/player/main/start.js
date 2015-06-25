@@ -4,7 +4,7 @@ module.exports = function(serviceUrls) {
   platformUIController = require("../platform/ui-controller.js"),
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
   (platformIOProvider),
-  htmlParser = require("../cache/html-parser.js"),
+  htmlParser = require("../cache/html-parser.js")(platformIOProvider),
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider, htmlParser),
 
