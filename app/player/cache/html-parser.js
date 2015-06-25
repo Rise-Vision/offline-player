@@ -1,11 +1,10 @@
 cheerio = require("cheerio");
 
 module.exports = function(platformIO) {
-  var folderItems;
-
   return {
     parseSavedHtmlFile: function(url) {
-      var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
+      var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1),
+      folderItems;
 
       return platformIO.localObjectStore.get(["folderItems"])
       .then(function(items) {
@@ -21,7 +20,7 @@ module.exports = function(platformIO) {
         var $ = cheerio.load(htmlText);
         $("*[href]").attr("href", internalizeExternalReferences);
         $("*[src]").attr("src", internalizeExternalReferences);
-        return platformIO.filesystemSave("PARSED"+url, $.html());
+        return platformIO.filesystemSave("PARSED" + url, $.html());
       });
 
       function internalizeExternalReferences(idx, extRef) {
