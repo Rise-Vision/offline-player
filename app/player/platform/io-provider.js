@@ -22,7 +22,7 @@ function localStorage(getOrSet, itemArray) {
   });
 }
 
-function IOProvider(serviceUrls) {
+module.exports = function(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
     getRemoteFolderItemsList: function(targetFileUrl) {
@@ -115,6 +115,4 @@ function IOProvider(serviceUrls) {
       return sha1sum.digest("hex");
     }
   };
-}
-
-module.exports = IOProvider;
+};
