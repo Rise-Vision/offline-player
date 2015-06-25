@@ -42,9 +42,7 @@ module.exports = function(platformIO) {
           return resp.blob();
         })
         .then(function(blob) {
-          var fileName = platformIO.hash(mainUrlPath + curr.filePath) +
-          getExt(curr.filePath);
-          return platformIO.filesystemSave(fileName, blob); 
+          return platformIO.filesystemSave(mainUrlPath + curr.filePath, blob); 
         })
         .then(function(url) {
           curr.localUrl = url;
@@ -53,22 +51,13 @@ module.exports = function(platformIO) {
     }, Promise.resolve());
   }
 
-  function getExt(filePath) {
-    var lastDot = filePath.lastIndexOf("."), ext;
-    ext = lastDot === -1 ? "" :
-    filePath.substr(filePath.lastIndexOf("."));
-    return ext;
-  }
-
   function refreshPreviouslySavedFolders(mainUrlPath) {
     return platformIO.localObjectStore.get(["folderItems"])
     .then(function(storageItems) {
       folderItems = storageItems.folderItems;
       return Promise.all
       (folderItems[mainUrlPath].map(function(folderItem, idx, arr) {
-        var ext = getExt(folderItem.filePath);
-        return platformIO.filesystemRetrieve(
-        platformIO.hash(mainUrlPath + folderItem.filePath) + ext)
+        return platformIO.filesystemRetrieve(mainUrlPath + folderItem.filePath)
         .then(function(obj) {
           arr[idx].localUrl = obj.url;
         });

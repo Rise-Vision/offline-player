@@ -22,6 +22,24 @@ function localStorage(getOrSet, itemArray) {
   });
 }
 
+function getExt(url) {
+  var lastDot = require("url").parse(url).path.lastIndexOf("."), ext;
+
+  ext = lastDot === -1 ? "" :
+  url.substr(url.lastIndexOf("."));
+  return ext;
+}
+
+function hash(str) {
+  var sha1sum = crypto.createHash('sha1');
+  sha1sum.update(str);
+  return sha1sum.digest("hex");
+}
+
+function urlToFileName(url) {
+  return hash(url) + getExt(url);
+}
+
 module.exports = function(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
@@ -62,7 +80,13 @@ module.exports = function(serviceUrls) {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(fileName, blob) {
+    filesystemSave: function(url, blob) {
+      var fileName = urlToFileName(url);
+
+      if (typeof blob === "string") {
+        blob = new Blob([blob]);
+      }
+
       function errorFunction(reject) {
         return function(err) {
           console.log("Platform IO: error on " + fileName + " " + err.message);
@@ -97,22 +121,25 @@ module.exports = function(serviceUrls) {
         });
       });
     },
-    filesystemRetrieve: function(fileName) {
+    filesystemRetrieve: function(url) {
+      var fileName = urlToFileName(url);
+
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {}, function(entry) {
             entry.file(function(file) {
-              resolve({url: URL.createObjectURL(file), file: file});
+              var reader = new FileReader();
+
+              reader.onloadend = function() {
+                resolve({url: URL.createObjectURL(file), file: reader.result});
+              };
+
+              reader.readAsText(file);
             }, function(err) {reject(err);});
           }, function(err) {reject(err);});
         });
       });
     },
     isNetworkConnected: function() {return navigator.onLine;},
-    hash: function(str) {
-      var sha1sum = crypto.createHash('sha1');
-      sha1sum.update(str);
-      return sha1sum.digest("hex");
-    }
   };
 };

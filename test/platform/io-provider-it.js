@@ -84,12 +84,15 @@ describe("io provider", function() {
   });
 
   it("saves blobs to filesystem", function() {
-    var blob = new Blob([1, 2, 3]);
-    return platformIO.filesystemSave("test.html", blob)
+    var blob = new Blob([1, 2, 3]),
+    url = "http://www.site.com/test/file1.txt",
+    sha1sum = "e758ec0ffda0dda283f33076ad976e86f181ef7c"; //sha1sum of url
+
+    return platformIO.filesystemSave(url, blob)
     .then(function(resp) {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
-          fs.root.getFile("test.html", {}, function(entry) {
+          fs.root.getFile(sha1sum + ".txt", {}, function(entry) {
             entry.file(function(file) {
               resolve({fileThatWasSaved: file, urlThatWasReturned: resp});
             });
@@ -108,7 +111,7 @@ describe("io provider", function() {
     });
   });
 
-  it("retrieves files and their objectURLs from filesystem", function() {
+  it("retrieves files contents and their objectURLs from filesystem", function() {
     var blob = new Blob([1, 2, 3]);
     var mimeTypeExtension = "html";
     return platformIO.filesystemSave("test", blob)
@@ -117,15 +120,11 @@ describe("io provider", function() {
     })
     .then(function(resp) {
       assert.ok(resp.url.indexOf("blob:") > -1);
-      assert.equal(resp.file.size, 3);
+      assert.equal(resp.file, "123");
     });
   });
   
   it("knows when disconnected", function() {
     assert.equal(platformIO.isNetworkConnected(), navigator.onLine);
-  });
-
-  it("has a hashing method", function() {
-    assert.ok(platformIO.hash);
   });
 });
