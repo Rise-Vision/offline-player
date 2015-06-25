@@ -4,11 +4,11 @@ var assert = require("assert"),
 contentViewControllerPath = "../../app/player/schedule/content-view-controller.js",
 platformUIMock = require("../platform/mock-ui-controller.js"),
 platformIOMock = require("../platform/mock-io-provider.js")(),
-contentCacheMock = require("../cache/mock-url-data-cacher.js"),
+htmlParserMock = require("../cache/mock-html-parser.js")(),
 scheduleItems, 
 riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
 
-contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock);
+contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock, htmlParserMock);
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
@@ -26,8 +26,7 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0],
-      "253dd820037a4c80d83d233e4ac9f543ae4cb037.html");
+      assert.equal(contentViews[riseUrl].src, "filesystem-url-to-parsed-html");
     });
   });
 
