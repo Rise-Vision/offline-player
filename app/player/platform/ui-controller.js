@@ -1,5 +1,10 @@
 module.exports = {
   createViewWindow: function(contentTarget) {
+    if (!contentTarget) {
+      console.log("UI Controller: No content target for view creation");
+      return false;
+    }
+
     var view =  document.createElement("webview");
     view.style.height = document.body.clientHeight + "px";
     view.style.width = document.body.clientWidth + "px";
@@ -15,13 +20,6 @@ module.exports = {
     });
 
     return view;
-  },
-
-  attachExternalFetchListener: function(view, listener) {
-    view.request.onBeforeRequest.addListener
-    (listener, {urls: ["<all_urls>"]}, ["blocking"]);
-
-    return true;
   },
 
   setVisibility: function(el, vis) {

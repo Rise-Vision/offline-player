@@ -111,16 +111,16 @@ describe("io provider", function() {
     });
   });
 
-  it("retrieves files and their objectURLs from filesystem", function() {
+  it("retrieves files contents and their objectURLs from filesystem", function() {
     var blob = new Blob([1, 2, 3]);
     var mimeTypeExtension = "html";
     return platformIO.filesystemSave("test", blob)
     .then(function() {
-      return platformIO.filesystemRetrieve("test");
+      return platformIO.filesystemRetrieve("test", {includeContents: true});
     })
     .then(function(resp) {
       assert.ok(resp.url.indexOf("blob:") > -1);
-      assert.equal(resp.file.size, 3);
+      assert.equal(resp.fileContentString, "123");
     });
   });
   

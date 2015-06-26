@@ -1,4 +1,4 @@
-module.exports = function(platformUIController, platformIOProvider) {
+module.exports = function(platformUIController, platformIOProvider, htmlParser) {
   "use strict";
   var contentViews = {};
 
@@ -21,14 +21,14 @@ module.exports = function(platformUIController, platformIOProvider) {
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
           if (!isRiseStorage(item.objectReference)) {
-            resolve({url: item.objectReference});
+            resolve(item.objectReference);
           } else {
-            resolve(platformIOProvider.filesystemRetrieve(item.objectReference));
+            resolve(htmlParser.parseSavedHtmlFile(item.objectReference));
           }
         })
-        .then(function(urlObject) {
-          var view = platformUIController.createViewWindow(urlObject.url);
-          contentViews[item.objectReference] = view;
+        .then(function(resp) {
+          var view = platformUIController.createViewWindow(resp);
+          if (view) {contentViews[item.objectReference] = view;}
         });
       }))
       .then(function() {

@@ -1,23 +1,25 @@
 module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
+
   platformUIController = require("../platform/ui-controller.js"),
+
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
   (platformIOProvider),
-  contentCache = require("../cache/url-data-cacher.js")(platformIOProvider),
+
+  htmlParser = require("../cache/html-parser.js")(platformIOProvider),
+
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, platformIOProvider),
+  (platformUIController, platformIOProvider, htmlParser),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
   timelineParser = require("../schedule/timeline-parser.js")(),
 
   contentCycler = require("../schedule/content-cycler.js")
-  (contentViewController),
-  
-  remoteScheduleLoader;
+  (contentViewController),  
 
-  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
+  remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls);
 
   (function loadTimedIntervalTasks() {
@@ -31,7 +33,7 @@ module.exports = function(serviceUrls) {
 
   return remoteScheduleLoader.loadRemoteSchedule()
   .catch(function(err) {
-    console.log("Remote schedule loader: " + err.message);
+    console.log("Remote schedule loader: " + err);
   })
   .then(resetContent);
 
@@ -41,8 +43,7 @@ module.exports = function(serviceUrls) {
     return localScheduleLoader(timelineParser)
     .then(function(resp) {
       localSchedule = resp;
-      contentCache.setSchedule(localSchedule);
-      return contentCache.fetchUrlDataIntoFilesystem();
+      return remoteFolderFetcher.fetchFoldersIntoFilesystem(resp.items);
     })
     .then(function() {
       return contentViewController.createContentViews(localSchedule.items);

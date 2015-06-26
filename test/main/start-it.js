@@ -3,7 +3,6 @@ var assert = require("assert"),
 start = require("../../app/player/main/start.js"),
 serviceUrls = require("./mock-service-urls.js");
 
-
 describe("starter", function() {
   it("exists", function() {
     assert.ok(start);

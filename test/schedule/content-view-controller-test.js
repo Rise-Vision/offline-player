@@ -1,14 +1,15 @@
 "use strict";
 
 var assert = require("assert"),
+mock = require("simple-mock").mock,
 contentViewControllerPath = "../../app/player/schedule/content-view-controller.js",
 platformUIMock = require("../platform/mock-ui-controller.js"),
 platformIOMock = require("../platform/mock-io-provider.js")(),
-contentCacheMock = require("../cache/mock-url-data-cacher.js"),
+htmlParser = require("../../app/player/cache/html-parser.js")(),
 scheduleItems, 
 riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
+contentViewController;
 
-contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock);
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
@@ -16,6 +17,11 @@ describe("content view controller", function(){
       {type: "url", objectReference: riseUrl},
       {type: "url", objectReference: "someOtherUrl"}
     ];
+  });
+
+  beforeEach("inject mocks", function() {
+    mock(htmlParser, "parseSavedHtmlFile").returnWith("url-to-parsed-html");
+    contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock, htmlParser);
   });
 
   it("exists", function(){
@@ -26,8 +32,7 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.equal(platformIOMock.getCalledParams().filesystemRetrieve[0],
-      riseUrl);
+      assert.equal(contentViews[riseUrl].src, "url-to-parsed-html");
     });
   });
 

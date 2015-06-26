@@ -5,7 +5,7 @@ module.exports = function(platformIOFunctions, serviceUrls) {
   return {
     loadRemoteSchedule: function() {
       if (!platformIOFunctions.isNetworkConnected()) {
-        return Promise.resolve(false);
+        return Promise.reject("no connection - aborting");
       }
 
       return getDisplayIdFromLocalStorage()
@@ -55,8 +55,7 @@ module.exports = function(platformIOFunctions, serviceUrls) {
       return true;
     })
     .catch(function(e) {
-      console.log("Remote schedule retriever: error saving schedule");
-      throw err("error saving schedule");
+      throw err("error saving schedule" + e);
     });
   }
 };

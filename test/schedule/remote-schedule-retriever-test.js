@@ -22,7 +22,7 @@ describe("remote schedule retriever", function(){
     assert.notEqual(retriever, undefined);
   });
 
-  it("returns resolved promise with false value when disconnected", function() {
+  it("rejects when disconnected", function() {
     var platformIOFunctions, retriever;
     mockIOScenario.disconnected = true;
     platformIOFunctions = require("../platform/mock-io-provider.js")(mockIOScenario);
@@ -30,7 +30,10 @@ describe("remote schedule retriever", function(){
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.equal(resp, false);
+      assert.fail("Should not be here");
+    })
+    .catch(function(resp) {
+      assert.ok(/no connection/.test(resp));
     });
   });
 

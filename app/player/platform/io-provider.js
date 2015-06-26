@@ -40,7 +40,7 @@ function urlToFileName(url) {
   return hash(url) + getExt(url);
 }
 
-function IOProvider(serviceUrls) {
+module.exports = function(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
     getRemoteFolderItemsList: function(targetFileUrl) {
@@ -83,6 +83,10 @@ function IOProvider(serviceUrls) {
     filesystemSave: function(url, blob) {
       var fileName = urlToFileName(url);
 
+      if (typeof blob === "string") {
+        blob = new Blob([blob]);
+      }
+
       function errorFunction(reject) {
         return function(err) {
           console.log("Platform IO: error on " + fileName + " " + err.message);
@@ -117,14 +121,28 @@ function IOProvider(serviceUrls) {
         });
       });
     },
-    filesystemRetrieve: function(url) {
+    filesystemRetrieve: function(url, options) {
       var fileName = urlToFileName(url);
 
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {}, function(entry) {
             entry.file(function(file) {
-              resolve({url: URL.createObjectURL(file), file: file});
+              var reader;
+
+              if (!options || !options.includeContents) {
+                return resolve({url: URL.createObjectURL(file)});
+              }
+
+              reader = new FileReader();
+
+              reader.onloadend = function() {
+                resolve({
+                  url: URL.createObjectURL(file), fileContentString: reader.result
+                });
+              };
+
+              reader.readAsText(file);
             }, function(err) {reject(err);});
           }, function(err) {reject(err);});
         });
@@ -132,6 +150,4 @@ function IOProvider(serviceUrls) {
     },
     isNetworkConnected: function() {return navigator.onLine;},
   };
-}
-
-module.exports = IOProvider;
+};
