@@ -1,0 +1,19 @@
+dependencies:
+  post:
+    - npm install browserify
+    - git clone git@github.com:Rise-Vision/private-keys.git
+
+test:
+  override:
+    - npm run unittest
+    - npm run integration
+
+deployment:
+  staging:
+    branch: /(feature|fix|chore).*/
+    commands:
+      - npm run unittest
+  production:
+    branch: master
+    commands:
+      - npm run deploy

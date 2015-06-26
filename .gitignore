@@ -16,3 +16,5 @@ e2e-log/
 .sonar
 **/*-browserified.js
 test/mock-server-log.txt
+private-keys
+*.zip

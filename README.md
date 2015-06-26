@@ -22,7 +22,8 @@ This is a chrome app designed to run presentations locally as part of the [Rise 
  - npm install -g browserify
  - npm install -g mocha
  - npm install
- - npm run test
+ - npm run unittest
+ - npm run integration
 
 Note that tests require [Chromedriver](http://chromedriver.storage.googleapis.com/index.html) to be available in your path and that google-chrome is installed.
 
