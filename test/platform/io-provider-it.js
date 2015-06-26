@@ -116,11 +116,11 @@ describe("io provider", function() {
     var mimeTypeExtension = "html";
     return platformIO.filesystemSave("test", blob)
     .then(function() {
-      return platformIO.filesystemRetrieve("test");
+      return platformIO.filesystemRetrieve("test", {includeContents: true});
     })
     .then(function(resp) {
       assert.ok(resp.url.indexOf("blob:") > -1);
-      assert.equal(resp.file, "123");
+      assert.equal(resp.fileContentString, "123");
     });
   });
   

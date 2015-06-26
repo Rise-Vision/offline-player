@@ -121,17 +121,25 @@ module.exports = function(serviceUrls) {
         });
       });
     },
-    filesystemRetrieve: function(url) {
+    filesystemRetrieve: function(url, options) {
       var fileName = urlToFileName(url);
 
       return fs.then(function(fs) {
         return new Promise(function(resolve, reject) {
           fs.root.getFile(fileName, {}, function(entry) {
             entry.file(function(file) {
-              var reader = new FileReader();
+              var reader;
+
+              if (!options || !options.includeContents) {
+                return resolve({url: URL.createObjectURL(file)});
+              }
+
+              reader = new FileReader();
 
               reader.onloadend = function() {
-                resolve({url: URL.createObjectURL(file), file: reader.result});
+                resolve({
+                  url: URL.createObjectURL(file), fileContentString: reader.result
+                });
               };
 
               reader.readAsText(file);

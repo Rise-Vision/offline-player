@@ -63,10 +63,10 @@ describe("remote folder fetcher", function() {
     mockIO = require("../platform/mock-io-provider.js")({
       disconnected: true,
       localStorageGetResult: {
-        "http://storage/risemedialibrary-121212211212121212121212121212121212/": [
-          {url: "url1", filePath: "tst1.css", localUrl: "localUrl1", file: "file1"},
-          {url: "url2", filePath: "tst2.css", localUrl: "localUrl2", file: "file2"}
-        ]
+        "http://storage/risemedialibrary-121212211212121212121212121212121212/": {
+          "tst1.css": {localUrl: "localUrl1"},
+          "tst2.css": {localUrl: "localUrl2"}
+        }
       }
     });
 
@@ -81,8 +81,8 @@ describe("remote folder fetcher", function() {
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
       var folderItems = fetcher.getFolderItems();
-      assert.equal(folderItems[mainUrlPath][1].localUrl,
-      "local-url-for-" + mainUrlPath + "tst2.css");
+      assert.equal(folderItems[mainUrlPath]["tst1.css"].localUrl,
+      "local-url-for-" + mainUrlPath + "tst1.css");
       assert.ok(mockIO.getCalledParams().localStorage.set.folderItems);
     });
   });

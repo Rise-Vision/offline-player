@@ -11,24 +11,20 @@ module.exports = function(platformIO) {
         folderItems = items.folderItems[mainUrlPath];
       })
       .then(function() {
-        return platformIO.filesystemRetrieve(url);
+        return platformIO.filesystemRetrieve(url, {includeContents: true});
       })
-      .then(function(retrievedObject) {
-        return retrievedObject.file;
-      })
-      .then(function(htmlText) {
-        var $ = cheerio.load(htmlText);
+      .then(function(resp) {
+        var $ = cheerio.load(resp.fileContentString);
+
         $("*[href]").attr("href", internalizeExternalReferences);
         $("*[src]").attr("src", internalizeExternalReferences);
         return platformIO.filesystemSave("PARSED" + url, $.html());
       });
 
       function internalizeExternalReferences(idx, extRef) {
-        for (var i = 0; i < folderItems.length; i += 1) {
-          if (folderItems[i].filePath === extRef ||
-          folderItems[i].filePath === mainUrlPath + extRef) {
-            return folderItems[i].localUrl;
-          }
+        var storedEntry = folderItems[mainUrlPath + extRef] || folderItems[extRef];
+        if (storedEntry) {
+          return storedEntry.localUrl;
         }
 
         return extRef;

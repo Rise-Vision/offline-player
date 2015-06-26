@@ -12,7 +12,7 @@ describe("html parser", function() {
     mock(platformIO, "filesystemSave").returnWith("local-url");
     mock(platformIO, "filesystemRetrieve").resolveWith({
       url: "local-url",
-      file: "<html><img src='folder/file.txt' /></html>"
+      fileContentString: "<html><img src='folder/file.txt' /></html>"
     });
     
     parser = require("../../app/player/cache/html-parser.js")(platformIO);

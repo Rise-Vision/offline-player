@@ -20,18 +20,19 @@ describe("html parser", function() {
     })
     .then(function(resp) {
       assert.equal(resp.indexOf("blob:"), 0);
-      return platformIO.filesystemRetrieve("PARSED" + fakeUrl);
+      return platformIO.filesystemRetrieve("PARSED" + fakeUrl, {includeContents: true});
     })
     .then(function(resp) {
-      assert.equal(resp.file, html.replace("myFolder/myImage.png", "test"));
+      assert.equal
+      (resp.fileContentString, html.replace("myFolder/myImage.png", "test"));
     });
 
     function setupFilesystemAndLocalStorageScenario() {
       var folderItemsFromFolderRetriever = {};
 
-      folderItemsFromFolderRetriever["http://sample-url/"] = [
-        {localUrl: "test", filePath: "myFolder/myImage.png"}
-      ];
+      folderItemsFromFolderRetriever["http://sample-url/"] = {
+        "myFolder/myImage.png": {localUrl: "test"}
+      };
 
       return platformIO.filesystemSave(fakeUrl, html)
       .then(function() {
