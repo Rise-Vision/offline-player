@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Offline Player",
+  "name": "Rise Vision Offline Player",
   "version": "0.0.1",
   "minimum_chrome_version": "41",
   "app": {
@@ -23,14 +23,6 @@
   ],
   "webview": {
      "partitions": [
-       {
-         "name": "packaged",
-         "accessible_resources": ["content/restaurant-promotion/*"]
-       },
-       {
-         "name": "packaged",
-         "accessible_resources": ["content/retail-qrcode/*"]
-       },
        {
          "name": "packaged",
          "accessible_resources": ["content/empty-schedule-screen/*"]
