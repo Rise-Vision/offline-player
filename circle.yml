@@ -1,6 +1,5 @@
 dependencies:
   post:
-    - npm install browserify
     - git clone git@github.com:Rise-Vision/private-keys.git
 
 test:
