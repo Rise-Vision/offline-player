@@ -1,6 +1,10 @@
 (function mainWindowEvents() {
   "use strict";
 
+  var contentEventHandlers = [];
+
+  contentEventHandlers.push(require("../platform/content-event-handlers/bypass-cors.js"));
+
   window.addEventListener("load", function() {
     showOptionsMenu();
   });
@@ -24,28 +28,20 @@
   }
 
   window.addEventListener("message", function(evt) {
-    if (evt.data.type != "bypasscors" ) {
-      respondWithError("Message type should be 'bypasscors'");
-      return false;
-    }
-    if (!evt.data.url || evt.data.url.indexOf("http") !== 0) {
-      respondWithError("URL must contain scheme name");
-      return false;
-    }
-
-    fetch(evt.data.url)
-    .then(function(resp) {
-      return resp.text();
-    })
-    .then(function(resp) {
-      evt.data.response = resp;
-      evt.source.postMessage(evt.data, "*");
-    })
-    .then(null, function(err) {
-      respondWithError(err.toString());
+    var handlers = contentEventHandlers.filter(function(handler) {
+      return handler.handles(evt);
     });
 
-    return true;
+    if(handlers.length === 0) {
+      respondWithError("No handlers were found for the event");
+      return false;
+    }
+    else if(handlers.length > 1) {
+      respondWithError("Only one handler can exist for the given event");
+      return false;
+    }
+
+    return handler[0].process(evt);
 
     function respondWithError(err) {
       evt.data.error = err;
