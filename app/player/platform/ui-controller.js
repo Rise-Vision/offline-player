@@ -22,13 +22,6 @@ module.exports = {
     return view;
   },
 
-  attachExternalFetchListener: function(view, listener) {
-    view.request.onBeforeRequest.addListener
-    (listener, {urls: ["<all_urls>"]}, ["blocking"]);
-
-    return true;
-  },
-
   setVisibility: function(el, vis) {
     if (vis) {
       el.style.display = "block";
