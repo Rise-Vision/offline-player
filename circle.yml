@@ -1,4 +1,7 @@
 machine:
+  post:
+    - sudo apt-get update
+    - sudo apt-get install google-chrome-stable
   node:
     version: 0.12.4
 
