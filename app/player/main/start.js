@@ -4,13 +4,13 @@ module.exports = function(serviceUrls) {
 
   platformUIController = require("../platform/ui-controller.js"),
 
-  remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformIOProvider),
-
   htmlParser = require("../cache/html-parser.js")(platformIOProvider),
 
+  remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
+  (platformIOProvider, htmlParser),
+
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, htmlParser),
+  (platformUIController, platformIOProvider, htmlParser, remoteFolderFetcher),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 

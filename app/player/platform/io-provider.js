@@ -71,7 +71,8 @@ module.exports = function(serviceUrls) {
         return Promise.resolve(filteredItems.map(function(f) {
           return  {
             remoteUrl: f.mediaLink,
-            filePath: f.objectId.substr(folder.length)
+            filePath: f.objectId.substr(folder.length),
+            etag: f.etag
           };
         }));
       });

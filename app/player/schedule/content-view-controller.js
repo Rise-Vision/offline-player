@@ -1,4 +1,4 @@
-module.exports = function(platformUIController, htmlParser) {
+module.exports = function(platformUIController, platformIOProvider, htmlParser, remoteFolderFetcher) {
   "use strict";
   var contentViews = {};
 
@@ -23,7 +23,9 @@ module.exports = function(platformUIController, htmlParser) {
           if (!isRiseStorage(item.objectReference)) {
             resolve(item.objectReference);
           } else {
-            resolve(htmlParser.parseSavedHtmlFile(item.objectReference));
+            var mainUrlPath = item.objectReference.substr(0, item.objectReference.lastIndexOf("/") + 1);
+
+            resolve(remoteFolderFetcher.getLocalPath(mainUrlPath, item.objectReference.replace(mainUrlPath, "")));
           }
         })
         .then(function(resp) {
