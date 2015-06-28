@@ -1,15 +1,16 @@
 machine:
   post:
-    - sudo apt-get update
-    - sudo apt-get install google-chrome-stable
+    - if [[ $(google-chrome --version |cut -d " " -f 3| cut -d "." -f 1) < 43 ]]; then sudo apt-get update && sudo apt-get install google-chrome-stable; fi
+    - if ! which istanbul; then npm install -g istanbul; fi
+    - if ! which browserify; then npm install -g browserify; fi
   node:
     version: 0.12.4
 
 dependencies:
   post:
     - git clone git@github.com:Rise-Vision/private-keys.git
-    - npm install -g istanbul
-    - npm install -g browserify
+  cache_directories:
+    - "/home/ubuntu/nvm/versions/node/v0.12.4"
 
 test:
   override:
@@ -20,7 +21,7 @@ deployment:
   staging:
     branch: /(feature|fix|chore).*/
     commands:
-      - npm run unittest
+      - echo "Non master branch - nothing left to do"
   production:
     branch: master
     commands:
