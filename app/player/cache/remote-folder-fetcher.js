@@ -66,7 +66,5 @@ module.exports = function(platformIO) {
         }
       }));
     },
-
-    getFolderItems: function() { return folderItems;}
   };
 };

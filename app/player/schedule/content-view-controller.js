@@ -1,4 +1,4 @@
-module.exports = function(platformUIController, platformIOProvider, htmlParser) {
+module.exports = function(platformUIController, htmlParser) {
   "use strict";
   var contentViews = {};
 

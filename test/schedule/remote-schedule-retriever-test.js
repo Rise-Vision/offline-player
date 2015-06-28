@@ -1,32 +1,33 @@
 "use strict";
 
 var assert = require("assert"),
+mock = require("simple-mock").mock,
 retrieverPath = "../../app/player/schedule/remote-schedule-retriever.js",
-mockIOProviderPath = "../platform/mock-io-provider.js",
-mockIOScenario,
+retriever,
+platformIO,
 coreUrl = {scheduleFetchUrl: "test"};
 
 describe("remote schedule retriever", function(){
   beforeEach("set up mock IO scenario", function() {
-    mockIOScenario = {
-      disconnected: false,
-      failedLocalStorage: {},
-      fetchContent: {content: {schedule: {}}}
-    };
+    platformIO = {localObjectStore: {}};
+    mock(platformIO, "isNetworkConnected").returnWith(true);
+    mock(platformIO.localObjectStore, "get").resolveWith({displayId: "id"});
+    mock(platformIO.localObjectStore, "set").resolveWith(true);
+    mock(platformIO, "httpFetcher", function() {
+      return Promise.resolve({json: function() {return Promise.resolve(
+            {content: {schedule: {}}}
+      );}});
+    });
   });
 
   it("exists", function(){
-    var mockPlatformIOFunctions = require(mockIOProviderPath)(),
-    retriever = require(retrieverPath)(mockPlatformIOFunctions, coreUrl);
-
-    assert.notEqual(retriever, undefined);
+    retriever = require(retrieverPath)(platformIO, coreUrl);
+    assert.ok(retriever);
   });
 
   it("rejects when disconnected", function() {
-    var platformIOFunctions, retriever;
-    mockIOScenario.disconnected = true;
-    platformIOFunctions = require("../platform/mock-io-provider.js")(mockIOScenario);
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    mock(platformIO, "isNetworkConnected", function() {return false;});
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
@@ -38,10 +39,10 @@ describe("remote schedule retriever", function(){
   });
 
   it("rejects when local storage retrieval fails", function() {
-    var platformIOFunctions, retriever;
-    mockIOScenario.failedLocalStorage.get = true;
-    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    retriever = require(retrieverPath)(platformIO, coreUrl);
+    mock(platformIO.localObjectStore, "get", function() {
+      return Promise.resolve();
+    });
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
@@ -53,10 +54,10 @@ describe("remote schedule retriever", function(){
   });
 
   it("rejects when no display id is stored", function() {
-    var platformIOFunctions, retriever;
-    mockIOScenario.failedLocalStorage.emptyGet = true;
-    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    mock(platformIO.localObjectStore, "get", function() {
+      return Promise.resolve({});
+    });
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
@@ -68,43 +69,42 @@ describe("remote schedule retriever", function(){
   });
 
   it("retrieves displayId from local storage", function() {
-    var platformIOFunctions = require(mockIOProviderPath)(),
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.equal(platformIOFunctions.getCalledParams().localStorage.get, "displayId");
+      assert.equal(platformIO.localObjectStore.get.lastCall.args[0], "displayId");
     });
   });
 
   it("fetches remote schedule url", function() {
-    var platformIOFunctions = require(mockIOProviderPath)(),
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function() {
-      assert.equal(platformIOFunctions.getCalledParams().httpFetcher, "test");
+      assert.equal(platformIO.httpFetcher.lastCall.args[0], "test");
     });
   });
 
   it("throws if no schedule in response", function() {
-    var platformIOFunctions, retriever;
-    mockIOScenario.fetchContent = {content:{empty:{}}};
-    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    mock(platformIO, "httpFetcher", function() {
+      return Promise.resolve({json: function() {return Promise.resolve(
+            {content: {noschedulehere: {}}}
+      );}});
+    });
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function() {
       assert.fail(null, null, "expected rejected promise");
     })
     .catch(function(resp) {
-      assert(resp.message.indexOf("no schedule data") > -1, "invalid failure message");
+      assert(resp.message.indexOf("no schedule data") > -1);
     });
   });
 
   it("saves local schedule", function() {
-    var platformIOFunctions = require(mockIOProviderPath)(),
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
@@ -113,11 +113,8 @@ describe("remote schedule retriever", function(){
   });
 
   it("rejects on local storage update failure", function() {
-    var platformIOFunctions, retriever;
-
-    mockIOScenario.failedLocalStorage = {set: true};
-    platformIOFunctions = require(mockIOProviderPath)(mockIOScenario);
-    retriever = require(retrieverPath)(platformIOFunctions, coreUrl);
+    mock(platformIO.localObjectStore, "set", function() {return Promise.reject();});
+    retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
