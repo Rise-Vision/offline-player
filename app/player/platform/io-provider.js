@@ -87,39 +87,37 @@ module.exports = function(serviceUrls) {
         blob = new Blob([blob]);
       }
 
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getFile(fileName, {create: true}, function(entry) {
+            entry.createWriter(function(writer) {
+              var truncated = false;
+
+              writer.onwriteend = function() {
+                if (!truncated) {
+                  truncated = true;
+                  return writer.truncate(writer.position);
+                }
+
+                entry.file(function(file) {
+                  resolve(URL.createObjectURL(file));
+                }, errorFunction(reject));
+              };
+
+              writer.onerror = errorFunction(reject);
+
+              writer.write(blob);
+            }, errorFunction(reject));
+          }, errorFunction(reject));
+        });
+      });
+
       function errorFunction(reject) {
         return function(err) {
           console.log("Platform IO: error on " + fileName + " " + err.message);
           reject(err);
         };
       }
-
-      return fs.then(function(fs) {
-        return new Promise(function(resolve, reject) {
-           fs.root.getFile(fileName, {create: false}, function(entry) {
-             entry.remove(function() {
-               resolve();
-             });
-           }, function() {resolve();});
-        })
-        .then(function() {
-          return new Promise(function(resolve, reject) {
-            fs.root.getFile(fileName, {create: true}, function(entry) {
-              entry.createWriter(function(writer) {
-                writer.onwriteend = function() {
-                  entry.file(function(file) {
-                    resolve(URL.createObjectURL(file));
-                  }, errorFunction(reject));
-                };
-
-                writer.onerror = errorFunction(reject);
-
-                writer.write(blob);
-              }, errorFunction(reject));
-            }, errorFunction(reject));
-          });
-        });
-      });
     },
     filesystemRetrieve: function(url, options) {
       var fileName = urlToFileName(url);
