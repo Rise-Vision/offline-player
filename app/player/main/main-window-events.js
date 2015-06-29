@@ -1,8 +1,6 @@
 (function mainWindowEvents() {
   "use strict";
 
-  var contentEventHandlers = [];
-
   window.addEventListener("load", function() {
     showOptionsMenu();
   });
