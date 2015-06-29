@@ -1,10 +1,10 @@
-module.exports = function(platformIOFunctions, serviceUrls) {
+module.exports = function(platformIO, serviceUrls) {
   "use strict";
   var url = serviceUrls.scheduleFetchUrl;
 
   return {
     loadRemoteSchedule: function() {
-      if (!platformIOFunctions.isNetworkConnected()) {
+      if (!platformIO.isNetworkConnected()) {
         return Promise.reject("no connection - aborting");
       }
 
@@ -20,7 +20,7 @@ module.exports = function(platformIOFunctions, serviceUrls) {
   }
 
   function getDisplayIdFromLocalStorage() {
-    return platformIOFunctions.localObjectStore.get(["displayId"])
+    return platformIO.localObjectStore.get(["displayId"])
     .then(function(items) {
       if (!items.displayId) {throw err("no display id found in local storage");}
       return items.displayId;
@@ -34,7 +34,7 @@ module.exports = function(platformIOFunctions, serviceUrls) {
     url = url.replace("DISPLAY_ID", displayId);
     console.log("Remote schedule retriever: retrieval for: " + displayId);
 
-    return platformIOFunctions.httpFetcher(url, {credentials: "include"})
+    return platformIO.httpFetcher(url, {credentials: "include"})
     .then(function(resp) {
       return resp.json();
     });
@@ -49,7 +49,7 @@ module.exports = function(platformIOFunctions, serviceUrls) {
   }
 
   function saveNewLocalSchedule(schedule) {
-    return platformIOFunctions.localObjectStore.set({schedule: schedule})
+    return platformIO.localObjectStore.set({schedule: schedule})
     .then(function() {
       console.log("Remote schedule retriever: saved schedule");
       return true;

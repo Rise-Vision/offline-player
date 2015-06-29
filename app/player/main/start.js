@@ -10,7 +10,7 @@ module.exports = function(serviceUrls) {
   htmlParser = require("../cache/html-parser.js")(platformIOProvider),
 
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, platformIOProvider, htmlParser),
+  (platformUIController, htmlParser),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 

@@ -15,9 +15,12 @@ module.exports = {
     console.log("appending " + contentTarget);
     document.body.appendChild(view);
 
-    view.addEventListener("contentload", function() {
+    view.addEventListener("loadstop", sendRegistrationMessage);
+
+    function sendRegistrationMessage() {
       view.contentWindow.postMessage("register.chrome.app.window", "*");
-    });
+      view.removeEventListener("loadstop", sendRegistrationMessage);
+    }
 
     return view;
   },

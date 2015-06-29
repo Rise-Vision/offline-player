@@ -3,13 +3,11 @@
 var assert = require("assert"),
 mock = require("simple-mock").mock,
 contentViewControllerPath = "../../app/player/schedule/content-view-controller.js",
-platformUIMock = require("../platform/mock-ui-controller.js"),
-platformIOMock = require("../platform/mock-io-provider.js")(),
-htmlParser = require("../../app/player/cache/html-parser.js")(),
+uiController = {},
+htmlParser = {},
 scheduleItems, 
 riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
 contentViewController;
-
 
 describe("content view controller", function(){
   beforeEach("set schedule", function() {
@@ -21,7 +19,10 @@ describe("content view controller", function(){
 
   beforeEach("inject mocks", function() {
     mock(htmlParser, "parseSavedHtmlFile").returnWith("url-to-parsed-html");
-    contentViewController = require(contentViewControllerPath)(platformUIMock, platformIOMock, htmlParser);
+    mock(uiController, "createViewWindow").returnWith(true);
+    mock(uiController, "setVisibility").returnWith(true);
+    mock(uiController, "removeView").returnWith(true);
+    contentViewController = require(contentViewControllerPath)(uiController, htmlParser);
   });
 
   it("exists", function(){
@@ -31,8 +32,11 @@ describe("content view controller", function(){
   it("creates views with cached source", function() {
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
+      var calls = uiController.createViewWindow.calls;
+
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.equal(contentViews[riseUrl].src, "url-to-parsed-html");
+      assert.deepEqual(calls[0].args, ["url-to-parsed-html"]);
+      assert.deepEqual(calls[1].args, ["someOtherUrl"]);
     });
   });
 
@@ -40,15 +44,18 @@ describe("content view controller", function(){
     scheduleItems[0].objectReference = "../";
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
-      assert.equal(contentViews["../"].src, "../");
+      var calls = uiController.createViewWindow.calls;
+
+      assert.ok(contentViews["../"]);
+      assert.deepEqual(calls[0].args, ["../"]);
     });
   });
 
   it("shows views", function() {
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
-      contentViewController.showView("someOtherUrl");
-      assert.equal(contentViews.someOtherUrl.visibility, true);
+      contentViewController.showView(riseUrl);
+      assert.deepEqual(uiController.setVisibility.calls[0].args, [true, true]);
     });
   });
 
@@ -56,7 +63,7 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       contentViewController.hideView("someOtherUrl");
-      assert.equal(contentViews.someOtherUrl.visibility, false);
+      assert.deepEqual(uiController.setVisibility.calls[0].args, [true, false]);
     });
   });
 
