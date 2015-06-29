@@ -23,11 +23,10 @@ function localStorage(getOrSet, itemArray) {
 }
 
 function getExt(url) {
-  var lastDot = require("url").parse(url).path.lastIndexOf("."), ext;
+  var fileName = url.substr(url.lastIndexOf("/") + 1),
+  lastDot = fileName.lastIndexOf(".");
 
-  ext = lastDot === -1 ? "" :
-  url.substr(url.lastIndexOf("."));
-  return ext;
+  return lastDot === -1 ? "" : fileName.substr(lastDot);
 }
 
 function hash(str) {

@@ -26,7 +26,7 @@ module.exports = function(platformIO) {
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
           "contents for " + url;
-          console.log(msg + err);
+          console.log(msg + "\n" + err.message);
         });
 
         function saveFolderItems(items) {
