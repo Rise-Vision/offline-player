@@ -4,13 +4,13 @@ module.exports = {
   },
 
   process: function(evt) {
+    console.log("storage-component-response: ", evt.data);
+    
     if (!evt.data.response) {
       respondWithError("response field must exist");
       return false;
     }
 
-    console.log(evt.data);
-    
     return true;
 
     function respondWithError(err) {
