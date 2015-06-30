@@ -12,10 +12,7 @@ module.exports = function(platformIO) {
         }
 
         if (!platformIO.isNetworkConnected()) {
-          return refreshPreviouslySavedFolders(mainUrlPath)
-          .then(function() {
-            return platformIO.localObjectStore.set({folderItems: folderItems});
-          });
+          return Promise.resolve();
         }
 
         return platformIO.getRemoteFolderItemsList(url)
@@ -38,31 +35,13 @@ module.exports = function(platformIO) {
                 return resp.blob();
               })
               .then(function(blob) {
-                return platformIO.filesystemSave(mainUrlPath + curr.filePath, blob); 
+                return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob); 
               })
               .then(function(resp) {
                 folderItems[mainUrlPath][curr.filePath] = {localUrl: resp};
               });
             });
           }, Promise.resolve());
-        }
-
-        function refreshPreviouslySavedFolders(mainUrlPath) {
-          return platformIO.localObjectStore.get(["folderItems"])
-          .then(function(storageItems) {
-            folderItems = storageItems.folderItems;
-            return Promise.all
-            (Object.keys(folderItems[mainUrlPath]).map(function(itemKey) {
-              return platformIO.filesystemRetrieve(mainUrlPath + itemKey)
-              .then(function(obj) {
-                folderItems[mainUrlPath][itemKey] = {localUrl: obj.url};
-              });
-            }));
-          })
-          .catch(function(err) {
-            console.log("Could not refresh previously saved folders");
-            console.log(err);
-          });
         }
       }));
     },
