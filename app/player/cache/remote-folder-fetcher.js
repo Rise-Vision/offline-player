@@ -2,6 +2,39 @@ module.exports = function(platformIO, htmlParser) {
   var folderItems = {};
 
   return {
+    saveItemsList: function(urls) {
+      var promises = [];
+
+      urls.forEach(function(url) {
+        var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
+        var fileName = url.substr(url.lastIndexOf("/") + 1);
+
+        folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
+
+        if (/risemedialibrary-.{36}\//.test(url) && !folderItems[mainUrlPath][fileName]) {
+          promises.push(platformIO.httpFetcher(url)
+          .then(function(resp) {
+            return resp.blob();
+          })
+          .then(function(blob) {
+            return platformIO.filesystemSave(url, blob); 
+          })
+          .then(function(resp) {
+            folderItems[mainUrlPath][fileName] = { localUrl: resp };
+            return resp;
+          }));
+        }
+        else if(folderItems[mainUrlPath][fileName]) {
+          promises.push(Promise.resolve(folderItems[mainUrlPath][fileName].localUrl));
+        }
+        else {
+          promises.push(Promise.resolve("not fetching unless Rise Storage file"));
+        }
+      });
+
+      return Promise.all(promises);
+    },
+
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       return Promise.all(scheduleItems.map(function(scheduleItem) {
         var url = scheduleItem.objectReference,
