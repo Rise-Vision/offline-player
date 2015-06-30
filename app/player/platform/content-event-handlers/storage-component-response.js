@@ -6,7 +6,7 @@ module.exports = function(deps) {
 
     process: function(evt) {
       var resp = evt.data.response;
-      var items;
+      var items, parentFolder;
 
       if (!resp) {
         respondWithError("response field must exist");
@@ -21,11 +21,13 @@ module.exports = function(deps) {
         items = resp.items;
       }
 
+      parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
+      parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
       items = items.filter(function(item) {
         return item.name && item.name.slice(-1) !== "/";
       });
 
-      deps.remoteFolderFetcher.saveItemsList(items.map(function(item) {
+      deps.remoteFolderFetcher.saveItemsList(parentFolder, items.map(function(item) {
         return item.selfLink + "?alt=media";
       })).then(function(files) {
         for(var i = 0; i < files.length; i++) {

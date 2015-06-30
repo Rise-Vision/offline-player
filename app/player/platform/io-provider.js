@@ -40,6 +40,33 @@ function urlToFileName(url) {
   return hash(url) + getExt(url);
 }
 
+function registerTargets(registerTargetUrl, targets, reset) {
+  return localStorage("get", ["gcmRegistrationId", "gcmTargets"]).then(function(storageItems) {
+    var gcmRegistrationId = storageItems.gcmRegistrationId;
+    var gcmTargets = storageItems.gcmTargets;
+
+    if(gcmRegistrationId) {
+      gcmTargets = reset ? [] : (storageItems.gcmTargets || []);
+
+      targets.forEach(function(target) {
+        gcmTargets.push(target);
+      });
+
+      return localStorage("set", { gcmTargets: gcmTargets }).then(function() {
+        var targetParam = "".concat.apply("", gcmTargets.map(function(t) {
+          return "&targets=" + encodeURIComponent(t.substr(t.indexOf("risemedialibrary-")));
+        }));
+
+        return fetch(registerTargetUrl.replace("GCM_CLIENT_ID", gcmRegistrationId) + targetParam, {
+          mode: "no-cors"
+        }).then(function(response) {
+          return Promise.resolve(response);
+        });
+      });
+    }
+  });
+}
+
 module.exports = function(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
@@ -148,5 +175,8 @@ module.exports = function(serviceUrls) {
       });
     },
     isNetworkConnected: function() {return navigator.onLine;},
+    registerTargets: function(targets, reset) {
+      return registerTargets(serviceUrls.registerTargetUrl, targets, reset);
+    }
   };
 };

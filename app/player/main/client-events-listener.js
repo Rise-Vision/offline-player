@@ -18,11 +18,19 @@ module.exports = function(deps) {
       return false;
     }
 
-    return handlers[0].process(evt, document.querySelector("webview").contentWindow);
+    return handlers[0].process(evt);
 
     function respondWithError(err) {
       evt.data.error = err;
       evt.source.postMessage(evt.data, "*");
     }
+  });
+
+  chrome.gcm.onMessage.addListener(function(message) {
+    var clientPage = document.querySelector("webview").contentWindow;
+
+    console.log("Message received", message);
+
+    clientPage.postMessage({ type: "storage-target-changed", targets: message.data.targets }, "*");
   });
 };

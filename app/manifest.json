@@ -19,6 +19,7 @@
     "unlimitedStorage",
     "system.display",
     "pointerLock",
+    "gcm",
     "<all_urls>"
   ],
   "webview": {

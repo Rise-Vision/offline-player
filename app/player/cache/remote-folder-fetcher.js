@@ -2,11 +2,11 @@ module.exports = function(platformIO, htmlParser) {
   var folderItems = {};
 
   return {
-    saveItemsList: function(urls) {
+    saveItemsList: function(parentFolder, urls) {
+      var mainUrlPath = parentFolder;
       var promises = [];
 
       urls.forEach(function(url) {
-        var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
         var fileName = url.substr(url.lastIndexOf("/") + 1);
 
         folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
@@ -32,10 +32,16 @@ module.exports = function(platformIO, htmlParser) {
         }
       });
 
-      return Promise.all(promises);
+      return Promise.all(promises).then(function(results) {
+        platformIO.registerTargets([parentFolder], false);
+        
+        return results;
+      });
     },
 
     fetchFoldersIntoFilesystem: function(scheduleItems) {
+      var gcmTargets = [];
+
       return Promise.all(scheduleItems.map(function(scheduleItem) {
         var url = scheduleItem.objectReference,
         mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1);
@@ -50,6 +56,8 @@ module.exports = function(platformIO, htmlParser) {
             return platformIO.localObjectStore.set({folderItems: folderItems});
           });
         }
+
+        gcmTargets.push(mainUrlPath);
 
         return platformIO.getRemoteFolderItemsList(url)
         .then(function(items) {
@@ -177,7 +185,11 @@ module.exports = function(platformIO, htmlParser) {
             console.log(err);
           });
         }
-      }));
+      })).then(function(results) {
+        platformIO.registerTargets(gcmTargets, true);
+        
+        return results;
+      });
     },
 
     getLocalPath: function(mainUrlPath, filePath) {
