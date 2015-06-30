@@ -1,5 +1,7 @@
 module.exports = function(serviceUrls) {
   "use strict";
+  var deps = {};
+
   var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
 
   platformUIController = require("../platform/ui-controller.js"),
@@ -19,9 +21,22 @@ module.exports = function(serviceUrls) {
   contentCycler = require("../schedule/content-cycler.js")
   (contentViewController),  
 
-  remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
-  (platformIOProvider, serviceUrls);
+  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
+  (platformIOProvider, serviceUrls),
 
+  clientEventsListener = require("../main/client-events-listener.js")(deps);
+
+  // Dependencies provided in a single object
+  deps.platformIOProvider = platformIOProvider;
+  deps.platformUIController = platformUIController;
+  deps.htmlParser = htmlParser;
+  deps.remoteFolderFetcher = remoteFolderFetcher;
+  deps.contentViewController = contentViewController;
+  deps.localScheduleLoader = localScheduleLoader;
+  deps.timelineParser = timelineParser;
+  deps.contentCycler = contentCycler;
+  deps.remoteScheduleLoader = remoteScheduleLoader;
+  
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
   }());
