@@ -81,7 +81,6 @@ module.exports = function(serviceUrls) {
     },
     filesystemSave: function(url, blob) {
       var fileName = urlToFileName(url);
-
       if (typeof blob === "string") {
         blob = new Blob([blob]);
       }
