@@ -1,4 +1,4 @@
-module.exports = function(platformUIController, platformIOProvider, htmlParser, remoteFolderFetcher) {
+module.exports = function(platformUIController, platformIOProvider) {
   "use strict";
   var contentViews = {};
 
@@ -21,15 +21,14 @@ module.exports = function(platformUIController, platformIOProvider, htmlParser, 
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
           if (!isRiseStorage(item.objectReference)) {
-            resolve(item.objectReference);
+            resolve({url: item.objectReference});
           } else {
-            var mainUrlPath = item.objectReference.substr(0, item.objectReference.lastIndexOf("/") + 1);
-
-            resolve(remoteFolderFetcher.getLocalPath(mainUrlPath, item.objectReference.replace(mainUrlPath, "")));
+            resolve(platformIO.filesystemRetrieve
+            ("PARSED" + item.objectReference));
           }
         })
         .then(function(resp) {
-          var view = platformUIController.createViewWindow(resp);
+          var view = platformUIController.createViewWindow(resp.url);
           if (view) {contentViews[item.objectReference] = view;}
         });
       }))

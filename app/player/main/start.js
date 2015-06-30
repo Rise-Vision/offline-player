@@ -12,7 +12,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, htmlParser),
 
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, platformIOProvider, htmlParser, remoteFolderFetcher),
+  (platformUIController, platformIOProvider),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
@@ -60,6 +60,7 @@ module.exports = function(serviceUrls) {
       localSchedule = resp;
       return remoteFolderFetcher.fetchFoldersIntoFilesystem(resp.items);
     })
+    .then(htmlParser.parseFiles)
     .then(function() {
       return contentViewController.createContentViews(localSchedule.items);
     })

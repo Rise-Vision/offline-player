@@ -92,7 +92,7 @@ module.exports = function(platformIO, htmlParser) {
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
           "contents for " + url;
-          console.log(msg + err, err);
+          console.log(msg + "\n" + err.message);
         });
 
         function saveFolderItems(items) {

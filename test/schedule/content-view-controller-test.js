@@ -4,7 +4,7 @@ var assert = require("assert"),
 mock = require("simple-mock").mock,
 contentViewControllerPath = "../../app/player/schedule/content-view-controller.js",
 uiController = {},
-htmlParser = {},
+platformIO = {},
 scheduleItems, 
 riseUrl = "risemedialibrary-323232323232323232323232323232323232/1/tst.html",
 contentViewController;
@@ -18,11 +18,11 @@ describe("content view controller", function(){
   });
 
   beforeEach("inject mocks", function() {
-    mock(htmlParser, "parseSavedHtmlFile").returnWith("url-to-parsed-html");
+    mock(platformIO, "filesystemRetrieve").resolveWith({url: "local-url"});
     mock(uiController, "createViewWindow").returnWith(true);
     mock(uiController, "setVisibility").returnWith(true);
     mock(uiController, "removeView").returnWith(true);
-    contentViewController = require(contentViewControllerPath)(uiController, htmlParser);
+    contentViewController = require(contentViewControllerPath)(uiController, platformIO);
   });
 
   it("exists", function(){
@@ -35,8 +35,12 @@ describe("content view controller", function(){
       var calls = uiController.createViewWindow.calls;
 
       assert.equal(Object.keys(contentViews).length, 2);
-      assert.deepEqual(calls[0].args, ["url-to-parsed-html"]);
-      assert.deepEqual(calls[1].args, ["someOtherUrl"]);
+      assert(calls.some(function(call) {
+        return call.args[0] === "local-url";
+      }));
+      assert(calls.some(function(call) {
+        return call.args[0] === "someOtherUrl";
+      }));
     });
   });
 
