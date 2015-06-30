@@ -41,6 +41,10 @@ function urlToFileName(url) {
 }
 
 function registerTargets(registerTargetUrl, targets, reset) {
+  if(!isNetworkConnected()) {
+    return;// Promise.reject("Player is in offline mode");
+  }
+
   return localStorage("get", ["gcmRegistrationId", "gcmTargets"]).then(function(storageItems) {
     var gcmRegistrationId = storageItems.gcmRegistrationId;
     var gcmTargets = storageItems.gcmTargets;
@@ -65,6 +69,11 @@ function registerTargets(registerTargetUrl, targets, reset) {
       });
     }
   });
+}
+
+function isNetworkConnected() {
+  //return navigator.onLine;
+  return false;
 }
 
 module.exports = function(serviceUrls) {
@@ -174,7 +183,7 @@ module.exports = function(serviceUrls) {
         });
       });
     },
-    isNetworkConnected: function() {return navigator.onLine;},
+    isNetworkConnected: isNetworkConnected,
     registerTargets: function(targets, reset) {
       return registerTargets(serviceUrls.registerTargetUrl, targets, reset);
     }

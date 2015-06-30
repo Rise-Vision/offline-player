@@ -5,37 +5,52 @@ module.exports = function(platformIO, htmlParser) {
     saveItemsList: function(parentFolder, urls) {
       var mainUrlPath = parentFolder;
       var promises = [];
+      var startPromise = null;
 
-      urls.forEach(function(url) {
-        var fileName = url.substr(url.lastIndexOf("/") + 1);
+      if (!platformIO.isNetworkConnected()) {
+        startPromise = refreshPreviouslySavedFolders(mainUrlPath).then(function() {
+          return platformIO.localObjectStore.set({folderItems: folderItems});
+        });
+      }
+      else {
+        startPromise = Promise.resolve();
+      }
 
-        folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
+      return startPromise.then(function() {
+        urls.forEach(function(url) {
+          var fileName = url.substr(url.lastIndexOf("/") + 1);
 
-        if (/risemedialibrary-.{36}\//.test(url) && !folderItems[mainUrlPath][fileName]) {
-          promises.push(platformIO.httpFetcher(url)
-          .then(function(resp) {
-            return resp.blob();
-          })
-          .then(function(blob) {
-            return platformIO.filesystemSave(url, blob); 
-          })
-          .then(function(resp) {
-            folderItems[mainUrlPath][fileName] = { localUrl: resp };
-            return resp;
-          }));
-        }
-        else if(folderItems[mainUrlPath][fileName]) {
-          promises.push(Promise.resolve(folderItems[mainUrlPath][fileName].localUrl));
-        }
-        else {
-          promises.push(Promise.resolve("not fetching unless Rise Storage file"));
-        }
-      });
+          folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
 
-      return Promise.all(promises).then(function(results) {
-        platformIO.registerTargets([parentFolder], false);
-        
-        return results;
+          if (platformIO.isNetworkConnected() && /risemedialibrary-.{36}\//.test(url) && !folderItems[mainUrlPath][fileName]) {
+            promises.push(platformIO.httpFetcher(url)
+            .then(function(resp) {
+              return resp.blob();
+            })
+            .then(function(blob) {
+              return platformIO.filesystemSave(url, blob); 
+            })
+            .then(function(resp) {
+              folderItems[mainUrlPath][fileName] = { localUrl: resp };
+              return resp;
+            }));
+          }
+          else if(folderItems[mainUrlPath][fileName]) {
+            promises.push(Promise.resolve(folderItems[mainUrlPath][fileName].localUrl));
+          }
+          else if(!/risemedialibrary-.{36}\//.test(url)) {
+            promises.push(Promise.resolve("not fetching unless Rise Storage file"));
+          }
+          else {
+            promises.push(Promise.resolve("player is in offline mode and the file is not stored locally"));
+          }
+        });
+
+        return Promise.all(promises).then(function(results) {
+          platformIO.registerTargets([parentFolder], false);
+          
+          return results;
+        });
       });
     },
 
@@ -186,7 +201,9 @@ module.exports = function(platformIO, htmlParser) {
           });
         }
       })).then(function(results) {
-        platformIO.registerTargets(gcmTargets, true);
+        if (!platformIO.isNetworkConnected()) {
+          platformIO.registerTargets(gcmTargets, true);
+        }
         
         return results;
       });

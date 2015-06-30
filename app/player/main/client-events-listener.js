@@ -2,6 +2,7 @@ module.exports = function(deps) {
   var contentEventHandlers = [];
 
   contentEventHandlers.push(require("../platform/content-event-handlers/bypass-cors.js")(deps));
+  contentEventHandlers.push(require("../platform/content-event-handlers/storage-component-load.js")(deps));
   contentEventHandlers.push(require("../platform/content-event-handlers/storage-component-response.js")(deps));
 
   window.addEventListener("message", function(evt) {
@@ -28,8 +29,6 @@ module.exports = function(deps) {
 
   chrome.gcm.onMessage.addListener(function(message) {
     var clientPage = document.querySelector("webview").contentWindow;
-
-    console.log("Message received", message);
 
     clientPage.postMessage({ type: "storage-target-changed", targets: message.data.targets }, "*");
   });
