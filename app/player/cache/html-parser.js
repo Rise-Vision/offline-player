@@ -61,44 +61,6 @@ module.exports = function(platformIO) {
           }
         };
       }
-    },
-
-    returnParsedHtmlFile: function(url, parentPath) {
-      var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1),
-      parentUrlPath = parentPath || mainUrlPath,
-      folderItems,
-      references = {};
-
-      return platformIO.localObjectStore.get(["folderItems"])
-      .then(function(items) {
-        folderItems = items.folderItems[parentUrlPath];
-      })
-      .then(function() {
-        return platformIO.filesystemRetrieve(url, {includeContents: true});
-      })
-      .then(function(resp) {
-        var $ = cheerio.load(resp.fileContentString);
-
-        $("*[href]").attr("href", extractExternalReferences);
-        $("*[src]").attr("src", extractExternalReferences);
-
-        return {
-          content: resp.fileContentString, 
-          references: references
-        };
-      });
-
-      function extractExternalReferences(idx, extRef) {
-        var fullURL = path.join(mainUrlPath, extRef).replace(":/", "://");
-        var relativeURL = fullURL.replace(parentUrlPath, "");
-        var storedEntry = folderItems[relativeURL];
-
-        if(relativeURL.endsWith("html")) {
-          references[extRef] = relativeURL;
-        }
-
-        return extRef;
-      }
     }
   };
 };

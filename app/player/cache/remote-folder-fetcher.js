@@ -1,6 +1,24 @@
 module.exports = function(platformIO, htmlParser) {
   var folderItems = {};
 
+  function refreshPreviouslySavedFolders(mainUrlPath) {
+    return platformIO.localObjectStore.get(["folderItems"])
+    .then(function(storageItems) {
+      folderItems = storageItems.folderItems;
+      return Promise.all
+      (Object.keys(folderItems[mainUrlPath]).map(function(itemKey) {
+        return platformIO.filesystemRetrieve(mainUrlPath + itemKey)
+        .then(function(obj) {
+          folderItems[mainUrlPath][itemKey] = {localUrl: obj.url};
+        });
+      }));
+    })
+    .catch(function(err) {
+      console.log("Could not refresh previously saved folders");
+      console.log(err);
+    });
+  }
+
   return {
     saveItemsList: function(parentFolder, urls) {
       var mainUrlPath = parentFolder;
@@ -8,6 +26,7 @@ module.exports = function(platformIO, htmlParser) {
       var startPromise = null;
 
       if (!platformIO.isNetworkConnected()) {
+        console.log("if (!platformIO.isNetworkConnected()) {", mainUrlPath, folderItems[mainUrlPath], folderItems);
         startPromise = refreshPreviouslySavedFolders(mainUrlPath).then(function() {
           return platformIO.localObjectStore.set({folderItems: folderItems});
         });
@@ -18,7 +37,8 @@ module.exports = function(platformIO, htmlParser) {
 
       return startPromise.then(function() {
         urls.forEach(function(url) {
-          var fileName = url.substr(url.lastIndexOf("/") + 1);
+          var decodedURL = decodeURIComponent(url);
+          var fileName = decodedURL.substr(decodedURL.lastIndexOf("/") + 1).replace("?alt=media", "");
 
           folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
 
@@ -28,7 +48,7 @@ module.exports = function(platformIO, htmlParser) {
               return resp.blob();
             })
             .then(function(blob) {
-              return platformIO.filesystemSave(url, blob); 
+              return platformIO.filesystemSave(mainUrlPath + fileName, blob);
             })
             .then(function(resp) {
               folderItems[mainUrlPath][fileName] = { localUrl: resp };
@@ -46,9 +66,15 @@ module.exports = function(platformIO, htmlParser) {
           }
         });
 
-        return Promise.all(promises).then(function(results) {
+        return Promise.all(promises)
+        .then(function(results) {
+          return platformIO.localObjectStore.set({folderItems: folderItems}).then(function() {
+            return results;
+          });
+        })
+        .then(function(results) {
           platformIO.registerTargets([parentFolder], false);
-          
+
           return results;
         });
       });
@@ -75,17 +101,7 @@ module.exports = function(platformIO, htmlParser) {
         gcmTargets.push(mainUrlPath);
 
         return platformIO.getRemoteFolderItemsList(url)
-        .then(function(items) {
-          return saveFolderItems(items).then(function() {
-            console.log("Returning from save folder items");
-            return Promise.resolve(items);
-          });
-        })
-        .then(function(items) {
-          platformIO.localObjectStore.set({folderItems: folderItems});
-          return Promise.resolve(items);
-        })
-        .then(parseHTMLPages)
+        .then(saveFolderItems)
         .then(function() {
           return platformIO.localObjectStore.set({folderItems: folderItems});
         })
@@ -112,105 +128,13 @@ module.exports = function(platformIO, htmlParser) {
             });
           }, Promise.resolve());
         }
-
-        function parseHTMLPages(items) {
-          var resolvedItems = [];
-          var promises = [];
-
-          // Load HTML files and extract their referenced HTML files
-          items.forEach(function(item) {
-            if(item.filePath.endsWith("html")) {
-              promises.push(htmlParser.returnParsedHtmlFile(mainUrlPath + item.filePath, mainUrlPath).then(function(resp) {
-                item.content = resp.content;
-                item.references = resp.references;
-
-                return Promise.resolve(item);
-              }));
-            }
-          });
-
-          // Sort files in a dependency based order. Files with no dependencies will go first.
-          return Promise.all(promises).then(function(htmlItems) {
-            var pendingItems = htmlItems.slice();
-            var pendingMap = pendingItems.reduce(function(map, item) {
-              map[item.filePath] = item; return map;
-            }, {});
-
-            while(pendingItems.length > 0) {
-              var item = pendingItems.shift();
-              var savedItem = folderItems[mainUrlPath][item.filePath];
-
-              if(Object.keys(item.references).length === 0) {
-                // If there are no references, the item is resolved
-                item.resolved = true;
-              }
-              else {
-                // Otherwise, check all other dependencies are resolved
-                item.resolved = true;
-
-                for(var key in item.references) {
-                  if(pendingMap[item.references[key]]) {
-                    item.resolved = item.resolved && pendingMap[item.references[key]].resolved;
-                  }
-                  else {
-                    delete item.references[key];
-                  }
-                }
-              }
-
-              if(!item.resolved) {
-                pendingItems.push(item);
-              }
-              else {
-                resolvedItems.push(item);
-              }
-            }
-          }).then(function() {
-            // Save files in correct order
-            return resolvedItems.reduce(function(prev, curr) {
-              return prev.then(function() {
-                var savedItem = folderItems[mainUrlPath][curr.filePath];
-
-                return htmlParser.parseSavedHtmlFile(mainUrlPath + curr.filePath, mainUrlPath).then(function(resp) {
-                  savedItem.localUrl = resp;
-
-                  platformIO.localObjectStore.set({folderItems: folderItems});
-
-                  return Promise.resolve(resp);
-                });
-              });
-            }, Promise.resolve());            
-          });
-        }
-
-        function refreshPreviouslySavedFolders(mainUrlPath) {
-          return platformIO.localObjectStore.get(["folderItems"])
-          .then(function(storageItems) {
-            folderItems = storageItems.folderItems;
-            return Promise.all
-            (Object.keys(folderItems[mainUrlPath]).map(function(itemKey) {
-              return platformIO.filesystemRetrieve(mainUrlPath + itemKey)
-              .then(function(obj) {
-                folderItems[mainUrlPath][itemKey] = {localUrl: obj.url};
-              });
-            }));
-          })
-          .catch(function(err) {
-            console.log("Could not refresh previously saved folders");
-            console.log(err);
-          });
-        }
       })).then(function(results) {
         if (!platformIO.isNetworkConnected()) {
           platformIO.registerTargets(gcmTargets, true);
         }
-        
+
         return results;
       });
     },
-
-    getLocalPath: function(mainUrlPath, filePath) {
-      return folderItems[mainUrlPath][filePath].localUrl;
-    }
   };
 };
