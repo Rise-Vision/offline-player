@@ -7,8 +7,6 @@ module.exports = function(serviceUrls) {
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
   (platformIOProvider),
 
-  htmlParser = require("../cache/html-parser.js")(platformIOProvider),
-
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider),
 
@@ -45,7 +43,6 @@ module.exports = function(serviceUrls) {
       localSchedule = resp;
       return remoteFolderFetcher.fetchFoldersIntoFilesystem(resp.items);
     })
-    .then(htmlParser.parseFiles)
     .then(function() {
       return contentViewController.createContentViews(localSchedule.items);
     })

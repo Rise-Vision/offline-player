@@ -5,10 +5,10 @@ module.exports = {
       return false;
     }
 
-    var type = "iframe",
-    view;
+    var view,
+    type = "webview";
 
-    if (/^http/.test(contentTarget)) {type = "webview";}
+    if (/^filesystem/.test(contentTarget)) {type = "iframe";}
     view =  document.createElement(type);
 
     view.style.height = document.body.clientHeight + "px";
@@ -18,6 +18,7 @@ module.exports = {
       view.partition = "persist:" + 
       (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     }
+
     view.src = contentTarget;
     console.log("appending " + contentTarget);
     document.body.appendChild(view);

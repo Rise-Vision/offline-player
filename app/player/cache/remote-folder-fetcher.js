@@ -17,9 +17,6 @@ module.exports = function(platformIO) {
 
         return platformIO.getRemoteFolderItemsList(url)
         .then(saveFolderItems)
-        .then(function() {
-          return platformIO.localObjectStore.set({folderItems: folderItems});
-        })
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
           "contents for " + url;
@@ -27,7 +24,6 @@ module.exports = function(platformIO) {
         });
 
         function saveFolderItems(items) {
-          folderItems[mainUrlPath] = {};
           return items.reduce(function(prev, curr) {
             return prev.then(function() {
               return platformIO.httpFetcher(curr.remoteUrl)
@@ -36,9 +32,6 @@ module.exports = function(platformIO) {
               })
               .then(function(blob) {
                 return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob); 
-              })
-              .then(function(resp) {
-                folderItems[mainUrlPath][curr.filePath] = {localUrl: resp};
               });
             });
           }, Promise.resolve());

@@ -19,6 +19,7 @@ describe("content view controller", function(){
 
   beforeEach("inject mocks", function() {
     mock(platformIO, "filesystemRetrieve").resolveWith({url: "local-url"});
+    mock(platformIO, "isNetworkConnected").resolveWith(false);
     mock(uiController, "createViewWindow").returnWith(true);
     mock(uiController, "setVisibility").returnWith(true);
     mock(uiController, "removeView").returnWith(true);
@@ -36,7 +37,7 @@ describe("content view controller", function(){
 
       assert.equal(Object.keys(contentViews).length, 2);
       assert(calls.some(function(call) {
-        return call.args[0] === "local-url";
+        return call.args[0] === riseUrl;
       }));
       assert(calls.some(function(call) {
         return call.args[0] === "someOtherUrl";
