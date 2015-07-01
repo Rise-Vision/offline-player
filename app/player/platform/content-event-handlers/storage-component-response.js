@@ -1,4 +1,4 @@
-module.exports = function(remoteFolderFetcher) {
+module.exports = function(platformIO, remoteFolderFetcher) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-response";
@@ -6,7 +6,7 @@ module.exports = function(remoteFolderFetcher) {
 
     process: function(evt) {
       var resp = evt.data.response;
-      var items, parentFolder;
+      var items, companyId, promise;
 
       if (!resp) {
         respondWithError("response field must exist");
@@ -14,30 +14,35 @@ module.exports = function(remoteFolderFetcher) {
       }
 
       // Process a single file or a list of files. 
-      if(resp.selfLink) {
-        items = [ resp ];
-      }
-      else {
-        items = resp.items;
-      }
+      items = resp.selfLink ? [resp] : resp.items;
+      companyId = decodeURIComponent(items[0].selfLink).match(/.*\/risemedialibrary-(.{36})\/.*/)[1];
 
-      parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
-      parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
       items = items.filter(function(item) {
         return item.name && item.name.slice(-1) !== "/";
+      }).map(function(item) {
+        item.filePath = "rise-storage-component-resources/" + companyId + "/" + decodeURIComponent(item.name);
+        item.remoteUrl = item.selfLink + "?alt=media";
+
+        return item;
       });
 
-      /*
-      remoteFolderFetcher.saveItemsList(parentFolder, items.map(function(item) {
-        return item.selfLink + "?alt=media";
-      })).then(function(files) {
-        for(var i = 0; i < files.length; i++) {
-          items[i].selfLink = files[i];
-        }
-      */
+      if(platformIO.isNetworkConnected()) {
+        var presentationUrl = document.querySelector("webview").src;
+        var parentFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
 
-      evt.source.postMessage
-      ({type: "storage-component-response-updated", response: resp}, "*");
+        promise = remoteFolderFetcher.fetchFilesIntoFilesystem(parentFolder, items);
+      }
+      else {
+        promise = Promise.resolve();
+      }
+      
+      promise.then(function() {
+        items.forEach(function(item) {
+          item.selfLink = platformIO.isNetworkConnected() ? item.remoteUrl : item.filePath;
+        });
+
+        evt.source.postMessage({type: "storage-component-response-updated", response: resp}, "*");
+      });
 
       return true;
 

@@ -8,8 +8,6 @@ module.exports = function(platformIO) {
       var url = evt.data.url;
       var promise;
 
-      console.log("called load");
-
       if (!url) {
         respondWithError("url field must exist");
         return false;
@@ -32,9 +30,7 @@ module.exports = function(platformIO) {
         });
       }
       else {
-      	console.log("No connection");
       	promise = platformIO.localObjectStore.get(["storageComponentData"]).then(function (data) {
-          console.log("Restoring data", data);
       	  return data.storageComponentData && data.storageComponentData[url];
       	});
       }
@@ -42,7 +38,6 @@ module.exports = function(platformIO) {
       return promise.then(function(data) {
       	evt.source.postMessage({ type: "storage-component-loaded", response: data }, "*");
       }, function(err) {
-      	console.log("storage-component-load", err);
       	evt.source.postMessage({ type: "storage-component-loaded", message: "Failed to fetch data" }, "*");
       });
 

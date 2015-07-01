@@ -1,5 +1,23 @@
 module.exports = function(platformIO) {
+  function saveFolderItems(mainUrlPath, items) {
+    return items.reduce(function(prev, curr) {
+      return prev.then(function() {
+        return platformIO.httpFetcher(curr.remoteUrl)
+        .then(function(resp) {
+          return resp.blob();
+        })
+        .then(function(blob) {
+          return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob); 
+        });
+      });
+    }, Promise.resolve());
+  }
+
   return {
+    fetchFilesIntoFilesystem: function(mainUrlPath, files) {
+      return saveFolderItems(mainUrlPath, files);
+    },
+
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       var gcmTargets = [];
 
@@ -12,7 +30,9 @@ module.exports = function(platformIO) {
         .then(function() {
           return platformIO.getRemoteFolderItemsList(url);
         })
-        .then(saveFolderItems)
+        .then(function(items) {
+          return saveFolderItems(mainUrlPath, items);
+        })
         .catch(function(err) {
           var msg = "Remote folder fetcher: Not retrieving folder " +
           "contents for " + url;
@@ -36,24 +56,8 @@ module.exports = function(platformIO) {
             }
           });
         }
-
-        function saveFolderItems(items) {
-          return items.reduce(function(prev, curr) {
-            return prev.then(function() {
-              return platformIO.httpFetcher(curr.remoteUrl)
-              .then(function(resp) {
-                return resp.blob();
-              })
-              .then(function(blob) {
-                return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob); 
-              });
-            });
-          }, Promise.resolve());
-        }
       })).then(function(results) {
-        if (!platformIO.isNetworkConnected()) {
-          platformIO.registerTargets(gcmTargets, true);
-        }
+        platformIO.registerTargets(gcmTargets, true);
 
         return results;
       });
