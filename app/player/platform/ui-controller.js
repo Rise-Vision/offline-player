@@ -5,22 +5,35 @@ module.exports = {
       return false;
     }
 
-    var view = document.createElement("webview");
+    var view,
+    type = "webview";
+
+    if (/^filesystem/.test(contentTarget)) {type = "iframe";}
+    view =  document.createElement(type);
+
     view.style.height = document.body.clientHeight + "px";
     view.style.width = document.body.clientWidth + "px";
     view.style.display = "none";
-    view.partition = "persist:" + 
-    (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
+    if (type === "webview") {
+      view.partition = "persist:" + 
+      (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
+    }
+
     view.src = contentTarget;
     console.log("appending " + contentTarget);
     document.body.appendChild(view);
 
-    view.addEventListener("loadstop", sendRegistrationMessage);
+    if (type === "webview") {
+      view.addEventListener("loadstop", sendRegistrationMessage);
+    } else {
+      view.addEventListener("load", sendRegistrationMessage);
+    }
 
     function sendRegistrationMessage() {
       view.contentWindow.postMessage("register.chrome.app.window", "*");
       view.contentWindow.postMessage({ type: "offline-player-init" }, "*");
       view.removeEventListener("loadstop", sendRegistrationMessage);
+      view.removeEventListener("load", sendRegistrationMessage);
     }
 
     return view;

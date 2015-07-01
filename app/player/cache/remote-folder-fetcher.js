@@ -92,19 +92,13 @@ module.exports = function(platformIO, htmlParser) {
         }
 
         if (!platformIO.isNetworkConnected()) {
-          return refreshPreviouslySavedFolders(mainUrlPath)
-          .then(function() {
-            return platformIO.localObjectStore.set({folderItems: folderItems});
-          });
+          return Promise.resolve();
         }
 
         gcmTargets.push(mainUrlPath);
 
         return platformIO.getRemoteFolderItemsList(url)
         .then(saveFolderItems)
-        .then(function() {
-          return platformIO.localObjectStore.set({folderItems: folderItems});
-        })
         .catch(function(err) {
           var msg = "Remote folder fetcher: Could not retrieve folder " +
           "contents for " + url;
@@ -112,7 +106,6 @@ module.exports = function(platformIO, htmlParser) {
         });
 
         function saveFolderItems(items) {
-          folderItems[mainUrlPath] = {};
           return items.reduce(function(prev, curr) {
             return prev.then(function() {
               return platformIO.httpFetcher(curr.remoteUrl)
@@ -120,10 +113,7 @@ module.exports = function(platformIO, htmlParser) {
                 return resp.blob();
               })
               .then(function(blob) {
-                return platformIO.filesystemSave(mainUrlPath + curr.filePath, blob); 
-              })
-              .then(function(resp) {
-                folderItems[mainUrlPath][curr.filePath] = {localUrl: resp};
+                return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob); 
               });
             });
           }, Promise.resolve());

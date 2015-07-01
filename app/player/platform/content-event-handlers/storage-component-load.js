@@ -1,11 +1,10 @@
-module.exports = function(deps) {
+module.exports = function(platformIO) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-load";
     },
 
     process: function(evt) {
-      var platformIO = deps.platformIOProvider;
       var url = evt.data.url;
       var promise;
 

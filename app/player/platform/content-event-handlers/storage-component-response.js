@@ -1,4 +1,4 @@
-module.exports = function(deps) {
+module.exports = function(remoteFolderFetcher) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-response";
@@ -27,7 +27,7 @@ module.exports = function(deps) {
         return item.name && item.name.slice(-1) !== "/";
       });
 
-      deps.remoteFolderFetcher.saveItemsList(parentFolder, items.map(function(item) {
+      remoteFolderFetcher.saveItemsList(parentFolder, items.map(function(item) {
         return item.selfLink + "?alt=media";
       })).then(function(files) {
         for(var i = 0; i < files.length; i++) {

@@ -20,15 +20,15 @@ module.exports = function(platformUIController, platformIO) {
       removePreviousContentViews();
       return Promise.all(items.map(function(item) {
         return new Promise(function(resolve, reject) {
-          if (!isRiseStorage(item.objectReference)) {
-            resolve({url: item.objectReference});
+          if (platformIO.isNetworkConnected() ||
+          !isRiseStorage(item.objectReference)) {
+            resolve(item.objectReference);
           } else {
-            resolve(platformIO.filesystemRetrieve
-            ("PARSED" + item.objectReference));
+            resolve(platformIO.getCachedMainUrl(item.objectReference));
           }
         })
-        .then(function(resp) {
-          var view = platformUIController.createViewWindow(resp.url);
+        .then(function(url) {
+          var view = platformUIController.createViewWindow(url);
           if (view) {contentViews[item.objectReference] = view;}
         });
       }))

@@ -1,4 +1,4 @@
-module.exports = function(deps) {
+module.exports = function() {
   return {
     handles: function(evt) {
       return evt.data.type === "bypasscors";
