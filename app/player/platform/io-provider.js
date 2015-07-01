@@ -105,7 +105,7 @@ module.exports = function(serviceUrls) {
                 }
 
                 entry.file(function(file) {
-                  resolve(URL.createObjectURL(file));
+                  resolve();
                 }, errorFunction(reject));
               };
 
@@ -141,7 +141,7 @@ module.exports = function(serviceUrls) {
       fileName = url.substr(url.lastIndexOf("/") + 1);
 
       return fs.then(function(fs) {
-        return fs.root.toURL() + hash(mainUrlPath) + fileName;
+        return fs.root.toURL() + hash(mainUrlPath) + "/" + fileName;
       });
     },
     isNetworkConnected: function() {return navigator.onLine;},
