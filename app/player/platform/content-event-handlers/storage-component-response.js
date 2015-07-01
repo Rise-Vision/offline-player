@@ -27,16 +27,17 @@ module.exports = function(remoteFolderFetcher) {
         return item.name && item.name.slice(-1) !== "/";
       });
 
+      /*
       remoteFolderFetcher.saveItemsList(parentFolder, items.map(function(item) {
         return item.selfLink + "?alt=media";
       })).then(function(files) {
         for(var i = 0; i < files.length; i++) {
           items[i].selfLink = files[i];
         }
+      */
 
-        // Send processed list of files to client
-        evt.source.postMessage({ type: "storage-component-response-updated", response: resp }, "*");
-      });
+      evt.source.postMessage
+      ({type: "storage-component-response-updated", response: resp}, "*");
 
       return true;
 

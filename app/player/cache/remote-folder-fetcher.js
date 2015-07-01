@@ -1,4 +1,4 @@
-module.exports = function(platformIO, htmlParser) {
+module.exports = function(platformIO) {
   var folderItems = {};
 
   function refreshPreviouslySavedFolders(mainUrlPath) {
@@ -20,66 +20,6 @@ module.exports = function(platformIO, htmlParser) {
   }
 
   return {
-    saveItemsList: function(parentFolder, urls) {
-      var mainUrlPath = parentFolder;
-      var promises = [];
-      var startPromise = null;
-
-      if (!platformIO.isNetworkConnected()) {
-        console.log("if (!platformIO.isNetworkConnected()) {", mainUrlPath, folderItems[mainUrlPath], folderItems);
-        startPromise = refreshPreviouslySavedFolders(mainUrlPath).then(function() {
-          return platformIO.localObjectStore.set({folderItems: folderItems});
-        });
-      }
-      else {
-        startPromise = Promise.resolve();
-      }
-
-      return startPromise.then(function() {
-        urls.forEach(function(url) {
-          var decodedURL = decodeURIComponent(url);
-          var fileName = decodedURL.substr(decodedURL.lastIndexOf("/") + 1).replace("?alt=media", "");
-
-          folderItems[mainUrlPath] = folderItems[mainUrlPath] || {};
-
-          if (platformIO.isNetworkConnected() && /risemedialibrary-.{36}\//.test(url) && !folderItems[mainUrlPath][fileName]) {
-            promises.push(platformIO.httpFetcher(url)
-            .then(function(resp) {
-              return resp.blob();
-            })
-            .then(function(blob) {
-              return platformIO.filesystemSave(mainUrlPath + fileName, blob);
-            })
-            .then(function(resp) {
-              folderItems[mainUrlPath][fileName] = { localUrl: resp };
-              return resp;
-            }));
-          }
-          else if(folderItems[mainUrlPath][fileName]) {
-            promises.push(Promise.resolve(folderItems[mainUrlPath][fileName].localUrl));
-          }
-          else if(!/risemedialibrary-.{36}\//.test(url)) {
-            promises.push(Promise.resolve("not fetching unless Rise Storage file"));
-          }
-          else {
-            promises.push(Promise.resolve("player is in offline mode and the file is not stored locally"));
-          }
-        });
-
-        return Promise.all(promises)
-        .then(function(results) {
-          return platformIO.localObjectStore.set({folderItems: folderItems}).then(function() {
-            return results;
-          });
-        })
-        .then(function(results) {
-          platformIO.registerTargets([parentFolder], false);
-
-          return results;
-        });
-      });
-    },
-
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       var gcmTargets = [];
 
@@ -125,6 +65,6 @@ module.exports = function(platformIO, htmlParser) {
 
         return results;
       });
-    },
+    }
   };
 };

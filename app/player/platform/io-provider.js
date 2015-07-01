@@ -71,8 +71,7 @@ function registerTargets(registerTargetUrl, targets, reset) {
 }
 
 function isNetworkConnected() {
-  //return navigator.onLine;
-  return false;
+  return navigator.onLine;
 }
 
 module.exports = function(serviceUrls) {
