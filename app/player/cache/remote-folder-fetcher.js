@@ -1,24 +1,4 @@
 module.exports = function(platformIO) {
-  var folderItems = {};
-
-  function refreshPreviouslySavedFolders(mainUrlPath) {
-    return platformIO.localObjectStore.get(["folderItems"])
-    .then(function(storageItems) {
-      folderItems = storageItems.folderItems;
-      return Promise.all
-      (Object.keys(folderItems[mainUrlPath]).map(function(itemKey) {
-        return platformIO.filesystemRetrieve(mainUrlPath + itemKey)
-        .then(function(obj) {
-          folderItems[mainUrlPath][itemKey] = {localUrl: obj.url};
-        });
-      }));
-    })
-    .catch(function(err) {
-      console.log("Could not refresh previously saved folders");
-      console.log(err);
-    });
-  }
-
   return {
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       var gcmTargets = [];
