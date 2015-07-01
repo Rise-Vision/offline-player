@@ -172,6 +172,15 @@ module.exports = function(serviceUrls) {
         };
       }
     },
+    hasPreviouslySavedFolder: function(mainUrlPath) {
+      return fs.then(function(fs) {
+        return new Promise(function(resolve, reject) {
+          fs.root.getDirectory(hash(mainUrlPath), {create: false}, function(dir) {
+            resolve(true);
+          }, function(err) {resolve(false);});
+        });
+      });
+    },
     getCachedMainUrl: function(url) {
       var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1),
       fileName = url.substr(url.lastIndexOf("/") + 1);

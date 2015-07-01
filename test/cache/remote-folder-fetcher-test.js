@@ -12,6 +12,7 @@ describe("remote folder fetcher", function() {
     mock(platformIO, "filesystemSave").resolveWith([]);
     mock(platformIO, "filesystemRetrieve").resolveWith([]);
     mock(platformIO, "isNetworkConnected").returnWith(true);
+    mock(platformIO, "hasPreviouslySavedFolder").resolveWith(false);
     fetcher = require("../../app/player/cache/remote-folder-fetcher.js")(platformIO);
   });
 
@@ -30,6 +31,20 @@ describe("remote folder fetcher", function() {
 
   it("does not fetch remote folder contents if not Rise Storage", function() {
     return fetcher.fetchFoldersIntoFilesystem([{objectReference: "some-url"}])
+    .then(function(resp) {
+      assert.equal(platformIO.getRemoteFolderItemsList.callCount, 0);
+    });
+  });
+
+  it("does not fetch remote folder contents already present", function() {
+    var companyId = "121212211212121212121212121212121212",
+    url = "http://storage/risemedialibrary-" + companyId + "/myfolder/index.html";
+
+    mock(platformIO, "hasPreviouslySavedFolder", function() {
+      return Promise.resolve(true);
+    });
+
+    return fetcher.fetchFoldersIntoFilesystem([{objectReference: url}])
     .then(function(resp) {
       assert.equal(platformIO.getRemoteFolderItemsList.callCount, 0);
     });
