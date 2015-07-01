@@ -1,8 +1,7 @@
-spawnSync = require("child_process").spawnSync,
+var spawnSync = require("child_process").spawnSync,
 fs = require("fs"),
-credentialsPath = "private-keys/offline-player/oauth-credentials.json";
-
-utf8 = function() {return {encoding: "utf8"}};
+credentialsPath = "private-keys/offline-player/oauth-credentials.json",
+utf8 = function() {return {encoding: "utf8"};};
 
 (function incrementPatchVersion() {
   var manifestFilePath = "app/manifest.json";
@@ -14,8 +13,14 @@ utf8 = function() {return {encoding: "utf8"}};
   version = manifest.version.substr(0, lastDot) + "." + (patchVer + 1);
   manifest.version = version;
 
-  fs.writeFileSync(manifestFilePath, JSON.stringify(manifest), utf8());
-}())
+  fs.writeFileSync
+  (manifestFilePath, JSON.stringify(manifest, null, 2), utf8());
+}());
+
+console.log(spawnSync("git", ["add", "manifest.json"]).stdout.toString());
+console.log(spawnSync("git", ["-m", "increment version"]).stdout.toString());
+console.log(spawnSync("git", ["commit"]).stdout.toString());
+console.log(spawnSync("git", ["push"]).stdout.toString());
 
 zip = spawnSync("zip", ["-r", "app", "app"], utf8());
 console.log(zip.stdout);
@@ -42,3 +47,7 @@ chromeWebStoreRequest = spawnSync("curl", [
 "https://www.googleapis.com/upload/chromewebstore/v1.1/items/" + credentials.app_id]);
 
 console.log(JSON.parse(chromeWebStoreRequest.stdout.toString()).uploadState);
+
+if (chromeWebStoreRequest.stdout.toString().indexOf("FAILURE") > -1) {
+  process.exit(1);
+}
