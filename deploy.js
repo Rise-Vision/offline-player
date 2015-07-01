@@ -4,23 +4,19 @@ credentialsPath = "private-keys/offline-player/oauth-credentials.json",
 utf8 = function() {return {encoding: "utf8"};};
 
 (function incrementPatchVersion() {
-  var manifestFilePath = "app/manifest.json";
+  var manifestFilePath = "app/manifest.json",
+  d = new Date(),
+  manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
+  version = manifest.version,
+  lastDot = manifest.version.lastIndexOf("."),
+  patchVer = "" + d.getDate() + d.getHours() + d.getMinutes();
 
-  manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8()));
-  version = manifest.version;
-  lastDot = manifest.version.lastIndexOf(".");
-  patchVer = parseInt(manifest.version.substr(lastDot + 1, 10));
-  version = manifest.version.substr(0, lastDot) + "." + (patchVer + 1);
+  version = manifest.version.substr(0, lastDot) + "." + patchVer;
   manifest.version = version;
 
   fs.writeFileSync
   (manifestFilePath, JSON.stringify(manifest, null, 2), utf8());
 }());
-
-console.log(spawnSync("git", ["add", "manifest.json"]).stdout.toString());
-console.log(spawnSync("git", ["-m", "increment version"]).stdout.toString());
-console.log(spawnSync("git", ["commit"]).stdout.toString());
-console.log(spawnSync("git", ["push"]).stdout.toString());
 
 zip = spawnSync("zip", ["-r", "app", "app"], utf8());
 console.log(zip.stdout);
