@@ -1,6 +1,4 @@
 module.exports = function(platformIO) {
-  var folderItems = {};
-
   return {
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       return Promise.all(scheduleItems.map(function(scheduleItem) {
