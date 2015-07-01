@@ -122,6 +122,23 @@ describe("io provider", function() {
     });
   });
   
+  it("checks for previously saved folder", function() {
+    var mainUrlPath = "http://www.test.com/1/",
+    sha1sum = "2f52a41ada769508db36bba81563c06b58b38206";
+    return new Promise(function createTheFolder(resolve, reject) {
+      webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+        fs.root.getDirectory(sha1sum, {create: true}, function(dir) {
+          resolve();
+        });
+      });
+    })
+    .then(function() {
+      return platformIO.hasPreviouslySavedFolder("http://www.test.com/1/");
+    }).then(function(resp) {
+      assert(resp);
+    });
+  });
+
   it("knows when disconnected", function() {
     assert.equal(platformIO.isNetworkConnected(), navigator.onLine);
   });
