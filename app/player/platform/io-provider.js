@@ -79,15 +79,22 @@ module.exports = function(serviceUrls) {
       get: function(itemArray) {return localStorage("get", itemArray);},
       set: function(itemArray) {return localStorage("set", itemArray);}
     },
-    filesystemSave: function(url, blob) {
-      var fileName = urlToFileName(url);
-      if (typeof blob === "string") {
-        blob = new Blob([blob]);
+    filesystemSave: function(mainUrlPath, filePath, fileBlob) {
+      var fileName;
+      filePath = filePath.split("/");
+      fileName = filePath.pop();
+
+      if (typeof fileBlob === "string") {
+        fileBlob = new Blob([blob]);
       }
 
       return fs.then(function(fs) {
+        filePath.unshift(hash(mainUrlPath));
+        return getDirectory(fs, filePath);
+      })
+      .then(function(directoryEntry) {
         return new Promise(function(resolve, reject) {
-          fs.root.getFile(fileName, {create: true}, function(entry) {
+          directoryEntry.getFile(fileName, {create: true}, function(entry) {
             entry.createWriter(function(writer) {
               var truncated = false;
 
@@ -98,17 +105,29 @@ module.exports = function(serviceUrls) {
                 }
 
                 entry.file(function(file) {
-                  resolve(URL.createObjectURL(file));
+                  resolve();
                 }, errorFunction(reject));
               };
 
               writer.onerror = errorFunction(reject);
 
-              writer.write(blob);
+              writer.write(fileBlob);
             }, errorFunction(reject));
           }, errorFunction(reject));
         });
       });
+
+      function getDirectory(fs, directoryPathArray) {
+        return directoryPathArray.reduce(function(prev, curr) {
+          return prev.then(function(dir) {
+            return new Promise(function(resolve, reject) {
+              dir.getDirectory(curr, {create:true}, function(nextDir) {
+                resolve(nextDir);
+              });
+            });
+          });
+        }, Promise.resolve(fs.root));
+      }
 
       function errorFunction(reject) {
         return function(err) {
@@ -117,31 +136,12 @@ module.exports = function(serviceUrls) {
         };
       }
     },
-    filesystemRetrieve: function(url, options) {
-      var fileName = urlToFileName(url);
+    getCachedMainUrl: function(url) {
+      var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1),
+      fileName = url.substr(url.lastIndexOf("/") + 1);
 
       return fs.then(function(fs) {
-        return new Promise(function(resolve, reject) {
-          fs.root.getFile(fileName, {}, function(entry) {
-            entry.file(function(file) {
-              var reader;
-
-              if (!options || !options.includeContents) {
-                return resolve({url: URL.createObjectURL(file)});
-              }
-
-              reader = new FileReader();
-
-              reader.onloadend = function() {
-                resolve({
-                  url: URL.createObjectURL(file), fileContentString: reader.result
-                });
-              };
-
-              reader.readAsText(file);
-            }, function(err) {reject(err);});
-          }, function(err) {reject(err);});
-        });
+        return fs.root.toURL() + hash(mainUrlPath) + "/" + fileName;
       });
     },
     isNetworkConnected: function() {return navigator.onLine;},
