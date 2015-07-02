@@ -2,7 +2,11 @@ module.exports = function(platformIO) {
   function saveFolderItems(mainUrlPath, items) {
     return items.reduce(function(prev, curr) {
       return prev.then(function() {
-        return platformIO.httpFetcher(curr.remoteUrl)
+        return platformIO.httpFetcher(curr.remoteUrl, {
+          headers: {
+            "Cache-control": "no-store"
+          }
+        })
         .then(function(resp) {
           return resp.blob();
         })
@@ -18,7 +22,7 @@ module.exports = function(platformIO) {
       return saveFolderItems(mainUrlPath, files);
     },
 
-    fetchFoldersIntoFilesystem: function(scheduleItems) {
+    fetchFoldersIntoFilesystem: function(scheduleItems, updateGCM) {
       var gcmTargets = [];
 
       return Promise.all(scheduleItems.map(function(scheduleItem) {
@@ -57,7 +61,10 @@ module.exports = function(platformIO) {
           });
         }
       })).then(function(results) {
-        platformIO.registerTargets(gcmTargets, true);
+        if(updateGCM) {
+          platformIO.registerTargets(gcmTargets, true);
+        }
+        
 
         return results;
       });

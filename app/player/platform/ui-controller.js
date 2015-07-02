@@ -1,3 +1,22 @@
+function clearViewCache(view) {
+  return new Promise(function(resolve, reject) {
+    if (view.nodeName === "WEBVIEW") {
+      view.clearData({}, {
+        "appcache": true,
+        "cache": true,
+        "indexedDB": true,
+        "localStorage": true,
+      }, function() {
+          console.log("Cleared!");
+          view.reload();
+        }
+      );        
+    }
+
+    resolve(view);
+  });
+}
+
 module.exports = {
   createViewWindow: function(contentTarget) {
     if (!contentTarget) {
@@ -14,13 +33,14 @@ module.exports = {
     view.style.height = document.body.clientHeight + "px";
     view.style.width = document.body.clientWidth + "px";
     view.style.display = "none";
+
     if (type === "webview") {
       view.partition = "persist:" + 
       (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     }
 
     view.src = contentTarget;
-    console.log("appending " + contentTarget);
+    console.log("appending " + contentTarget + " to view type:" + type);
     document.body.appendChild(view);
 
     if (type === "webview") {
@@ -36,7 +56,7 @@ module.exports = {
       view.removeEventListener("load", sendRegistrationMessage);
     }
 
-    return view;
+    return clearViewCache(view);
   },
 
   setVisibility: function(el, vis) {
@@ -48,5 +68,11 @@ module.exports = {
     } 
   },
 
+  isVisible: function(el) {
+    return el.style.display === "block";
+  },
+
   removeView: function(view) {document.body.removeChild(view);},
+
+  clearViewCache: clearViewCache
 };

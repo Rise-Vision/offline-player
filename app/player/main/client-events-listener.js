@@ -1,4 +1,4 @@
-module.exports = function(platformIO, remoteFolderFetcher) {
+module.exports = function(platformIO, remoteFolderFetcher, contentViewController) {
   var contentEventHandlers = [];
 
   contentEventHandlers.push(require("../platform/content-event-handlers/bypass-cors.js")());
@@ -29,6 +29,18 @@ module.exports = function(platformIO, remoteFolderFetcher) {
 
   chrome.gcm.onMessage.addListener(function(message) {
     var clientPage = document.querySelector("webview").contentWindow;
+
+    JSON.parse(message.data.targets).forEach(function(target) {
+      ["http"].forEach(function(protocol) {
+        var presentationFolder = protocol + "://storage.googleapis.com/" + target.substr(0, target.lastIndexOf("/") + 1);
+
+        if(platformIO.hasPreviouslySavedFolder(presentationFolder)) {
+          remoteFolderFetcher.fetchFoldersIntoFilesystem([{ objectReference: presentationFolder }]).then(function() {
+            contentViewController.reloadMatchingPresentations(presentationFolder, false);
+          });
+        }
+      });
+    });
 
     clientPage.postMessage({ type: "storage-target-changed", targets: message.data.targets }, "*");
   });
