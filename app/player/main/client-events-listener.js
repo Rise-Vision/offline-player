@@ -32,10 +32,12 @@ module.exports = function(platformIO, remoteFolderFetcher, contentViewController
     var currentTime = new Date().getTime();
     var promises = [];
     
+    // Refresh presentations
     targets.forEach(function(target) {
       ["http"].forEach(function(protocol) {
         var presentationFolder = protocol + "://storage.googleapis.com/" + target.substr(0, target.lastIndexOf("/") + 1);
 
+        // If the folder does no exist locally, it means it was created as a subfolder by a different process (storage-component, for instance)
         if(platformIO.hasPreviouslySavedFolder(presentationFolder)) {
           promises.push(remoteFolderFetcher.fetchFoldersIntoFilesystem([{ objectReference: presentationFolder }]).then(function() {
             return contentViewController.reloadMatchingPresentations(presentationFolder, false);
@@ -43,14 +45,14 @@ module.exports = function(platformIO, remoteFolderFetcher, contentViewController
         }
       });
     });
-
-    // Only post message to views that were not reloaded
+    
     Promise.all(promises).then(function() {
       var views = document.querySelectorAll("webview");
 
       for(var i = 0; i < views.length; i++) {
         var clientPage = views[i];
 
+        // Only post message to views that were not refreshed
         if(clientPage.creationTime > currentTime) {
           clientPage.contentWindow.postMessage({ type: "storage-target-changed", targets: targets }, "*");
         }

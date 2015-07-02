@@ -41,9 +41,9 @@ function urlToFileName(url) {
 
 function registerTargets(registerTargetUrl, targets, reset) {
   if(!isNetworkConnected()) {
-    return;// Promise.reject("Player is in offline mode");
+    return Promise.reject("Player is in offline mode");
   }
-
+  
   return localStorage("get", ["gcmRegistrationId", "gcmTargets"]).then(function(storageItems) {
     var gcmRegistrationId = storageItems.gcmRegistrationId;
     var gcmTargets = storageItems.gcmTargets;

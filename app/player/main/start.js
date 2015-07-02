@@ -57,6 +57,12 @@ module.exports = function(serviceUrls) {
       contentCycler.setScheduleData(localSchedule);
       contentCycler.cycleViews();
       return true;
+    })
+    .then(function() {
+      return platformIOProvider.registerTargets(localSchedule.items.map(function(scheduleItem) {
+        var url = scheduleItem.objectReference;
+        return url.substr(0, url.lastIndexOf("/") + 1);
+      }), true);
     });
   }
 };
