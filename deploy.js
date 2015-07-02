@@ -34,7 +34,7 @@ accessToken = JSON.parse(accessTokenRequest.stdout).access_token;
 
 console.log("Deploying...");
 
-chromeWebStoreRequest = spawnSync("curl", [
+chromeWebStoreUploadRequest = spawnSync("curl", [
 "-H", "Authorization: Bearer " + accessToken, 
 "-H", "x-goog-api-verison: 2",
 "-X", "PUT",
@@ -42,8 +42,20 @@ chromeWebStoreRequest = spawnSync("curl", [
 "-vv",
 "https://www.googleapis.com/upload/chromewebstore/v1.1/items/" + credentials.app_id]);
 
-console.log(JSON.parse(chromeWebStoreRequest.stdout.toString()).uploadState);
+console.log(JSON.parse(chromeWebStoreUploadRequest.stdout.toString()).uploadState);
 
-if (chromeWebStoreRequest.stdout.toString().indexOf("FAILURE") > -1) {
+if (chromeWebStoreUploadRequest.stdout.toString().indexOf("FAILURE") > -1) {
   process.exit(1);
 }
+
+console.log("Publishing...");
+chromeWebStorePublishRequest = spawnSync("curl", [
+"-H", "Authorization: Bearer " + accessToken, 
+"-H", "x-goog-api-verison: 2",
+"-H", "Content-Length: 0",
+"-X", "POST",
+"-vv",
+"-fail",
+"https://www.googleapis.com/chromewebstore/v1.1/items/" + credentials.app_id + "/publish"]);
+
+process.exit(chromeWebStorePublishRequest.status);
