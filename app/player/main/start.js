@@ -20,6 +20,9 @@ module.exports = function(serviceUrls) {
   remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls);
 
+  global.logger = require("../logging/logger.js")
+  (require("../logging/external-logger.js"));
+
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
   }());
