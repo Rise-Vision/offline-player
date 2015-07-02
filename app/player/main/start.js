@@ -23,7 +23,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, serviceUrls);
 
   (function loadClientEventsListeners() {
-    require("../main/client-events-listener.js")
+    require("../platform/content-event-handlers/client-events-listener.js")
     (platformIOProvider, remoteFolderFetcher, contentViewController);
   }());
 

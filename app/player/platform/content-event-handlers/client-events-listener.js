@@ -1,9 +1,9 @@
 module.exports = function(platformIO, remoteFolderFetcher, contentViewController) {
   var contentEventHandlers = [];
 
-  contentEventHandlers.push(require("../platform/content-event-handlers/bypass-cors.js")());
-  contentEventHandlers.push(require("../platform/content-event-handlers/storage-component-load.js")(platformIO));
-  contentEventHandlers.push(require("../platform/content-event-handlers/storage-component-response.js")(platformIO, remoteFolderFetcher));
+  contentEventHandlers.push(require("./bypass-cors.js")());
+  contentEventHandlers.push(require("./storage-component-load.js")(platformIO));
+  contentEventHandlers.push(require("./storage-component-response.js")(platformIO, remoteFolderFetcher));
 
   window.addEventListener("message", function(evt) {
     var handlers = contentEventHandlers.filter(function(handler) {
