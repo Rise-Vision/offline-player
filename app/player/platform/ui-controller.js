@@ -1,19 +1,24 @@
 function clearViewCache(view) {
   return new Promise(function(resolve, reject) {
     if (view.nodeName === "WEBVIEW") {
-      view.clearData({}, {
-        "appcache": true,
-        "cache": true,
-        "indexedDB": true,
-        "localStorage": true,
-      }, function() {
-          console.log("Cleared!");
-          view.reload();
-        }
-      );        
+      // If a small timeout is not used, the callback is never invoked or fails
+      setTimeout(function() {
+        view.clearData({}, {
+          "appcache": true,
+          "cache": true,
+          "indexedDB": true,
+          "localStorage": true,
+        }, function() {
+            console.log("Cleared!");
+            view.reload();
+            resolve(view);
+          }
+        );        
+      }, 5000);
     }
-
-    resolve(view);
+    else { // iframe
+      resolve(view);
+    }
   });
 }
 
@@ -39,6 +44,7 @@ module.exports = {
       (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     }
 
+    view.creationTime = new Date().getTime();
     view.src = contentTarget;
     console.log("appending " + contentTarget + " to view type:" + type);
     document.body.appendChild(view);
@@ -72,7 +78,5 @@ module.exports = {
     return el.style.display === "block";
   },
 
-  removeView: function(view) {document.body.removeChild(view);},
-
-  clearViewCache: clearViewCache
+  removeView: function(view) {document.body.removeChild(view);}
 };

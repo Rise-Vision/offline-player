@@ -28,20 +28,33 @@ module.exports = function(platformIO, remoteFolderFetcher, contentViewController
   });
 
   chrome.gcm.onMessage.addListener(function(message) {
-    var clientPage = document.querySelector("webview").contentWindow;
-
-    JSON.parse(message.data.targets).forEach(function(target) {
+    var targets = JSON.parse(message.data.targets);
+    var currentTime = new Date().getTime();
+    var promises = [];
+    
+    targets.forEach(function(target) {
       ["http"].forEach(function(protocol) {
         var presentationFolder = protocol + "://storage.googleapis.com/" + target.substr(0, target.lastIndexOf("/") + 1);
 
         if(platformIO.hasPreviouslySavedFolder(presentationFolder)) {
-          remoteFolderFetcher.fetchFoldersIntoFilesystem([{ objectReference: presentationFolder }]).then(function() {
-            contentViewController.reloadMatchingPresentations(presentationFolder, false);
-          });
+          promises.push(remoteFolderFetcher.fetchFoldersIntoFilesystem([{ objectReference: presentationFolder }]).then(function() {
+            return contentViewController.reloadMatchingPresentations(presentationFolder, false);
+          }));
         }
       });
     });
 
-    clientPage.postMessage({ type: "storage-target-changed", targets: message.data.targets }, "*");
+    // Only post message to views that were not reloaded
+    Promise.all(promises).then(function() {
+      var views = document.querySelectorAll("webview");
+
+      for(var i = 0; i < views.length; i++) {
+        var clientPage = views[i];
+
+        if(clientPage.creationTime > currentTime) {
+          clientPage.contentWindow.postMessage({ type: "storage-target-changed", targets: targets }, "*");
+        }
+      }
+    });
   });
 };
