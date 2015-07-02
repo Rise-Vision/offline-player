@@ -1,7 +1,8 @@
 function clearViewCache(view) {
   return new Promise(function(resolve, reject) {
-    if (view.nodeName === "WEBVIEW") {
-      // If a small timeout is not used, the callback is never invoked or fails
+    // View refresh is disabled for the moment
+    if (view.nodeName === "--WEBVIEW") {
+      // If a timeout is not used, the callback is never invoked or fails when calling reload
       setTimeout(function() {
         view.clearData({}, {
           "appcache": true,
