@@ -1,18 +1,18 @@
 var spawnSync = require("child_process").spawnSync,
 fs = require("fs"),
 credentialsPath = "private-keys/offline-player/oauth-credentials.json",
-utf8 = function() {return {encoding: "utf8"};};
+utf8 = function() {return {encoding: "utf8"};},
+publishVersion;
 
 (function incrementPatchVersion() {
   var manifestFilePath = "app/manifest.json",
   d = new Date(),
   manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
-  version = manifest.version,
   lastDot = manifest.version.lastIndexOf("."),
   patchVer = "" + d.getDate() + d.getHours() + d.getMinutes();
 
-  version = manifest.version.substr(0, lastDot) + "." + patchVer;
-  manifest.version = version;
+  manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
+  publishVersion = manifest.version;
 
   fs.writeFileSync
   (manifestFilePath, JSON.stringify(manifest, null, 2), utf8());
@@ -32,7 +32,7 @@ accessTokenRequest = spawnSync("curl", ["--data",
 
 accessToken = JSON.parse(accessTokenRequest.stdout).access_token;
 
-console.log("Deploying...");
+console.log("Uploading...");
 
 chromeWebStoreUploadRequest = spawnSync("curl", [
 "-H", "Authorization: Bearer " + accessToken, 
@@ -48,7 +48,7 @@ if (chromeWebStoreUploadRequest.stdout.toString().indexOf("FAILURE") > -1) {
   process.exit(1);
 }
 
-console.log("Publishing...");
+console.log("Publishing version " + publishVersion);
 chromeWebStorePublishRequest = spawnSync("curl", [
 "-H", "Authorization: Bearer " + accessToken, 
 "-H", "x-goog-api-verison: 2",
