@@ -13,6 +13,7 @@ describe("remote folder fetcher", function() {
     mock(platformIO, "filesystemRetrieve").resolveWith([]);
     mock(platformIO, "isNetworkConnected").returnWith(true);
     mock(platformIO, "hasPreviouslySavedFolder").resolveWith(false);
+    mock(platformIO, "hasFilesystemSpace").resolveWith(true);
     fetcher = require("../../app/player/cache/remote-folder-fetcher.js")(platformIO);
   });
 
@@ -77,6 +78,23 @@ describe("remote folder fetcher", function() {
         call.args[1] === "filePath2/file.txt" &&
         call.args[2] === "mock-blob";
       }));
+    });
+  });
+
+  it("refuses to save if disk space is low", function() {
+    var companyId = "121212211212121212121212121212121212", scheduleItems = [
+      {objectReference: "http://risemedialibrary-" + companyId + "/1/test.html"},
+      {objectReference: "http://risemedialibrary-" + companyId + "/2/index.html"},
+    ];
+
+    mock(platformIO, "hasFilesystemSpace", function() {
+      return Promise.reject(new Error("Disk space is below 500MB"));
+    });
+
+    return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
+    .then(function(resp) {
+      assert.equal(platformIO.getRemoteFolderItemsList.callCount, 0);
+      assert.ok(/disk space/i.test(resp));
     });
   });
 });

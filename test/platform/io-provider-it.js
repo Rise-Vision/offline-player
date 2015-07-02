@@ -105,9 +105,6 @@ describe("io provider", function() {
     })
     .then(function(file) {
       assert.ok(file);
-    })
-    .catch(function(err) {
-      throw err;
     });
   });
 
@@ -141,5 +138,13 @@ describe("io provider", function() {
 
   it("knows when disconnected", function() {
     assert.equal(platformIO.isNetworkConnected(), navigator.onLine);
+  });
+
+  it("knows when filesystem space is low", function() {
+    return platformIO.hasFilesystemSpace()
+    .then(function(resp) {
+      console.log("Disk space remaining: " + resp);
+      assert.ok(resp);
+    });
   });
 });
