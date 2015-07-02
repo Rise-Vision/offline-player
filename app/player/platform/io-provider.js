@@ -74,6 +74,18 @@ function isNetworkConnected() {
   return navigator.onLine;
 }
 
+function checkFilesystemSpace(bytesToSave) {
+  return new Promise(function(resolve, reject) {
+    navigator.webkitPersistentStorage.queryUsageAndQuota
+      (function(usedBytes, grantedBytes) {  
+        if (grantedBytes - usedBytes - bytesToSave < 500000000) {
+          return reject(new Error("Insufficient disk space"));
+        }
+        resolve(grantedBytes - usedBytes);
+      });
+  });
+}
+
 module.exports = function(serviceUrls) {
   return {
     httpFetcher: fetch.bind(window),
@@ -124,7 +136,9 @@ module.exports = function(serviceUrls) {
         fileBlob = new Blob([blob]);
       }
 
-      return fs.then(function(fs) {
+      return checkFilesystemSpace(fileBlob.size)
+      .then(function() {return fs;})
+      .then(function(fs) {
         filePath.unshift(hash(mainUrlPath));
         return getDirectory(fs, filePath);
       })
@@ -192,6 +206,9 @@ module.exports = function(serviceUrls) {
     isNetworkConnected: isNetworkConnected,
     registerTargets: function(targets, reset) {
       return registerTargets(serviceUrls.registerTargetUrl, targets, reset);
+    },
+    hasFilesystemSpace: function() {
+      return checkFilesystemSpace(0);
     }
   };
 };

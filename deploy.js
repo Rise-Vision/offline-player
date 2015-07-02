@@ -1,21 +1,22 @@
-spawnSync = require("child_process").spawnSync,
+var spawnSync = require("child_process").spawnSync,
 fs = require("fs"),
-credentialsPath = "private-keys/offline-player/oauth-credentials.json";
-
-utf8 = function() {return {encoding: "utf8"}};
+credentialsPath = "private-keys/offline-player/oauth-credentials.json",
+utf8 = function() {return {encoding: "utf8"};},
+publishVersion;
 
 (function incrementPatchVersion() {
-  var manifestFilePath = "app/manifest.json";
+  var manifestFilePath = "app/manifest.json",
+  d = new Date(),
+  manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
+  lastDot = manifest.version.lastIndexOf("."),
+  patchVer = "" + d.getDate() + d.getHours() + d.getMinutes();
 
-  manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8()));
-  version = manifest.version;
-  lastDot = manifest.version.lastIndexOf(".");
-  patchVer = parseInt(manifest.version.substr(lastDot + 1, 10));
-  version = manifest.version.substr(0, lastDot) + "." + (patchVer + 1);
-  manifest.version = version;
+  manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
+  publishVersion = manifest.version;
 
-  fs.writeFileSync(manifestFilePath, JSON.stringify(manifest), utf8());
-}())
+  fs.writeFileSync
+  (manifestFilePath, JSON.stringify(manifest, null, 2), utf8());
+}());
 
 zip = spawnSync("zip", ["-r", "app", "app"], utf8());
 console.log(zip.stdout);
@@ -31,9 +32,9 @@ accessTokenRequest = spawnSync("curl", ["--data",
 
 accessToken = JSON.parse(accessTokenRequest.stdout).access_token;
 
-console.log("Deploying...");
+console.log("Uploading...");
 
-chromeWebStoreRequest = spawnSync("curl", [
+chromeWebStoreUploadRequest = spawnSync("curl", [
 "-H", "Authorization: Bearer " + accessToken, 
 "-H", "x-goog-api-verison: 2",
 "-X", "PUT",
@@ -41,4 +42,20 @@ chromeWebStoreRequest = spawnSync("curl", [
 "-vv",
 "https://www.googleapis.com/upload/chromewebstore/v1.1/items/" + credentials.app_id]);
 
-console.log(JSON.parse(chromeWebStoreRequest.stdout.toString()).uploadState);
+console.log(JSON.parse(chromeWebStoreUploadRequest.stdout.toString()).uploadState);
+
+if (chromeWebStoreUploadRequest.stdout.toString().indexOf("FAILURE") > -1) {
+  process.exit(1);
+}
+
+console.log("Publishing version " + publishVersion);
+chromeWebStorePublishRequest = spawnSync("curl", [
+"-H", "Authorization: Bearer " + accessToken, 
+"-H", "x-goog-api-verison: 2",
+"-H", "Content-Length: 0",
+"-X", "POST",
+"-vv",
+"-fail",
+"https://www.googleapis.com/chromewebstore/v1.1/items/" + credentials.app_id + "/publish"]);
+
+process.exit(chromeWebStorePublishRequest.status);
