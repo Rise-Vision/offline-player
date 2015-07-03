@@ -1,12 +1,13 @@
 "use strict";
 var assert = require("assert"),
 mock = require("simple-mock").mock,
-mockAnalytics = {},
+mockExternalLogger = {},
 trackStub,
 logger;
 
-trackStub = mock(mockAnalytics, "track").returnWith(true);
-logger = require("../../app/player/logging/logger.js")(mockAnalytics);
+trackStub = mock(mockExternalLogger, "identify").returnWith(true);
+trackStub = mock(mockExternalLogger, "sendEvent").returnWith(true);
+logger = require("../../app/player/logging/logger.js")(mockExternalLogger);
 
 describe("logger", function() {
   beforeEach("", function() {
@@ -22,8 +23,8 @@ describe("logger", function() {
   });
 
   it("logs to segment", function() {
-    var result = logger.segmentEvent("test");
+    var result = logger.logExternal("test");
     assert.ok(result);
-    assert.equal(mockAnalytics.track.callCount, 1);
+    assert.equal(mockExternalLogger.sendEvent.callCount, 1);
   });
 });
