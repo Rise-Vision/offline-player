@@ -60,7 +60,8 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       contentViewController.showView(riseUrl);
-      assert.deepEqual(uiController.setVisibility.calls[0].args, [true, true]);
+      console.log(uiController.setVisibility.callCount);
+      assert.deepEqual(uiController.setVisibility.calls[2].args, [true, true]);
     });
   });
 

@@ -1,4 +1,4 @@
-module.exports = function(platformIO, remoteFolderFetcher) {
+module.exports = function(platformIO, remoteFolderFetcher, uiController) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-response";
@@ -29,7 +29,7 @@ module.exports = function(platformIO, remoteFolderFetcher) {
       });
 
       if(platformIO.isNetworkConnected()) {
-        var presentationUrl = document.querySelector("webview").src;
+        var presentationUrl = evt.origin;
         var presentationFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
 
         promise = remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items);
@@ -41,11 +41,13 @@ module.exports = function(platformIO, remoteFolderFetcher) {
       }
       
       promise.then(function() {
+        var message = {type: "storage-component-response-updated", response: resp};
+
         items.forEach(function(item) {
           item.selfLink = platformIO.isNetworkConnected() ? item.remoteUrl : item.filePath;
         });
 
-        evt.source.postMessage({type: "storage-component-response-updated", response: resp}, "*");
+        uiController.sendWindowMessage(evt.source, message, "*");
       });
 
       return true;

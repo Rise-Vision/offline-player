@@ -66,6 +66,10 @@ module.exports = {
     return clearViewCache(view);
   },
 
+  sendWindowMessage: function(targetWindow, messageObj, dest) {
+    targetWindow.postMessage(messageObj, dest);
+  },
+
   setVisibility: function(el, vis) {
     if (vis) {
       el.style.display = "block";
