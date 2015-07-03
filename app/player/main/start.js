@@ -1,6 +1,6 @@
 module.exports = function(serviceUrls) {
   "use strict";
-  var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
+  var platformIOProvider = require("../platform/io-provider.js"),
 
   platformUIController = require("../platform/ui-controller.js"),
 

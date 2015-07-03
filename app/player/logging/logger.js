@@ -1,6 +1,4 @@
 module.exports = function(externalLogger) {
-  externalLogger.identify('test');
-
   return {
     console: function(msg) {
       console.log(msg); 

@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert"),
 serviceUrls = require("../main/mock-service-urls.js"),
-platformIO = require("../../app/player/platform/io-provider.js")(serviceUrls);
+platformIO = require("../../app/player/platform/io-provider.js");
 
 describe("io provider", function() {
   it("exists", function() {
@@ -35,27 +35,6 @@ describe("io provider", function() {
     })
     .then(function(resp) {
         assert.equal(resp.response, "local-http-ok");
-    });
-  });
-
-  it("rejects a non valid remote folder url", function() {
-    var url = "https://www.google.com";
-
-    return platformIO.getRemoteFolderItemsList(url)
-    .then(function() {
-    }, function(err) {
-      assert(err !== null);
-    });
-  });
-
-  it("fetches a list of files related to a Url", function() {
-    var url = "https://www.googleapi.com/storage/v1/b/risemedialibrary-dd85fed1-6219-4660-b430-e135c1bf7100/myPres/index.html";
-
-    return platformIO.getRemoteFolderItemsList(url)
-    .then(function(resp) {
-      assert.equal(resp.length, 2);
-      assert.equal(resp[0].filePath, "index.html");
-      assert.equal(resp[1].filePath, "test/image.jpg");
     });
   });
 
