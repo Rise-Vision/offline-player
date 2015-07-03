@@ -59,10 +59,14 @@ module.exports = function(serviceUrls) {
       return true;
     })
     .then(function() {
-      return platformIOProvider.registerTargets(localSchedule.items.map(function(scheduleItem) {
+      var risePresentations = localSchedule.items.map(function(scheduleItem) {
         var url = scheduleItem.objectReference;
         return url.substr(0, url.lastIndexOf("/") + 1);
-      }), true);
+      }).filter(function(url) {
+        return /risemedialibrary-.{36}\//.test(url);
+      });
+
+      return platformIOProvider.registerTargets(risePresentations, true);
     });
   }
 };
