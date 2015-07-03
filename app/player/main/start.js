@@ -1,11 +1,11 @@
 module.exports = function(serviceUrls) {
   "use strict";
-  var platformIOProvider = require("../platform/io-provider.js")(serviceUrls),
+  var platformIOProvider = require("../platform/io-provider.js"),
 
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformIOProvider),
+  (platformIOProvider, serviceUrls),
 
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider),
@@ -18,14 +18,19 @@ module.exports = function(serviceUrls) {
   (contentViewController),  
 
   remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
+  (platformIOProvider, serviceUrls),
+  
+  segmentLogger = require("../logging/external-logger-segment.js")
   (platformIOProvider, serviceUrls);
+
+  global.logger = require("../logging/logger.js")(segmentLogger);
 
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
   }());
 
   (function loadIOActivityMonitors() {
-    require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader);
+    require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader, segmentLogger);
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 

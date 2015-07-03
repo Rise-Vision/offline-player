@@ -28,6 +28,7 @@
     "PERSISTENT": false,
     "webkitRequestFileSystem": false,
     "URL": false,
-    "navigator": false
+    "navigator": false,
+    "logger": true
   }
 }
