@@ -26,6 +26,7 @@ module.exports = function(platformIO) {
   return {
     updateUserName: function(id) {
       defaultEventData.userId = id;
+      return id;
     },
     sendEvent: function(eventName) {
       var data = JSON.parse(JSON.stringify(defaultEventData));

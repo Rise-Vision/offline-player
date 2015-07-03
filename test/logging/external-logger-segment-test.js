@@ -2,9 +2,8 @@
 var assert = require("assert"),
 mock = require("simple-mock").mock,
 segmentLoggerPath = "../../app/player/logging/external-logger-segment.js",
-mockPlatformIO = {localObjectStore: {}},
+mockPlatformIO = {baseName: "test", baseVersion: "testversion"},
 fetchStub = mock(mockPlatformIO, "httpFetcher").resolveWith(true),
-localStorageStub = mock(mockPlatformIO.localObjectStore, "get").resolveWith("123"),
 externalLogger = require(segmentLoggerPath)(mockPlatformIO);
 
 describe("external segment.io logger", function() {
@@ -17,6 +16,16 @@ describe("external segment.io logger", function() {
   });
 
   it("can send an event", function() {
-    assert.ok(externalLogger.sendEvent("Test"));
+    externalLogger.sendEvent("Test");
+    assert.equal(mockPlatformIO.httpFetcher.callCount, 1);
+  });
+
+  it("uses an updated user name in subsequent event calls", function() {
+    var dataBody;
+    assert.ok(externalLogger.updateUserName("2j3"));
+
+    externalLogger.sendEvent("Test");
+    dataBody = JSON.parse(mockPlatformIO.httpFetcher.lastCall.args[1].body);
+    assert.equal(dataBody.userId, "2j3");
   });
 });
