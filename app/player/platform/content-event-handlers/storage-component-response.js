@@ -4,7 +4,7 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
       return evt.data.type === "storage-component-response";
     },
 
-    process: function(evt) {
+    process: function(evt, presentationUrl) {
       var resp = evt.data.response;
       var items, companyId, parentFolder, promise;
 
@@ -29,7 +29,6 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
       });
 
       if(platformIO.isNetworkConnected()) {
-        var presentationUrl = evt.origin;
         var presentationFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
 
         promise = remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items);

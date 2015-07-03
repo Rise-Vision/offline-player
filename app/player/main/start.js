@@ -24,7 +24,7 @@ module.exports = function(serviceUrls) {
 
   (function loadClientEventsListeners() {
     require("../platform/content-event-handlers/client-events-listener.js")
-    (platformIOProvider, remoteFolderFetcher, contentViewController);
+    (platformIOProvider, remoteFolderFetcher, contentViewController, platformUIController);
   }());
 
   (function loadTimedIntervalTasks() {

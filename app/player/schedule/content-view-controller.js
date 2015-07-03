@@ -49,6 +49,16 @@ module.exports = function(platformUIController, platformIO) {
   }
 
   return {
+    getViewUrl: function(view) {
+      for(var key in contentViews) {
+        if(contentViews[key].contentWindow == view) {
+          return key;
+        }
+      }
+
+      return null;
+    },
+
     createContentViews: function(items) {
       removePreviousContentViews();
       return Promise.all(items.map(function(item) {
