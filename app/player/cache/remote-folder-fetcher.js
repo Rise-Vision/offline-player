@@ -33,11 +33,13 @@ module.exports = function(platformIO) {
           .then(function() {
             return platformIO.getRemoteFolderItemsList(url);
           })
-          .then(saveFolderItems)
+          .then(function(items) {
+            return saveFolderItems(mainUrlPath, items);
+          })
           .catch(function(err) {
             var msg = "Remote folder fetcher: Not retrieving folder " +
             "contents for " + url;
-            console.log(msg + "\n  -" + err.message);
+            console.log(msg + "\n  -" + err.message, err);
           });
 
           function checkItemConditions() {
