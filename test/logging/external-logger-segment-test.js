@@ -4,7 +4,8 @@ mock = require("simple-mock").mock,
 segmentLoggerPath = "../../app/player/logging/external-logger-segment.js",
 mockPlatformIO = {baseName: "test", baseVersion: "testversion"},
 fetchStub = mock(mockPlatformIO, "httpFetcher").resolveWith(true),
-externalLogger = require(segmentLoggerPath)(mockPlatformIO);
+serviceUrls = {segmentIOEventEndpoint: ""},
+externalLogger = require(segmentLoggerPath)(mockPlatformIO, serviceUrls);
 
 describe("external segment.io logger", function() {
   beforeEach("reset mocks", function() {

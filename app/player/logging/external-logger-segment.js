@@ -1,4 +1,4 @@
-module.exports = function(platformIO) {
+module.exports = function(platformIO, serviceUrls) {
   var httpMethod = "POST",
   key = "tTH2ZH3vSgxSDYsEeFMLK2ZDIPKq762j",
   encodedKey = new Buffer(key).toString('base64'),
@@ -6,7 +6,7 @@ module.exports = function(platformIO) {
     "Content-Type: application/json",
     "Authorization: Basic " + encodedKey
   ],
-  eventEndpoint = "https://api.segment.io/v1/track",
+  eventEndpoint = serviceUrls.segmentIOEventEndpoint,
   defaultEventData = {
     "userId": "",
     "event": "",

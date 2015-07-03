@@ -21,7 +21,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, serviceUrls),
   
   segmentLogger = require("../logging/external-logger-segment.js")
-  (platformIOProvider);
+  (platformIOProvider, serviceUrls);
 
   global.logger = require("../logging/logger.js")(segmentLogger);
 

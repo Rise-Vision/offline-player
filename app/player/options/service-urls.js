@@ -18,6 +18,8 @@ module.exports = function(platformIO) {
 
     folderContentsUrl: "https://storage-dot-rvacore-test.appspot.com" +
     "/_ah/api/storage/v0.01/getFolderContents?" +
-    "companyId=COMPANY_ID&folderName=FOLDER_NAME&useSignedURIs=false"
+    "companyId=COMPANY_ID&folderName=FOLDER_NAME&useSignedURIs=false",
+
+    segmentIOEventEndpoint: "https://api.segment.io/v1/track"
   };
 };
