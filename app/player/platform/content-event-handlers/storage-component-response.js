@@ -6,40 +6,57 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
 
     process: function(evt, presentationUrl) {
       var resp = evt.data.response;
-      var items, companyId, parentFolder, promise;
-
+      
       if (!resp) {
         respondWithError("response field must exist");
         return false;
       }
 
       // Process a single file or a list of files. 
-      items = resp.selfLink ? [resp] : resp.items;
-      companyId = decodeURIComponent(items[0].selfLink).match(/.*\/risemedialibrary-(.{36})\/.*/)[1];
-      parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
-      parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
+      var items = resp.selfLink ? [resp] : resp.items;
 
-      items = items.filter(function(item) {
-        return item.name && item.name.slice(-1) !== "/";
-      }).map(function(item) {
-        item.filePath = "rise-storage-component-resources/" + companyId + "/" + decodeURIComponent(item.name);
-        item.remoteUrl = item.selfLink + "?alt=media";
-
-        return item;
+      return generateLocalAndRemoteUrls(items)
+      .then(fetchFilesIntoFilesystem)
+      .then(function() {
+        return sendProcessedResponse(resp, items);
       });
 
-      if(platformIO.isNetworkConnected()) {
-        var presentationFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
+      function generateLocalAndRemoteUrls(items) {
+        var companyId = decodeURIComponent(items[0].selfLink).match(/.*\/risemedialibrary-(.{36})\/.*/)[1];
 
-        promise = remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items);
-        
+        return Promise.resolve(items.filter(function(item) {
+          return item.name && item.name.slice(-1) !== "/";
+        }).map(function(item) {
+          item.filePath = "rise-storage-component-resources/" + companyId + "/" + decodeURIComponent(item.name);
+          item.remoteUrl = item.selfLink + "?alt=media";
+
+          return item;
+        }));
+      }
+
+      function fetchFilesIntoFilesystem(items) {
+        if(platformIO.isNetworkConnected()) {
+          var presentationFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
+
+          return remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items).then(function(result) {
+            registerTargets(items);
+
+            return result;
+          }); 
+        }
+        else {
+          return Promise.resolve();
+        }
+      }
+
+      function registerTargets(items) {
+        var parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
+
+        parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
         platformIO.registerTargets([parentFolder], false);
       }
-      else {
-        promise = Promise.resolve();
-      }
-      
-      promise.then(function() {
+
+      function sendProcessedResponse(resp, items) {
         var message = {type: "storage-component-response-updated", response: resp};
 
         items.forEach(function(item) {
@@ -47,13 +64,11 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
         });
 
         uiController.sendWindowMessage(evt.source, message, "*");
-      });
-
-      return true;
+      }
 
       function respondWithError(err) {
         evt.data.error = err;
-        evt.source.postMessage(evt.data, "*");
+        uiController.sendWindowMessage(evt.source, evt.data, "*");
       }
     }
   };
