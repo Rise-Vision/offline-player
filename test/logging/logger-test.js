@@ -23,7 +23,7 @@ describe("logger", function() {
   });
 
   it("logs to segment", function() {
-    var result = logger.logExternal("test");
+    var result = logger.external("test");
     assert.ok(result);
     assert.equal(mockExternalLogger.sendEvent.callCount, 1);
   });

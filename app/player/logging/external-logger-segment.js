@@ -7,37 +7,38 @@ module.exports = function(platformIO) {
     "Authorization: Basic " + encodedKey
   ],
   eventEndpoint = "https://api.segment.io/v1/track",
-  defaultData = {
+  defaultEventData = {
     "userId": "",
     "event": "",
+    "type": "track",
     "context": {
-      "ip": "24.5.68.47"
+      "app": {
+        "name": platformIO.baseName,
+        "version": platformIO.baseVersion
+      },
     },
-    "timestamp": "2012-12-02T00:30:12.984Z"
+    "integrations": {
+      "All": true
+    },
+    "timestamp": ""
   };
 
-  dataObj = platformIO.localObjectStore.get(["displayId"])
-  .then(function(objectStore) {
-    var dataObj = defaultData;
-    dataObj.userId = "anon";
-    if (objectStore.displayId) {dataObj.userId = displayId; return dataObj;}
-    return dataObj;
-  });
-
-
   return {
-    identify: function() {},
+    updateUserName: function(id) {
+      defaultEventData.userId = id;
+    },
     sendEvent: function(eventName) {
-      return dataObj.then(function(dataObj) {
-        var data = JSON.parse(JSON.stringify(dataObj));
-        data.timestamp = new Date();
-        data.event = eventName;
-        
-        return platformIO.httpFetcher.fetch(eventEndpoint, {
-          method: httpMethod,
-          body: JSON.stringify(data),
-          headers: headers
-        });
+      var data = JSON.parse(JSON.stringify(defaultEventData));
+      if (!data.userId) {
+        data.anonymousId = "anonymous";
+      }
+      data.timestamp = new Date();
+      data.event = eventName;
+
+      return platformIO.httpFetcher(eventEndpoint, {
+        method: httpMethod,
+        body: JSON.stringify(data),
+        headers: headers
       });
     }
   };

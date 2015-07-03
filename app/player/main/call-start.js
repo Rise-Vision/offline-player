@@ -1,3 +1,3 @@
 var starter = require("./start.js"),
-serviceUrls = require("../options/service-urls.js")(navigator.platform.replace(" ", "/"));
+serviceUrls = require("../options/service-urls.js")(platformIO);
 starter(serviceUrls);
