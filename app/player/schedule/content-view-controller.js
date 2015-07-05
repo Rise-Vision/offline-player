@@ -70,8 +70,6 @@ module.exports = function(platformUIController, platformIO) {
     },
 
     reloadMatchingPresentations: function(mainUrlPath) {
-      console.log("reloadMatchingPresentations", mainUrlPath);
-
       return Object.keys(contentViews).reduce(function(prev, key) {
         return prev.then(function() {
           if(key.indexOf(mainUrlPath) >= 0) {
@@ -92,6 +90,10 @@ module.exports = function(platformUIController, platformIO) {
     hideView: function(objectReference) {
       platformUIController.setVisibility(contentViews[objectReference], false);
       return true;
+    },
+
+    getContentViews: function() {
+      return contentViews;
     }
   };
 };
