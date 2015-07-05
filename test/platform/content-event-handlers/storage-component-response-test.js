@@ -1,6 +1,7 @@
 "use strict";
 var assert = require("assert"),
 handlerPath = "../../../app/player/platform/content-event-handlers/storage-component-response.js",
+serviceUrls = "../../../main/moch-service-urls.js",
 mock = require("simple-mock").mock,
 mockPlatformIO,
 mockUIController,
@@ -24,7 +25,7 @@ describe("storage-component-response", function() {
     mock(mockUIController, "sendWindowMessage").returnWith(true);
     mock(mockFolderFetcher, "fetchFilesIntoFilesystem").resolveWith(true);
 
-    responseHandler = require(handlerPath)(mockPlatformIO, mockFolderFetcher, mockUIController);
+    responseHandler = require(handlerPath)(serviceUrls, mockPlatformIO, mockFolderFetcher, mockUIController);
 
     item = {
       name: imageName,
@@ -105,7 +106,7 @@ describe("storage-component-response", function() {
   it("registers GCM targets", function(done) {
     responseHandler.process(eventObject, presentationUrl).then(function() {
       assert.equal(mockPlatformIO.registerTargets.callCount, 1);
-      assert.equal(mockPlatformIO.registerTargets.lastCall.args[0], mainUrlPath);
+      assert.equal(mockPlatformIO.registerTargets.lastCall.args[1], mainUrlPath);
       done();
     });
   });

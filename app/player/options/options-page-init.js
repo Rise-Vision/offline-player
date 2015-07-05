@@ -1,5 +1,5 @@
 window.addEventListener("load", function() {
-  var serviceUrls = require("./service-urls.js")(navigator.platform.replace(" ", "/")), 
+  var serviceUrls = require("./service-urls.js")(require("../platform/io-provider.js")),
   controller = require("./options-page-controller.js")(serviceUrls);
 
   (function setOptionsWindowCloseTimeout() {

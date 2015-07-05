@@ -15,6 +15,10 @@ describe("starter", function() {
     });
   });
   
+  it("has a logger", function() {
+    assert.ok(logger);
+  });
+
   it("shows empty schedule", function() {
     var webviewSource = document.body.querySelectorAll("webview")[0].src;
     assert.ok(webviewSource.indexOf("empty-schedule") > -1);

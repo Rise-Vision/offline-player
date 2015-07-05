@@ -14,7 +14,8 @@ describe("remote folder fetcher", function() {
     mock(platformIO, "isNetworkConnected").returnWith(true);
     mock(platformIO, "hasPreviouslySavedFolder").resolveWith(false);
     mock(platformIO, "hasFilesystemSpace").resolveWith(true);
-    fetcher = require("../../app/player/cache/remote-folder-fetcher.js")(platformIO);
+    fetcher = require("../../app/player/cache/remote-folder-fetcher.js")
+    (platformIO, {folderContentsUrl: "test"});
   });
 
   it("exists", function() {

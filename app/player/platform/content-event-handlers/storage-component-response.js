@@ -1,4 +1,4 @@
-module.exports = function(platformIO, remoteFolderFetcher, uiController) {
+module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiController) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-response";
@@ -52,7 +52,7 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
         var parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
 
         parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
-        return platformIO.registerTargets([parentFolder], false);
+        return platformIO.registerTargets(serviceUrls.registerTargetUrl, [parentFolder], false);
       }
 
       function sendProcessedResponse(resp, items) {

@@ -15,6 +15,7 @@
     "console": false,
     "process": false,
     "driver": false,
-    "XMLHttpRequest": false
+    "XMLHttpRequest": false,
+    "logger": false
   }
 }

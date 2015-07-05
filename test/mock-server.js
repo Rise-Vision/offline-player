@@ -8,6 +8,14 @@ http.createServer(function(req, res) {
     return res.end('{"content": {"schedule": {"name": "test schedule", "items": [{"type": "url", "objectReference": "http://localhost:7654/mock-remote-page.html", "timeDefined": "false", "name": "mock html"}]}}}');
   }
 
+  if (req.url.indexOf("segmentEvent") > -1) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+    req.on("data", function(data) {
+      res.end(data.toString());
+    });
+    return;
+  }
+
   if (req.url.indexOf("mock-remote-page") > -1) {
     res.writeHead(200, {"Content-Type": "text/html"});
     return res.end("<!doctype html><html><head></head><body>test remote page from mock server<img src='image-src' /></body></html>");
@@ -52,6 +60,12 @@ http.createServer(function(req, res) {
         ]
       }
     ));
+  }
+
+  if (req.url.indexOf("registerTargetUrl") > -1) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+
+    return res.end(JSON.stringify({ result:true }));
   }
 
   res.writeHead(200, {"Content-Type": "text/plain"});
