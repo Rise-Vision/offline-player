@@ -1,6 +1,6 @@
 module.exports = function(platformIO, serviceUrls) {
   var httpMethod = "POST",
-  key = "tTH2ZH3vSgxSDYsEeFMLK2ZDIPKq762j",
+  key = require("../../../private-keys/offline-player/segment-key.js"),
   encodedKey = new Buffer(key).toString('base64'),
   headers = [
     "Content-Type: application/json",
