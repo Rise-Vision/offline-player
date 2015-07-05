@@ -1,4 +1,3 @@
-/* globals fetch */
 "use strict";
 var assert = require("assert"),
 handlerPath = "../../../app/player/platform/content-event-handlers/storage-component-load.js",
@@ -10,7 +9,7 @@ mockUIController,
 mockLocalObjectStore,
 responseHandler;
 
-describe("storage-component-response", function() {
+describe("storage-component-load", function() {
   var companyId = "23b0d348-9147-4527-825a-6dec36b602c2";
   var eventObject, testUrl, testData, fetchResponse, storedData;
 

@@ -70,6 +70,10 @@ module.exports = {
     targetWindow.postMessage(messageObj, dest);
   },
 
+  registerWindowListener: function(event, listener) {
+    window.addEventListener(event, listener);
+  },
+
   setVisibility: function(el, vis) {
     if (vis) {
       el.style.display = "block";

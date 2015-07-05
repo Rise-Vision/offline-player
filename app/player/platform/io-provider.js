@@ -200,5 +200,10 @@ module.exports = {
   hasFilesystemSpace: function() {
     return checkFilesystemSpace(0);
   },
-  registerTargets: registerTargets
+  registerTargets: registerTargets,
+  registerGCMListener: function(listener) {
+    if(typeof(chrome) !== "undefined" && chrome.gcm) {
+      chrome.gcm.onMessage.addListener(listener);
+    }
+  }
 };

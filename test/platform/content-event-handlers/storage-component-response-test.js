@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert"),
+serviceUrls = require("../../../test/main/mock-service-urls.js"),
 handlerPath = "../../../app/player/platform/content-event-handlers/storage-component-response.js",
-serviceUrls = "../../../main/moch-service-urls.js",
 mock = require("simple-mock").mock,
 mockPlatformIO,
 mockUIController,
