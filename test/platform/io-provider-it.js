@@ -126,4 +126,18 @@ describe("io provider", function() {
       assert.ok(resp);
     });
   });
+
+  it("register GCM targets", function(done) {
+    var baseTarget = "test/";
+
+    return platformIO.localObjectStore.set({ gcmRegistrationId: "testId" }).then(function() {
+      return platformIO.registerTargets(serviceUrls.registerTargetUrl, [baseTarget], true)
+      .then(function() {
+        platformIO.localObjectStore.get(["gcmTargets"]).then(function(data) {
+          assert.equal(data.gcmTargets[0], baseTarget);
+          done();
+        });
+      });
+    });
+  });
 });
