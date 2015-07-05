@@ -8,8 +8,7 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
       var resp = evt.data.response;
       
       if (!resp) {
-        respondWithError("response field must exist");
-        return false;
+        return respondWithError("response field must exist");
       }
 
       // Process a single file or a list of files. 
@@ -41,7 +40,7 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
           return remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items).then(function(result) {
             registerTargets(items);
 
-            return result;
+            return items;
           }); 
         }
         else {
@@ -53,7 +52,7 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
         var parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
 
         parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
-        platformIO.registerTargets([parentFolder], false);
+        return platformIO.registerTargets([parentFolder], false);
       }
 
       function sendProcessedResponse(resp, items) {
@@ -69,6 +68,8 @@ module.exports = function(platformIO, remoteFolderFetcher, uiController) {
       function respondWithError(err) {
         evt.data.error = err;
         uiController.sendWindowMessage(evt.source, evt.data, "*");
+
+        return Promise.reject(new Error("Not online"));
       }
     }
   };
