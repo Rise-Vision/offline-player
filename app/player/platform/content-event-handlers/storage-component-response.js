@@ -69,7 +69,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
         evt.data.error = err;
         uiController.sendWindowMessage(evt.source, evt.data, "*");
 
-        return Promise.reject(new Error("Not online"));
+        return Promise.reject(new Error(err));
       }
     }
   };

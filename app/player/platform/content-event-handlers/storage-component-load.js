@@ -1,4 +1,4 @@
-module.exports = function(platformIO) {
+module.exports = function(platformIO, uiController) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-load";
@@ -6,44 +6,60 @@ module.exports = function(platformIO) {
 
     process: function(evt) {
       var url = evt.data.url;
-      var promise;
 
       if (!url) {
-        respondWithError("url field must exist");
-        return false;
+        return respondWithError("url field must exist");
       }
 
-      if(platformIO.isNetworkConnected()) {
-        promise = fetch(url)
+      return getResponseToUrl(url)
+      .then(sendResponseToListeners, sendErrorToListeners);
+
+      function getResponseToUrl(url) {
+        if(platformIO.isNetworkConnected()) {
+          return fetchDataFromRemoteUrl(url);
+        }
+        else {
+          return restoreDataFromLocalStorage(url);
+        }
+      }
+
+      function fetchDataFromRemoteUrl(url) {
+        return platformIO.httpFetcher(url)
         .then(function(resp) {
           return resp.json();
         })
         .then(function(json) {
           return platformIO.localObjectStore.get(["storageComponentData"]).then(function (data) {
-          	data = data.storageComponentData || {};
-          	data[url] = json;
+            data = data.storageComponentData || {};
+            data[url] = json;
 
-          	return platformIO.localObjectStore.set({ storageComponentData: data}).then(function() {
-          	  return data[url];
-          	});
+            return platformIO.localObjectStore.set({ storageComponentData: data }).then(function() {
+              return data[url];
+            });
           });
         });
       }
-      else {
-      	promise = platformIO.localObjectStore.get(["storageComponentData"]).then(function (data) {
-      	  return data.storageComponentData && data.storageComponentData[url];
-      	});
+
+      function restoreDataFromLocalStorage(url) {
+        return platformIO.localObjectStore.get(["storageComponentData"]).then(function (data) {
+          return data.storageComponentData && data.storageComponentData[url];
+        });
       }
 
-      return promise.then(function(data) {
-      	evt.source.postMessage({ type: "storage-component-loaded", response: data }, "*");
-      }, function(err) {
-      	evt.source.postMessage({ type: "storage-component-loaded", message: "Failed to fetch data" }, "*");
-      });
+      function sendResponseToListeners(data) {
+        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", response: data }, "*");
+      }
+
+      function sendErrorToListeners(err) {
+        console.log("sendErrorToListeners", err);
+        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", error: "Failed to fetch data" }, "*");
+      }
 
       function respondWithError(err) {
         evt.data.error = err;
-        evt.source.postMessage(evt.data, "*");
+        uiController.sendWindowMessage(evt.source, evt.data, "*");
+
+        return Promise.reject(new Error(err));
       }
     }
   };

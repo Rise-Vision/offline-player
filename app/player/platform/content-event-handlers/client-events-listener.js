@@ -2,7 +2,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, contentV
   var contentEventHandlers = [];
 
   contentEventHandlers.push(require("./bypass-cors.js")());
-  contentEventHandlers.push(require("./storage-component-load.js")(platformIO));
+  contentEventHandlers.push(require("./storage-component-load.js")(platformIO, uiController));
   contentEventHandlers.push(require("./storage-component-response.js")(serviceUrls, platformIO, remoteFolderFetcher, uiController));
 
   window.addEventListener("message", function(evt) {
@@ -27,7 +27,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, contentV
     }
   });
 
-  if(chrome && chrome.gcm) {    
+  if(chrome && chrome.gcm) {
     chrome.gcm.onMessage.addListener(function(message) {
       var targets = JSON.parse(message.data.targets);
       var currentTime = new Date().getTime();
