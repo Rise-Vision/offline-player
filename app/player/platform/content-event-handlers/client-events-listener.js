@@ -22,7 +22,6 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, contentV
     function respondWithError(err) {
       evt.data.error = err;
       uiController.sendWindowMessage(evt.source, evt.data, "*");
-
       return Promise.reject(new Error(err));
     }
   });

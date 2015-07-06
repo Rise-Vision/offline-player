@@ -56,14 +56,13 @@ describe("client-events-listener", function() {
     assert.ok(clientEvents);
   });
 
-  it("rejects events without handlers", function(done) {
+  it.only("rejects events without handlers", function() {
     clientEvents.resetContentEventHandlers();
 
-    messageListener(createWindowEvent("none")).then(null, function(err) {
+    return messageListener(createWindowEvent("none"))
+    .catch(function(err) {
       assert.equal(err.name, "Error");
       assert.equal(err.message, "No handlers were found for the event");
-      
-      done();
     });
   });
 
