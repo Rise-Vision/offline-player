@@ -24,6 +24,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, serviceUrls);
 
   global.logger = require("../logging/logger.js")(segmentLogger);
+  logger.external("Startup");
 
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
