@@ -25,9 +25,17 @@ module.exports = function(serviceUrls) {
 
   global.logger = require("../logging/logger.js")(segmentLogger);
 
-  (function loadClientEventsListeners() {
-    require("../platform/content-event-handlers/client-events-listener.js")
-    (serviceUrls, platformIOProvider, remoteFolderFetcher, contentViewController, platformUIController);
+  (function loadIntraViewListeners() {
+    var dispatcher = require("../platform/content-event-handlers/intra-view-event-dispatcher.js")(contentViewController, platformUIController);
+
+    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
+    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIO, uiController));
+    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(serviceUrls, platformIO, remoteFolderFetcher, uiController));
+  }());
+
+  (function loadRemoteStorageListener() {
+    var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, contentViewController, platformUIController, remoteFolderFetcher);
+    platformIOProvider.registerExternalStorageListener(remoteStorageListener);
   }());
 
   (function loadTimedIntervalTasks() {

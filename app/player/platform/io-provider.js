@@ -201,7 +201,7 @@ module.exports = {
     return checkFilesystemSpace(0);
   },
   registerTargets: registerTargets,
-  registerGCMListener: function(listener) {
+  registerRemoteStorageListener: function(listener) {
     if(typeof(chrome) !== "undefined" && chrome.gcm) {
       chrome.gcm.onMessage.addListener(listener);
     }
