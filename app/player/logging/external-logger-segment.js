@@ -16,12 +16,23 @@ module.exports = function(platformIO, serviceUrls) {
         "name": platformIO.baseName,
         "version": platformIO.baseVersion
       },
+      "os": {
+        "name": platformIO.basePlatform,
+        "version": platformIO.version
+      },
     },
     "integrations": {
       "All": true
     },
     "timestamp": ""
   };
+
+  (function initializeUserId() {
+    platformIO.localObjectStore.get(["displayId"])
+    .then(function(storageResult) {
+      defaultEventData.userId = storageResult.displayId;
+    });
+  }());
 
   return {
     updateUserName: function(id) {
