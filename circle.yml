@@ -1,12 +1,6 @@
 machine:
   post:
-    - if [[ $(google-chrome --version |cut -d " " -f 3| cut -d "." -f 1) < 43 ]]; then 
-      curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      sudo dpkg -i google-chrome-stable.deb
-      # make chrome lxc-friendly
-      sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
-      rm google-chrome-stable.deb
-      fi
+    - if [[ $(google-chrome --version |cut -d " " -f 3| cut -d "." -f 1) < 43 ]]; then curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo dpkg -i google-chrome-stable.deb && sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome && rm google-chrome-stable.deb; fi
     - if ! which istanbul; then npm install -g istanbul; fi
     - if ! which browserify; then npm install -g browserify; fi
   node:
