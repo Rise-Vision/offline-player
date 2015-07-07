@@ -22,20 +22,21 @@ module.exports = function(platformIO, contentViewController, uiController, remot
         promises.push(platformIO.hasPreviouslySavedFolder(presentationFolder) 
         .then(function(previouslySaved) {
           if (previouslySaved) {
-            return remoteFolderFetcher.refreshFilesystemFolder
-            ([{ objectReference: presentationFolder }]);
+            return remoteFolderFetcher.fetchFoldersIntoFilesystem
+            ([{ objectReference: presentationFolder }])
+            .then(function() {
+              return contentViewController.reloadMatchingPresentations
+              (presentationFolder, false);
+            });
+          } else {
+            return [];
           }
-        })
-        .then(function() {
-          return contentViewController.reloadMatchingPresentations
-          (presentationFolder, false);
         }));
       });
     });
 
     return Promise.all(promises).then(function(reloadedViews) {
       var views = contentViewController.getContentViews();
-
       reloadedViews = reloadedViews.reduce(function(prev, curr) {
         return prev.concat(curr);
       });

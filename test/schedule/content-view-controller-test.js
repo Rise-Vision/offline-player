@@ -87,7 +87,7 @@ describe("content view controller", function(){
     });
   });
 
-  it.only("reloads matching presentations", function() {
+  it("reloads matching presentations", function() {
     return contentViewController.createContentViews(scheduleItems)
     .then(function() {
       var mainUrlPath = riseUrl.substr(0, riseUrl.lastIndexOf("/") + 1);
