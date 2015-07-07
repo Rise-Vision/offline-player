@@ -18,10 +18,11 @@ describe("content view controller", function(){
   });
 
   beforeEach("inject mocks", function() {
-    mock(platformIO, "filesystemRetrieve").resolveWith({url: "local-url"});
+    mock(platformIO, "getCachedMainUrl").resolveWith("cached-main-url");
     mock(platformIO, "isNetworkConnected").resolveWith(false);
     mock(uiController, "createViewWindow").returnWith(true);
     mock(uiController, "setVisibility").returnWith(true);
+    mock(uiController, "isVisible").returnWith(true);
     mock(uiController, "removeView").returnWith(true);
     contentViewController = require(contentViewControllerPath)(uiController, platformIO);
   });
@@ -60,7 +61,8 @@ describe("content view controller", function(){
     return contentViewController.createContentViews(scheduleItems)
     .then(function(contentViews) {
       contentViewController.showView(riseUrl);
-      assert.deepEqual(uiController.setVisibility.calls[0].args, [true, true]);
+      console.log(uiController.setVisibility.callCount);
+      assert.deepEqual(uiController.setVisibility.calls[2].args, [true, true]);
     });
   });
 
@@ -82,6 +84,17 @@ describe("content view controller", function(){
     })
     .then(function(contentViews) {
       assert.deepEqual(contentViews, {});
+    });
+  });
+
+  it("reloads matching presentations", function() {
+    return contentViewController.createContentViews(scheduleItems)
+    .then(function() {
+      var mainUrlPath = riseUrl.substr(0, riseUrl.lastIndexOf("/") + 1);
+      return contentViewController.reloadMatchingPresentations(mainUrlPath);
+    })
+    .then(function(reloadedPresentations) {
+      assert.deepEqual(reloadedPresentations, [riseUrl]);
     });
   });
 });

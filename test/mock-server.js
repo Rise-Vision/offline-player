@@ -62,6 +62,12 @@ http.createServer(function(req, res) {
     ));
   }
 
+  if (req.url.indexOf("registerTargetUrl") > -1) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+
+    return res.end(JSON.stringify({ result:true }));
+  }
+
   res.writeHead(200, {"Content-Type": "text/plain"});
   res.end('{"response": "local-http-ok"}');
 }).listen(7654, "127.0.0.1", function() {console.log("listening on " + 7654);});

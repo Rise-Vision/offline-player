@@ -20,6 +20,10 @@ module.exports = function(platformIO) {
     "/_ah/api/storage/v0.01/getFolderContents?" +
     "companyId=COMPANY_ID&folderName=FOLDER_NAME&useSignedURIs=false",
 
+    registerTargetUrl: "https://storage-dot-rvacore-test.appspot.com" +
+    "/_ah/api/storage/v0.01/registerGCMTargetList?" +
+    "gcmClientId=GCM_CLIENT_ID",
+
     segmentIOEventEndpoint: "https://api.segment.io/v1/track"
   };
 };

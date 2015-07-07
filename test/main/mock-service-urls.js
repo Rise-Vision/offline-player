@@ -16,5 +16,8 @@ module.exports = {
                                     "https://storage-dot-rvacore-test.appspot.com" +
                                       "/_ah/api/storage/v0.01/getFolderContents?" +
                                       "companyId=COMPANY_ID&folderName=FOLDER_NAME&useSignedURIs=false",
+
+  registerTargetUrl: "http://localhost:7654/registerTargetUrl",
+
   segmentIOEventEndpoint: "http://localhost:7654/segmentEvent"
 };

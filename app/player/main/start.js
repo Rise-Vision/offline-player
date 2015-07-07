@@ -5,7 +5,7 @@ module.exports = function(serviceUrls) {
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformIOProvider, serviceUrls),
+  (platformIOProvider),
 
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider),
@@ -25,6 +25,19 @@ module.exports = function(serviceUrls) {
 
   global.logger = require("../logging/logger.js")(segmentLogger);
   logger.external("Startup");
+
+  (function loadIntraViewListeners() {
+    var dispatcher = require("../platform/content-event-handlers/intra-view-event-dispatcher.js")(contentViewController, platformUIController);
+
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIOProvider, platformUIController));
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(serviceUrls, platformIOProvider, remoteFolderFetcher, platformUIController));
+  }());
+
+  (function loadRemoteStorageListener() {
+    var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, contentViewController, platformUIController, remoteFolderFetcher);
+    platformIOProvider.registerRemoteStorageListener(remoteStorageListener);
+  }());
 
   (function loadTimedIntervalTasks() {
     require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
@@ -55,6 +68,11 @@ module.exports = function(serviceUrls) {
     .then(function() {
       contentCycler.setScheduleData(localSchedule);
       contentCycler.cycleViews();
+      return true;
+    })
+    .then(function() {
+      platformIOProvider.registerTargets
+      (serviceUrls.registerTargetUrl, localSchedule.items, true);
       return true;
     });
   }

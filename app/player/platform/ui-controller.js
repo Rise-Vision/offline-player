@@ -1,3 +1,28 @@
+function clearViewCache(view) {
+  return new Promise(function(resolve, reject) {
+    // View refresh is disabled for the moment
+    if (view.nodeName === "--WEBVIEW") {
+      // If a timeout is not used, the callback is never invoked or fails when calling reload
+      setTimeout(function() {
+        view.clearData({}, {
+          "appcache": true,
+          "cache": true,
+          "indexedDB": true,
+          "localStorage": true,
+        }, function() {
+            console.log("Cleared!");
+            view.reload();
+            resolve(view);
+          }
+        );        
+      }, 5000);
+    }
+    else { // iframe
+      resolve(view);
+    }
+  });
+}
+
 module.exports = {
   createViewWindow: function(contentTarget) {
     if (!contentTarget) {
@@ -14,13 +39,15 @@ module.exports = {
     view.style.height = document.body.clientHeight + "px";
     view.style.width = document.body.clientWidth + "px";
     view.style.display = "none";
+
     if (type === "webview") {
       view.partition = "persist:" + 
       (contentTarget.indexOf("../") === 0 ? "packaged" : contentTarget);
     }
 
+    view.creationTime = new Date().getTime();
     view.src = contentTarget;
-    console.log("appending " + contentTarget);
+    console.log("appending " + contentTarget + " to view type:" + type);
     document.body.appendChild(view);
 
     if (type === "webview") {
@@ -31,11 +58,20 @@ module.exports = {
 
     function sendRegistrationMessage() {
       view.contentWindow.postMessage("register.chrome.app.window", "*");
+      view.contentWindow.postMessage({ type: "offline-player-init" }, "*");
       view.removeEventListener("loadstop", sendRegistrationMessage);
       view.removeEventListener("load", sendRegistrationMessage);
     }
 
-    return view;
+    return clearViewCache(view);
+  },
+
+  sendWindowMessage: function(targetWindow, messageObj, dest) {
+    targetWindow.postMessage(messageObj, dest);
+  },
+
+  registerWindowListener: function(event, listener) {
+    window.addEventListener(event, listener);
   },
 
   setVisibility: function(el, vis) {
@@ -47,5 +83,9 @@ module.exports = {
     } 
   },
 
-  removeView: function(view) {document.body.removeChild(view);},
+  isVisible: function(el) {
+    return el.style.display === "block";
+  },
+
+  removeView: function(view) {document.body.removeChild(view);}
 };

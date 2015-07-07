@@ -1,39 +1,23 @@
-module.exports = function(platformIO, serviceUrls) {
-  function getRemoteFolderItemsList(targetFileUrl) {
-    var regex = /risemedialibrary-(.{36})\/(.*)/;
-    var match = regex.exec(targetFileUrl);
-    if(!match || match.length !== 3) {
-      return Promise.reject("Invalid URL");
-    }
-
-    var companyId = match[1];
-    var folder = match[2].indexOf("/") >= 0 ? 
-    match[2].substr(0, match[2].lastIndexOf("/") + 1) :
-    ""; 
-
-    var listingUrl = serviceUrls.folderContentsUrl
-    .replace("COMPANY_ID", companyId)
-    .replace("FOLDER_NAME", encodeURIComponent(folder));
-
-    return fetch(listingUrl)
-    .then(function(resp) {
-      return resp.json();
-    })
-    .then(function(json) {
-      var filteredItems = json.items.filter(function(f) {
-        return f.folder === false;
+module.exports = function(platformIO) {
+  function saveFolderItems(mainUrlPath, items) {
+    return items.reduce(function(prev, curr) {
+      return prev.then(function() {
+        return platformIO.httpFetcher(curr.remoteUrl)
+        .then(function(resp) {
+          return resp.blob();
+        })
+        .then(function(blob) {
+          return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob);
+        });
       });
-
-      return Promise.resolve(filteredItems.map(function(f) {
-        return  {
-          remoteUrl: f.mediaLink,
-          filePath: f.objectId.substr(folder.length)
-        };
-      }));
-    });
+    }, Promise.resolve());
   }
 
   return {
+    fetchFilesIntoFilesystem: function(mainUrlPath, files) {
+      return saveFolderItems(mainUrlPath, files);
+    },
+
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       if (!platformIO.isNetworkConnected()) {
         return Promise.reject(new Error("no network connection"));
@@ -49,11 +33,13 @@ module.exports = function(platformIO, serviceUrls) {
           .then(function() {
             return platformIO.getRemoteFolderItemsList(url);
           })
-          .then(saveFolderItems)
+          .then(function(items) {
+            return saveFolderItems(mainUrlPath, items);
+          })
           .catch(function(err) {
             var msg = "Remote folder fetcher: Not retrieving folder " +
             "contents for " + url;
-            console.log(msg + "\n  -" + err.message);
+            console.log(msg + "\n  -" + err.message, err);
           });
 
           function checkItemConditions() {
@@ -68,21 +54,6 @@ module.exports = function(platformIO, serviceUrls) {
                 throw new Error("folder exists");
               }
             });
-          }
-
-          function saveFolderItems(items) {
-            return items.reduce(function(prev, curr) {
-              return prev.then(function() {
-                return platformIO.httpFetcher(curr.remoteUrl)
-                .then(function(resp) {
-                  return resp.blob();
-                })
-                .then(function(blob) {
-                  return platformIO.filesystemSave
-                  (mainUrlPath, curr.filePath, blob); 
-                });
-              });
-            }, Promise.resolve());
           }
         }));
       })
