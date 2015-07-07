@@ -85,4 +85,8 @@ describe("content view controller", function(){
       assert.deepEqual(contentViews, {});
     });
   });
+
+  it("reloads matching presentations", function() {
+    assert.ok(false);
+  });
 });

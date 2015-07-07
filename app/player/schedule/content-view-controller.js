@@ -71,15 +71,16 @@ module.exports = function(platformUIController, platformIO) {
 
     reloadMatchingPresentations: function(mainUrlPath) {
       return Object.keys(contentViews).reduce(function(prev, key) {
-        return prev.then(function() {
+        return prev.then(function(resp) {
           if(key.indexOf(mainUrlPath) >= 0) {
-            return createContentView(key);
+            return createContentView(key)
+            .then(function() {return resp.push(key)});
           }
           else {
-            return Promise.resolve();
+            return resp;
           }
         });
-      }, Promise.resolve());
+      }, Promise.resolve([]));
     },
 
     showView: function(objectReference) {

@@ -22,9 +22,11 @@ listener = require("../../app/player/platform/remote-storage-listener.js")
 (mockPlatformIO, mockViewController, mockUIController, mockFolderFetcher);
 
 describe("remote storage listener", function() {
-  it.only("exists", function() {
+  it("exists", function() {
     assert.ok(listener);
   });
+
+
   /*
   it("fetches and updates previously saved remote folders", function() {
     mock(mockPlatformIO, "hasPreviouslySavedFolder").returnWith(true);
