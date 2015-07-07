@@ -18,10 +18,11 @@ describe("content view controller", function(){
   });
 
   beforeEach("inject mocks", function() {
-    mock(platformIO, "filesystemRetrieve").resolveWith({url: "local-url"});
+    mock(platformIO, "getCachedMainUrl").resolveWith("cached-main-url");
     mock(platformIO, "isNetworkConnected").resolveWith(false);
     mock(uiController, "createViewWindow").returnWith(true);
     mock(uiController, "setVisibility").returnWith(true);
+    mock(uiController, "isVisible").returnWith(true);
     mock(uiController, "removeView").returnWith(true);
     contentViewController = require(contentViewControllerPath)(uiController, platformIO);
   });
@@ -86,7 +87,14 @@ describe("content view controller", function(){
     });
   });
 
-  it("reloads matching presentations", function() {
-    assert.ok(false);
+  it.only("reloads matching presentations", function() {
+    return contentViewController.createContentViews(scheduleItems)
+    .then(function() {
+      var mainUrlPath = riseUrl.substr(0, riseUrl.lastIndexOf("/") + 1);
+      return contentViewController.reloadMatchingPresentations(mainUrlPath);
+    })
+    .then(function(reloadedPresentations) {
+      assert.deepEqual(reloadedPresentations, [riseUrl]);
+    });
   });
 });

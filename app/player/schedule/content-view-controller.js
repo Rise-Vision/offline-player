@@ -74,7 +74,7 @@ module.exports = function(platformUIController, platformIO) {
         return prev.then(function(resp) {
           if(key.indexOf(mainUrlPath) >= 0) {
             return createContentView(key)
-            .then(function() {return resp.push(key)});
+            .then(function() {resp.push(key); return resp;});
           }
           else {
             return resp;
