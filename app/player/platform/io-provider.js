@@ -43,6 +43,14 @@ function registerTargets(registerTargetUrl, targets, reset) {
   if(!isNetworkConnected()) {
     return Promise.reject("Player is in offline mode");
   }
+
+  var validTargets = targets.map(function(scheduleItem) {
+    var url = scheduleItem.objectReference;
+    return url.substr(0, url.lastIndexOf("/") + 1);
+  }).filter(function(url) {
+    return /risemedialibrary-.{36}\//.test(url);
+  });
+
   
   return localStorage("get", ["gcmRegistrationId", "gcmTargets"]).then(function(storageItems) {
     var gcmRegistrationId = storageItems.gcmRegistrationId;
@@ -51,7 +59,7 @@ function registerTargets(registerTargetUrl, targets, reset) {
     if(gcmRegistrationId) {
       gcmTargets = reset ? [] : (storageItems.gcmTargets || []);
 
-      targets.forEach(function(target) {
+      validTargets.forEach(function(target) {
         gcmTargets.push(target);
       });
 

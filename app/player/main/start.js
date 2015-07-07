@@ -5,7 +5,7 @@ module.exports = function(serviceUrls) {
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformIOProvider, serviceUrls),
+  (platformIOProvider),
 
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider),
@@ -71,15 +71,8 @@ module.exports = function(serviceUrls) {
       return true;
     })
     .then(function() {
-      var risePresentations = localSchedule.items.map(function(scheduleItem) {
-        var url = scheduleItem.objectReference;
-        return url.substr(0, url.lastIndexOf("/") + 1);
-      }).filter(function(url) {
-        return /risemedialibrary-.{36}\//.test(url);
-      });
-
-      platformIOProvider.registerTargets(serviceUrls.registerTargetUrl, risePresentations, true);
-
+      platformIOProvider.registerTargets
+      (serviceUrls.registerTargetUrl, localSchedule.items, true);
       return true;
     });
   }
