@@ -1,4 +1,31 @@
-/*
+"use strict";
+var assert = require("assert"),
+mock = require("simple-mock").mock,
+mockPlatformIO = {localObjectStore: {}},
+mockViewController = {},
+mockUIController = {},
+mockFolderFetcher = {},
+listener;
+
+mock(mockPlatformIO.localObjectStore, "get").resolveWith(true);
+mock(mockPlatformIO, "hasPreviouslySavedFolder").resolveWith(true);
+mock(mockPlatformIO, "registerRemoteStorageId").returnWith(true);
+
+mock(mockViewController, "reloadMatchingPresentations").resolveWith(true);
+mock(mockViewController, "getContentViews").returnWith(true);
+
+mock(mockUIController, "sendWindowMessage").returnWith(true);
+
+mock(mockFolderFetcher, "fetchFoldersIntoFilesystem").resolveWith(true);
+
+listener = require("../../app/player/platform/remote-storage-listener.js")
+(mockPlatformIO, mockViewController, mockUIController, mockFolderFetcher);
+
+describe("remote storage listener", function() {
+  it.only("exists", function() {
+    assert.ok(listener);
+  });
+  /*
   it("fetches and updates previously saved remote folders", function() {
     mock(mockPlatformIO, "hasPreviouslySavedFolder").returnWith(true);
     mock(mockFolderFetcher, "fetchFoldersIntoFilesystem").resolveWith(true);
@@ -49,3 +76,5 @@
     });
   });
   */
+});
+

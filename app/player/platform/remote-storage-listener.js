@@ -42,5 +42,5 @@ module.exports = function(platformIO, contentViewController, uiController, remot
         }
       }
     });
-  }
-});
+  };
+};
