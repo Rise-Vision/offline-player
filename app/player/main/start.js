@@ -24,6 +24,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, serviceUrls);
 
   global.logger = require("../logging/logger.js")(segmentLogger);
+  logger.external("Startup");
 
   (function loadIntraViewListeners() {
     var dispatcher = require("../platform/content-event-handlers/intra-view-event-dispatcher.js")(contentViewController, platformUIController);

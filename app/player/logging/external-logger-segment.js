@@ -1,6 +1,6 @@
 module.exports = function(platformIO, serviceUrls) {
   var httpMethod = "POST",
-  key = "tTH2ZH3vSgxSDYsEeFMLK2ZDIPKq762j",
+  key = require("../../../private-keys/offline-player/segment-key.js"),
   encodedKey = new Buffer(key).toString('base64'),
   headers = [
     "Content-Type: application/json",
@@ -16,12 +16,23 @@ module.exports = function(platformIO, serviceUrls) {
         "name": platformIO.baseName,
         "version": platformIO.baseVersion
       },
+      "os": {
+        "name": platformIO.basePlatform,
+        "version": platformIO.version
+      },
     },
     "integrations": {
       "All": true
     },
     "timestamp": ""
   };
+
+  (function initializeUserId() {
+    platformIO.localObjectStore.get(["displayId"])
+    .then(function(storageResult) {
+      defaultEventData.userId = storageResult.displayId;
+    });
+  }());
 
   return {
     updateUserName: function(id) {
