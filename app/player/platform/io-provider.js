@@ -46,11 +46,13 @@ function registerTargets(registerTargetUrl, targets, reset) {
 
   var validTargets = targets.map(function(scheduleItem) {
     var url = scheduleItem.objectReference;
+    console.log(url);
     return url.substr(0, url.lastIndexOf("/") + 1);
   }).filter(function(url) {
     return /risemedialibrary-.{36}\//.test(url);
   });
 
+  console.log("targets: " + validTargets);
   
   return localStorage("get", ["gcmRegistrationId", "gcmTargets"]).then(function(storageItems) {
     var gcmRegistrationId = storageItems.gcmRegistrationId;

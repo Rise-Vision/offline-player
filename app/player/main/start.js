@@ -29,14 +29,14 @@ module.exports = function(serviceUrls) {
   (function loadIntraViewListeners() {
     var dispatcher = require("../platform/content-event-handlers/intra-view-event-dispatcher.js")(contentViewController, platformUIController);
 
-    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
-    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIO, uiController));
-    dispatcher.addContentEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(serviceUrls, platformIO, remoteFolderFetcher, uiController));
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIOProvider, platformUIController));
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(serviceUrls, platformIOProvider, remoteFolderFetcher, platformUIController));
   }());
 
   (function loadRemoteStorageListener() {
     var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, contentViewController, platformUIController, remoteFolderFetcher);
-    platformIOProvider.registerExternalStorageListener(remoteStorageListener);
+    platformIOProvider.registerRemoteStorageListener(remoteStorageListener);
   }());
 
   (function loadTimedIntervalTasks() {
