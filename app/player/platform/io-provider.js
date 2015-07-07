@@ -201,6 +201,16 @@ module.exports = {
     return checkFilesystemSpace(0);
   },
   registerTargets: registerTargets,
+  registerRemoteStorageId: function(id) {
+    chrome.gcm.register([id], function(registrationId) {
+      if (chrome.runtime.lastError) {
+        console.log("Registration failed", chrome.runtime.lastError);
+      }
+      else {
+        localStorage("set", { gcmRegistrationId: registrationId });
+      }
+    });
+  },
   registerRemoteStorageListener: function(listener) {
     if(typeof(chrome) !== "undefined" && chrome.gcm) {
       chrome.gcm.onMessage.addListener(listener);
