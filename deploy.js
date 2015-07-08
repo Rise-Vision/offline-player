@@ -36,7 +36,7 @@ console.log("Uploading...");
 
 chromeWebStoreUploadRequest = spawnSync("curl", [
 "-H", "Authorization: Bearer " + accessToken, 
-"-H", "x-goog-api-verison: 2",
+"-H", "x-goog-api-version: 2",
 "-X", "PUT",
 "-T", "app.zip",
 "-vv",
