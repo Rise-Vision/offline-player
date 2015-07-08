@@ -8,6 +8,8 @@
       "scripts": ["player/main/background-script.js"]
     }
   },
+  "offline_enabled": true,
+  "kiosk_enabled": true,
   "permissions": [
     "webview",
     "alarms",
