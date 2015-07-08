@@ -35,7 +35,7 @@ describe("storage-component-response", function() {
       data: {
         type: "storage-component-response",
         response: {
-          items: [item]
+          files: [item]
        }
       }
     };
@@ -106,7 +106,7 @@ describe("storage-component-response", function() {
   it("registers GCM targets", function(done) {
     responseHandler.process(eventObject, presentationUrl).then(function() {
       assert.equal(mockPlatformIO.registerTargets.callCount, 1);
-      assert.equal(mockPlatformIO.registerTargets.lastCall.args[1], mainUrlPath);
+      assert.equal(mockPlatformIO.registerTargets.lastCall.args[1][0].objectReference, mainUrlPath);
       done();
     });
   });
@@ -116,7 +116,7 @@ describe("storage-component-response", function() {
       var arg1 = mockUIController.sendWindowMessage.lastCall.args[1];
 
       assert.equal(mockUIController.sendWindowMessage.callCount, 1);
-      assert.equal(arg1.response.items[0].selfLink, imageSelfLink + "?alt=media");
+      assert.equal(arg1.response.files[0].selfLink, imageSelfLink + "?alt=media");
       done();
     });
   });
