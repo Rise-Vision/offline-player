@@ -9,7 +9,7 @@ publishVersion;
   d = new Date(),
   manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
   lastDot = manifest.version.lastIndexOf("."),
-  patchVer = "" + d.getDate() + d.getHours() + d.getMinutes();
+  patchVer = "" + d.getDate() + d.getMinutes();
 
   manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
   publishVersion = manifest.version;
