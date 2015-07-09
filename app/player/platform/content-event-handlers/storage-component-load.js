@@ -47,12 +47,12 @@ module.exports = function(platformIO, uiController) {
       }
 
       function sendResponseToListeners(data) {
-        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", response: data }, "*");
+        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", clientId: evt.data.clientId, response: data }, "*");
       }
 
       function sendErrorToListeners(err) {
         console.log("sendErrorToListeners", err);
-        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", error: "Failed to fetch data" }, "*");
+        uiController.sendWindowMessage(evt.source, { type: "storage-component-loaded", clientId: evt.data.clientId, error: "Failed to fetch data" }, "*");
       }
 
       function respondWithError(err) {

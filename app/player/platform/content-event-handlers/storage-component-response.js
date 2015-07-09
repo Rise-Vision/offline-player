@@ -56,7 +56,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
       }
 
       function sendProcessedResponse(resp, items) {
-        var message = {type: "storage-component-response-updated", response: resp};
+        var message = {type: "storage-component-response-updated", clientId: evt.data.clientId, response: resp};
 
         items.forEach(function(item) {
           item.selfLink = platformIO.isNetworkConnected() ? item.remoteUrl : item.filePath;
