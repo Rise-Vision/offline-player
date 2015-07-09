@@ -12,7 +12,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
       }
 
       // Process a single file or a list of files. 
-      var items = resp.selfLink ? [resp] : resp.items;
+      var items = resp.selfLink ? [resp] : resp.files;
 
       return generateLocalAndRemoteUrls(items)
       .then(fetchFilesIntoFilesystem)
@@ -52,11 +52,11 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
         var parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
 
         parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
-        return platformIO.registerTargets(serviceUrls.registerTargetUrl, [parentFolder], false);
+        return platformIO.registerTargets(serviceUrls.registerTargetUrl, [{ objectReference: parentFolder }], false);
       }
 
       function sendProcessedResponse(resp, items) {
-        var message = {type: "storage-component-response-updated", response: resp};
+        var message = {type: "storage-component-response-updated", clientId: evt.data.clientId, response: resp};
 
         items.forEach(function(item) {
           item.selfLink = platformIO.isNetworkConnected() ? item.remoteUrl : item.filePath;
