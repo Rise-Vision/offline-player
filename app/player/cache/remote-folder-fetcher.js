@@ -1,4 +1,4 @@
-module.exports = function(platformFS, platformIO) {
+module.exports = function(platformFS, platformIO, serviceUrls) {
   function saveFolderItems(mainUrlPath, items) {
     return items.reduce(function(prev, curr) {
       return prev.then(function() {
@@ -29,7 +29,7 @@ module.exports = function(platformFS, platformIO) {
     .replace("COMPANY_ID", companyId)
     .replace("FOLDER_NAME", encodeURIComponent(folder));
 
-    return platformIO.fetch(listingUrl)
+    return platformIO.httpFetcher(listingUrl)
     .then(function(resp) {
       return resp.json();
     })
