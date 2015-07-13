@@ -1,16 +1,4 @@
 module.exports = function(platformIO, platformFS, contentViewController, uiController, remoteFolderFetcher) {
-
-  (function registerRemoteStorageId() {
-    platformIO.localObjectStore.get(["gcmRegistrationId"])
-    .then(function(result) {
-      var gcmProjectId = "642011540044";
-      
-      if (!result.gcmRegistrationId) {
-        platformIO.registerRemoteStorageId(gcmProjectId);
-      }
-    });
-  }());
-
   return function(message) {
     var targets = JSON.parse(message.data.targets);
     var promises = [];

@@ -42,7 +42,6 @@ describe("storage-component-load", function() {
     mockPlatformIO.localObjectStore = mockLocalObjectStore;
     mock(mockPlatformIO, "httpFetcher").resolveWith(fetchResponse);
     mock(mockPlatformIO, "isNetworkConnected").returnWith(true);
-    mock(mockPlatformIO, "registerTargets").resolveWith(true);
     mock(mockUIController, "sendWindowMessage").returnWith(true);
     mock(mockLocalObjectStore, "get").resolveWith(storedData);
     mock(mockLocalObjectStore, "set").resolveWith(storedData);

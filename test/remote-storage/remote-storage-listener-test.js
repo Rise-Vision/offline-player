@@ -18,7 +18,7 @@ mock(mockUIController, "sendWindowMessage").returnWith(true);
 
 mock(mockFolderFetcher, "fetchFoldersIntoFilesystem").resolveWith(true);
 
-listener = require("../../app/player/platform/remote-storage-listener.js")
+listener = require("../../app/player/remote-storage/remote-storage-listener.js")
 (mockPlatformIO, mockPlatformFS, mockViewController, mockUIController, mockFolderFetcher);
 
 describe("remote storage listener", function() {

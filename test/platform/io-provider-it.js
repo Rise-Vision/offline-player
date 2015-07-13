@@ -65,22 +65,4 @@ describe("io provider", function() {
   it("knows when disconnected", function() {
     assert.equal(platformIO.isNetworkConnected(), navigator.onLine);
   });
-
-  it("registers GCM targets", function() {
-    var riseUrl = "//risemedialibrary-232323232323232323232323232323222222/test1",
-    baseTarget = {objectReference: riseUrl};
-
-    return platformIO.localObjectStore.set({ gcmRegistrationId: "testId" })
-    .then(function() {
-      return platformIO.registerTargets
-      (serviceUrls.registerTargetUrl, [baseTarget], true);
-    })
-    .then(function() {
-      return platformIO.localObjectStore.get(["gcmTargets"]);
-    })
-    .then(function(data) {
-      assert.equal
-      (data.gcmTargets[0], riseUrl.substr(0, riseUrl.lastIndexOf("/") + 1));
-    });
-  });
 });
