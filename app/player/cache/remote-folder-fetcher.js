@@ -13,6 +13,40 @@ module.exports = function(platformFS, platformIO) {
     }, Promise.resolve());
   }
 
+  function getRemoteFolderItemsList(targetFileUrl) {
+    var regex = /risemedialibrary-(.{36})\/(.*)/;
+    var match = regex.exec(targetFileUrl);
+    if(!match || match.length !== 3) {
+      return Promise.reject("Invalid URL");
+    }
+
+    var companyId = match[1];
+    var folder = match[2].indexOf("/") >= 0 ?
+    match[2].substr(0, match[2].lastIndexOf("/") + 1) :
+    "";
+
+    var listingUrl = serviceUrls.folderContentsUrl
+    .replace("COMPANY_ID", companyId)
+    .replace("FOLDER_NAME", encodeURIComponent(folder));
+
+    return platformIO.fetch(listingUrl)
+    .then(function(resp) {
+      return resp.json();
+    })
+    .then(function(json) {
+      var filteredItems = json.items.filter(function(f) {
+        return f.folder === false;
+      });
+
+      return Promise.resolve(filteredItems.map(function(f) {
+        return  {
+          remoteUrl: f.mediaLink,
+          filePath: f.objectId.substr(folder.length)
+        };
+      }));
+    });
+  }
+
   return {
     fetchFilesIntoFilesystem: function(mainUrlPath, files) {
       return saveFolderItems(mainUrlPath, files);
@@ -31,11 +65,9 @@ module.exports = function(platformFS, platformIO) {
 
           return checkItemConditions()
           .then(function() {
-            console.log("A");
-            return platformIO.getRemoteFolderItemsList(url);
+            return getRemoteFolderItemsList(url);
           })
           .then(function(items) {
-            console.log("B");
             return saveFolderItems(mainUrlPath, items);
           })
           .catch(function(err) {

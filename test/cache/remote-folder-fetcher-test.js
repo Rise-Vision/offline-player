@@ -1,21 +1,21 @@
 "use strict";
 var assert = require("assert"),
 mock = require("simple-mock").mock,
-platformIO,
+platformIO = {},
+platformFS = {},
 fetcher;
 
 describe("remote folder fetcher", function() {
   beforeEach("setup mocks", function() {
-    platformIO = {};
     mock(platformIO, "httpFetcher").resolveWith(true);
     mock(platformIO, "getRemoteFolderItemsList").resolveWith([]);
     mock(platformIO, "filesystemSave").resolveWith([]);
     mock(platformIO, "filesystemRetrieve").resolveWith([]);
     mock(platformIO, "isNetworkConnected").returnWith(true);
-    mock(platformIO, "hasPreviouslySavedFolder").resolveWith(false);
-    mock(platformIO, "hasFilesystemSpace").resolveWith(true);
+    mock(platformFS, "hasPreviouslySavedFolder").resolveWith(false);
+    mock(platformFS, "hasFilesystemSpace").resolveWith(true);
     fetcher = require("../../app/player/cache/remote-folder-fetcher.js")
-    (platformIO, {folderContentsUrl: "test"});
+    (platformFS, platformIO);
   });
 
   it("exists", function() {
