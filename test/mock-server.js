@@ -5,12 +5,14 @@ http.createServer(function(req, res) {
   console.log("url requested: " + req.url);
   if (req.url.indexOf("scheduleFetchUrl") > -1) {
     res.writeHead(200, {"Content-Type": "application/json"});
+    console.log("returning content");
     return res.end('{"content": {"schedule": {"name": "test schedule", "items": [{"type": "url", "objectReference": "http://localhost:7654/mock-remote-page.html", "timeDefined": "false", "name": "mock html"}]}}}');
   }
 
   if (req.url.indexOf("segmentEvent") > -1) {
     res.writeHead(200, {"Content-Type": "application/json"});
     req.on("data", function(data) {
+      console.log("returning " + data.toString());
       res.end(data.toString());
     });
     return;
@@ -18,11 +20,13 @@ http.createServer(function(req, res) {
 
   if (req.url.indexOf("mock-remote-page") > -1) {
     res.writeHead(200, {"Content-Type": "text/html"});
+    console.log("returning mock html page");
     return res.end("<!doctype html><html><head></head><body>test remote page from mock server<img src='image-src' /></body></html>");
   }
 
   if (req.url.indexOf("folderContentsUrl") > -1) {
     res.writeHead(200, {"Content-Type": "application/json"});
+    console.log("returning mock folder contents json");
     return res.end(JSON.stringify(
       { 
         result: true,
@@ -64,10 +68,11 @@ http.createServer(function(req, res) {
 
   if (req.url.indexOf("registerTargetUrl") > -1) {
     res.writeHead(200, {"Content-Type": "application/json"});
-
+    console.log("returning positive json response");
     return res.end(JSON.stringify({ result:true }));
   }
 
   res.writeHead(200, {"Content-Type": "text/plain"});
+  console.log("returning plain text ok response");
   res.end('{"response": "local-http-ok"}');
 }).listen(7654, "127.0.0.1", function() {console.log("listening on " + 7654);});
