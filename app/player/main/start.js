@@ -2,13 +2,14 @@ module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
 
+  platformFS = require("../platform/filesystem/fs-provider.js"),
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformIOProvider),
+  (platformFS, platformIOProvider),
 
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, platformIOProvider),
+  (platformUIController, platformIOProvider, platformFS),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
@@ -35,7 +36,7 @@ module.exports = function(serviceUrls) {
   }());
 
   (function loadRemoteStorageListener() {
-    var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, contentViewController, platformUIController, remoteFolderFetcher);
+    var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, platformFS, contentViewController, platformUIController, remoteFolderFetcher);
     platformIOProvider.registerRemoteStorageListener(remoteStorageListener);
   }());
 

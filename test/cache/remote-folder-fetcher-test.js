@@ -22,7 +22,7 @@ describe("remote folder fetcher", function() {
     assert.ok(fetcher);
   });
 
-  it("fetches Rise Storage remote folder contents", function() {
+  it.only("fetches Rise Storage remote folder contents", function() {
     var companyId = "121212211212121212121212121212121212",
     url = "http://storage/risemedialibrary-" + companyId + "/myfolder/index.html";
     return fetcher.fetchFoldersIntoFilesystem([{objectReference: url}])

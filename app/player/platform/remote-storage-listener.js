@@ -1,4 +1,4 @@
-module.exports = function(platformIO, contentViewController, uiController, remoteFolderFetcher) {
+module.exports = function(platformIO, platformFS, contentViewController, uiController, remoteFolderFetcher) {
 
   (function registerRemoteStorageId() {
     platformIO.localObjectStore.get(["gcmRegistrationId"])

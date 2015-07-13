@@ -1,4 +1,4 @@
-module.exports = function(platformIO) {
+module.exports = function(platformFS, platformIO) {
   function saveFolderItems(mainUrlPath, items) {
     return items.reduce(function(prev, curr) {
       return prev.then(function() {
@@ -7,7 +7,7 @@ module.exports = function(platformIO) {
           return resp.blob();
         })
         .then(function(blob) {
-          return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob);
+          return platformFS.filesystemSave(mainUrlPath, curr.filePath, blob);
         });
       });
     }, Promise.resolve());
@@ -23,7 +23,7 @@ module.exports = function(platformIO) {
         return Promise.reject(new Error("no network connection"));
       }
 
-      return platformIO.hasFilesystemSpace()
+      return platformFS.hasFilesystemSpace()
       .then(function() {
         return Promise.all(scheduleItems.map(function(scheduleItem) {
           var url = scheduleItem.objectReference,
@@ -31,9 +31,11 @@ module.exports = function(platformIO) {
 
           return checkItemConditions()
           .then(function() {
+            console.log("A");
             return platformIO.getRemoteFolderItemsList(url);
           })
           .then(function(items) {
+            console.log("B");
             return saveFolderItems(mainUrlPath, items);
           })
           .catch(function(err) {
@@ -48,7 +50,7 @@ module.exports = function(platformIO) {
               (new Error("not a Rise Storage folder"));
             }
 
-            return platformIO.hasPreviouslySavedFolder(mainUrlPath)
+            return platformFS.hasPreviouslySavedFolder(mainUrlPath)
             .then(function(hasPreviouslySavedFolder) {
               if (hasPreviouslySavedFolder) {
                 throw new Error("folder exists");
