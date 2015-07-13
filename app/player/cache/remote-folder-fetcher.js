@@ -1,4 +1,4 @@
-module.exports = function(platformIO) {
+module.exports = function(platformFS, platformIO, serviceUrls) {
   function saveFolderItems(mainUrlPath, items) {
     return items.reduce(function(prev, curr) {
       return prev.then(function() {
@@ -7,10 +7,44 @@ module.exports = function(platformIO) {
           return resp.blob();
         })
         .then(function(blob) {
-          return platformIO.filesystemSave(mainUrlPath, curr.filePath, blob);
+          return platformFS.filesystemSave(mainUrlPath, curr.filePath, blob);
         });
       });
     }, Promise.resolve());
+  }
+
+  function getRemoteFolderItemsList(targetFileUrl) {
+    var regex = /risemedialibrary-(.{36})\/(.*)/;
+    var match = regex.exec(targetFileUrl);
+    if(!match || match.length !== 3) {
+      return Promise.reject("Invalid URL");
+    }
+
+    var companyId = match[1];
+    var folder = match[2].indexOf("/") >= 0 ?
+    match[2].substr(0, match[2].lastIndexOf("/") + 1) :
+    "";
+
+    var listingUrl = serviceUrls.folderContentsUrl
+    .replace("COMPANY_ID", companyId)
+    .replace("FOLDER_NAME", encodeURIComponent(folder));
+
+    return platformIO.httpFetcher(listingUrl)
+    .then(function(resp) {
+      return resp.json();
+    })
+    .then(function(json) {
+      var filteredItems = json.items.filter(function(f) {
+        return f.folder === false;
+      });
+
+      return Promise.resolve(filteredItems.map(function(f) {
+        return  {
+          remoteUrl: f.mediaLink,
+          filePath: f.objectId.substr(folder.length)
+        };
+      }));
+    });
   }
 
   return {
@@ -23,7 +57,7 @@ module.exports = function(platformIO) {
         return Promise.reject(new Error("no network connection"));
       }
 
-      return platformIO.hasFilesystemSpace()
+      return platformFS.hasFilesystemSpace()
       .then(function() {
         return Promise.all(scheduleItems.map(function(scheduleItem) {
           var url = scheduleItem.objectReference,
@@ -31,7 +65,7 @@ module.exports = function(platformIO) {
 
           return checkItemConditions()
           .then(function() {
-            return platformIO.getRemoteFolderItemsList(url);
+            return getRemoteFolderItemsList(url);
           })
           .then(function(items) {
             return saveFolderItems(mainUrlPath, items);
@@ -48,7 +82,7 @@ module.exports = function(platformIO) {
               (new Error("not a Rise Storage folder"));
             }
 
-            return platformIO.hasPreviouslySavedFolder(mainUrlPath)
+            return platformFS.hasPreviouslySavedFolder(mainUrlPath)
             .then(function(hasPreviouslySavedFolder) {
               if (hasPreviouslySavedFolder) {
                 throw new Error("folder exists");

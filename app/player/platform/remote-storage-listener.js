@@ -1,4 +1,4 @@
-module.exports = function(platformIO, contentViewController, uiController, remoteFolderFetcher) {
+module.exports = function(platformIO, platformFS, contentViewController, uiController, remoteFolderFetcher) {
 
   (function registerRemoteStorageId() {
     platformIO.localObjectStore.get(["gcmRegistrationId"])
@@ -19,7 +19,7 @@ module.exports = function(platformIO, contentViewController, uiController, remot
       ["http", "https"].forEach(function(protocol) {
         var presentationFolder = protocol + "://storage.googleapis.com/" + target.substr(0, target.lastIndexOf("/") + 1);
 
-        promises.push(platformIO.hasPreviouslySavedFolder(presentationFolder) 
+        promises.push(platformFS.hasPreviouslySavedFolder(presentationFolder) 
         .then(function(previouslySaved) {
           if (previouslySaved) {
             return remoteFolderFetcher.fetchFoldersIntoFilesystem

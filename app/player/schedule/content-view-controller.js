@@ -1,4 +1,4 @@
-module.exports = function(platformUIController, platformIO) {
+module.exports = function(platformUIController, platformIO, platformFS) {
   "use strict";
   var contentViews = {};
 
@@ -25,7 +25,7 @@ module.exports = function(platformUIController, platformIO) {
       if (platformIO.isNetworkConnected() || !isRiseStorage(objectReference)) {
         resolve(objectReference);
       } else {
-        resolve(platformIO.getCachedMainUrl(objectReference));
+        resolve(platformFS.getCachedMainUrl(objectReference));
       }
     })
     .then(function(target) {
