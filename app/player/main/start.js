@@ -3,6 +3,10 @@ module.exports = function(serviceUrls) {
   var platformIOProvider = require("../platform/io-provider.js"),
 
   platformFS = require("../platform/filesystem/fs-provider.js"),
+
+  platformRS = require("../platform/remote-storage/rs-provider.js")
+  (platformIOProvider, serviceUrls),
+
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
@@ -32,12 +36,12 @@ module.exports = function(serviceUrls) {
 
     dispatcher.addEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
     dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIOProvider, platformUIController));
-    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(serviceUrls, platformIOProvider, remoteFolderFetcher, platformUIController));
+    dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(platformIOProvider, platformRS, remoteFolderFetcher, platformUIController));
   }());
 
   (function loadRemoteStorageListener() {
-    var remoteStorageListener = require("../platform/remote-storage-listener.js")(platformIOProvider, platformFS, contentViewController, platformUIController, remoteFolderFetcher);
-    platformIOProvider.registerRemoteStorageListener(remoteStorageListener);
+    var remoteStorageListener = require("../remote-storage/remote-storage-listener.js")(platformIOProvider, platformFS, contentViewController, platformUIController, remoteFolderFetcher);
+    platformRS.registerRemoteStorageListener(remoteStorageListener);
   }());
 
   (function loadTimedIntervalTasks() {
@@ -72,8 +76,7 @@ module.exports = function(serviceUrls) {
       return true;
     })
     .then(function() {
-      platformIOProvider.registerTargets
-      (serviceUrls.registerTargetUrl, localSchedule.items, true);
+      platformRS.registerTargets(localSchedule.items, true);
       return true;
     });
   }

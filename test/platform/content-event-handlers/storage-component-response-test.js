@@ -4,6 +4,7 @@ serviceUrls = require("../../../test/main/mock-service-urls.js"),
 handlerPath = "../../../app/player/platform/content-event-handlers/storage-component-response.js",
 mock = require("simple-mock").mock,
 mockPlatformIO,
+mockPlatformRS,
 mockUIController,
 mockFolderFetcher,
 responseHandler;
@@ -18,14 +19,16 @@ describe("storage-component-response", function() {
 
   beforeEach("setup mocks", function() {
     mockPlatformIO = {};
+    mockPlatformRS = {};
+    mockPlatformRS = {};
     mockUIController = {};
     mockFolderFetcher = {};
     mock(mockPlatformIO, "isNetworkConnected").returnWith(true);
-    mock(mockPlatformIO, "registerTargets").resolveWith(true);
+    mock(mockPlatformRS, "registerTargets").resolveWith(true);
     mock(mockUIController, "sendWindowMessage").returnWith(true);
     mock(mockFolderFetcher, "fetchFilesIntoFilesystem").resolveWith(true);
 
-    responseHandler = require(handlerPath)(serviceUrls, mockPlatformIO, mockFolderFetcher, mockUIController);
+    responseHandler = require(handlerPath)(mockPlatformIO, mockPlatformRS, mockFolderFetcher, mockUIController);
 
     item = {
       name: imageName,
@@ -52,72 +55,72 @@ describe("storage-component-response", function() {
     assert.ok(responseHandler.handles(eventObject));
   });
 
-  it("rejects invalid invocations", function(done) {
+  it("rejects invalid invocations", function() {
     var eventObject = {
       data: {type: "storage-component-response"}
     };
 
-    responseHandler.process(eventObject, presentationUrl).then(null, function(err) {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(null, function(err) {
       assert.equal(err.name, "Error");
-      done();
     });
   });
 
-  it("updates remote and local fields", function(done) {
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+  it("updates remote and local fields", function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       assert.equal(item.filePath, "rise-storage-component-resources/" + companyId + "/" + item.name);
       assert.equal(item.remoteUrl, imageSelfLink + "?alt=media");
-      done();
     });
   });
 
-  it("uses remote url when running online", function(done) {
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+  it("uses remote url when running online", function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       assert.equal(item.selfLink, imageSelfLink + "?alt=media");
-      done();
     });
   });
 
-  it("uses local url when running offline", function(done) {
-  	mock(mockPlatformIO, "isNetworkConnected").returnWith(false);
+  it("uses local url when running offline", function() {
+    mock(mockPlatformIO, "isNetworkConnected").returnWith(false);
 
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       assert.equal(item.selfLink, "rise-storage-component-resources/" + companyId + "/" + item.name);
-      done();
     });
   });
 
-  it("saves requested files into filesystem", function(done) {
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+  it("saves requested files into filesystem", function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       assert.equal(mockFolderFetcher.fetchFilesIntoFilesystem.callCount, 1);
-      done();
     });
   });
 
-  it("does not save files into filesystem when running offline", function(done) {
-  	mock(mockPlatformIO, "isNetworkConnected").returnWith(false);
+  it("does not save files into filesystem when running offline", function() {
+    mock(mockPlatformIO, "isNetworkConnected").returnWith(false);
   	
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       assert.equal(mockFolderFetcher.fetchFilesIntoFilesystem.callCount, 0);
-      done();
     });
   });
 
-  it("registers GCM targets", function(done) {
-    responseHandler.process(eventObject, presentationUrl).then(function() {
-      assert.equal(mockPlatformIO.registerTargets.callCount, 1);
-      assert.equal(mockPlatformIO.registerTargets.lastCall.args[1][0].objectReference, mainUrlPath);
-      done();
+  it("registers GCM targets", function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
+      assert.equal(mockPlatformRS.registerTargets.callCount, 1);
+      assert.equal(mockPlatformRS.registerTargets.lastCall.args[0][0].objectReference, mainUrlPath);
     });
   });
 
-  it("notifies presentations about changes in targets", function(done) {
-    responseHandler.process(eventObject, presentationUrl).then(function() {
+  it("notifies presentations about changes in targets", function() {
+    return responseHandler.process(eventObject, presentationUrl)
+    .then(function() {
       var arg1 = mockUIController.sendWindowMessage.lastCall.args[1];
 
       assert.equal(mockUIController.sendWindowMessage.callCount, 1);
       assert.equal(arg1.response.files[0].selfLink, imageSelfLink + "?alt=media");
-      done();
     });
   });
 });

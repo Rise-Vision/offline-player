@@ -1,4 +1,4 @@
-module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiController) {
+module.exports = function(platformIO, platformRS, remoteFolderFetcher, uiController) {
   return {
     handles: function(evt) {
       return evt.data.type === "storage-component-response";
@@ -37,7 +37,8 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
         if(platformIO.isNetworkConnected()) {
           var presentationFolder = presentationUrl.substr(0, presentationUrl.lastIndexOf("/") + 1);
 
-          return remoteFolderFetcher.fetchFilesIntoFilesystem(presentationFolder, items).then(function(result) {
+          return remoteFolderFetcher.fetchFilesIntoFilesystem
+          (presentationFolder, items).then(function(result) {
             registerTargets(items);
 
             return items;
@@ -52,7 +53,7 @@ module.exports = function(serviceUrls, platformIO, remoteFolderFetcher, uiContro
         var parentFolder = decodeURIComponent(items[0].selfLink.replace("/o", ""));
 
         parentFolder = parentFolder.substr(0, parentFolder.lastIndexOf("/") + 1);
-        return platformIO.registerTargets(serviceUrls.registerTargetUrl, [{ objectReference: parentFolder }], false);
+        return platformRS.registerTargets([{ objectReference: parentFolder }], false);
       }
 
       function sendProcessedResponse(resp, items) {
