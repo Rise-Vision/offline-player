@@ -1,11 +1,11 @@
-module.exports = function(platformIO) {
+module.exports = function(platformInfo) {
   return {
     setPlatformDetailsUrl: "https://rvacore-test.appspot.com" +
-    "/v2/viewer/display/DISPLAY_ID?os=" + platformIO.basePlatform +
-    "&cv=" + platformIO.version +
-    "&cn=" + platformIO.name +
-    "&pv=" + platformIO.baseVersion +
-    "&pn=" + platformIO.baseName,
+    "/v2/viewer/display/DISPLAY_ID?os=" + platformInfo.basePlatform +
+    "&cv=" + platformInfo.version +
+    "&cn=" + platformInfo.name +
+    "&pv=" + platformInfo.baseVersion +
+    "&pn=" + platformInfo.baseName,
 
     scheduleFetchUrl: "https://rvacore-test.appspot.com" +
     "/v2/viewer/display/DISPLAY_ID?nothing",

@@ -8,7 +8,7 @@ externalLogger;
 
 mock(mockPlatformIO.localObjectStore, "get").resolveWith({displayId: "test"}); 
 mock(mockPlatformIO, "httpFetcher").resolveWith(true);
-externalLogger = require(segmentLoggerPath)(mockPlatformIO, serviceUrls);
+externalLogger = require(segmentLoggerPath)(mockPlatformIO, {}, serviceUrls);
 
 describe("external segment.io logger", function() {
   it("exists", function() {
