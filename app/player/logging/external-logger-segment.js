@@ -1,4 +1,4 @@
-module.exports = function(platformIO, serviceUrls) {
+module.exports = function(platformIO, platformInfo, serviceUrls) {
   var httpMethod = "POST",
   key = require("../../../private-keys/offline-player/segment-key.js"),
   encodedKey = new Buffer(key).toString('base64'),
@@ -13,12 +13,12 @@ module.exports = function(platformIO, serviceUrls) {
     "type": "track",
     "context": {
       "app": {
-        "name": platformIO.baseName,
-        "version": platformIO.baseVersion
+        "name": platformInfo.baseName,
+        "version": platformInfo.baseVersion
       },
       "os": {
-        "name": platformIO.basePlatform,
-        "version": platformIO.version
+        "name": platformInfo.basePlatform,
+        "version": platformInfo.version
       },
     },
     "integrations": {

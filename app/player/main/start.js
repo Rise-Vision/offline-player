@@ -2,6 +2,8 @@ module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
 
+  platformInfo = require("../platform/version-info.js"),
+
   platformFS = require("../platform/filesystem/fs-provider.js"),
 
   platformRS = require("../platform/remote-storage/rs-provider.js")
@@ -26,7 +28,7 @@ module.exports = function(serviceUrls) {
   (platformIOProvider, serviceUrls),
   
   segmentLogger = require("../logging/external-logger-segment.js")
-  (platformIOProvider, serviceUrls);
+  (platformIOProvider, platformInfo, serviceUrls);
 
   global.logger = require("../logging/logger.js")(segmentLogger);
   logger.external("Startup");
