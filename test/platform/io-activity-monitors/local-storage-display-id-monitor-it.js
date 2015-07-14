@@ -3,7 +3,7 @@ var assert = require("assert"),
 platformIO = require("../../../app/player/platform/io-provider.js"),
 serviceUrls = require("../../main/mock-service-urls.js"),
 segmentLogger = require("../../../app/player/logging/external-logger-segment.js")
-(platformIO, serviceUrls),
+(platformIO, {}, serviceUrls),
 remoteScheduleLoader = require("../../../app/player/schedule/remote-schedule-retriever.js")(platformIO, serviceUrls),
 displayIdMonitor = require("../../../app/player/platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader, segmentLogger);
 
