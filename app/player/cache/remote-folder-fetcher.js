@@ -54,7 +54,7 @@ module.exports = function(platformFS, platformIO, serviceUrls) {
 
     fetchFoldersIntoFilesystem: function(scheduleItems) {
       if (!platformIO.isNetworkConnected()) {
-        return Promise.reject(new Error("no network connection"));
+        return Promise.resolve(false);
       }
 
       return platformFS.hasFilesystemSpace()
