@@ -72,6 +72,21 @@ http.createServer(function(req, res) {
     return res.end(JSON.stringify({ result:true }));
   }
 
+  if (req.url.indexOf("ipAddress") > -1) {
+    console.log("returning fake ip address");
+    return res.end("1.1.1.1");
+  }
+
+  if (req.url.indexOf("event") > -1) {
+    var body = "";
+    console.log("returning event data");
+    req.on("data", function(data) {
+      body += data;
+    });
+    req.on("end", function() {res.end(body);});
+    return;
+  }
+
   res.writeHead(200, {"Content-Type": "text/plain"});
   console.log("returning plain text ok response");
   res.end('{"response": "local-http-ok"}');

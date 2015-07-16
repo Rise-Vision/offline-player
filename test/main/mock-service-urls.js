@@ -1,5 +1,4 @@
-/* process */
-"use strict"
+"use strict";
 
 var useLiveTest = false;
 
@@ -19,5 +18,9 @@ module.exports = {
 
   registerTargetUrl: "http://localhost:7654/registerTargetUrl",
 
-  segmentIOEventEndpoint: "http://localhost:7654/segmentEvent"
+  ipAddressResolver: "http://localhost:7654/ipAddress",
+
+  externalLogAuthRefresh: "http://localhost:7654/authRefresh",
+
+  externalLog: "http://localhost:7654/event"
 };

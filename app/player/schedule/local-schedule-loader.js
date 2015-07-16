@@ -3,7 +3,7 @@ module.exports = function localScheduleLoader(timelineParser) {
   var emptySchedule = require("./empty-schedule.js");
 
   return new Promise(function(resolve, reject) {
-    logger.external("Schedule Load");
+    logger.external("schedule load");
     chrome.storage.local.get(["schedule"], function(storageObject) {
       var schedule = storageObject.schedule;
       if (chrome.runtime.lastError) {

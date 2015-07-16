@@ -2,7 +2,8 @@ module.exports = function(serviceUrls) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
 
-  platformInfo = require("../platform/version-info.js"),
+  platformInfo = require("../platform/platform-info.js")
+  (platformIOProvider, serviceUrls),
 
   platformFS = require("../platform/filesystem/fs-provider.js"),
 
@@ -27,11 +28,10 @@ module.exports = function(serviceUrls) {
   remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls),
   
-  segmentLogger = require("../logging/external-logger-segment.js")
+  externalLogger = require("../logging/external-logger-bigquery.js")
   (platformIOProvider, platformInfo, serviceUrls);
 
-  global.logger = require("../logging/logger.js")(segmentLogger);
-  logger.external("Startup");
+  global.logger = require("../logging/logger.js")(externalLogger);
 
   (function loadIntraViewListeners() {
     var dispatcher = require("../platform/content-event-handlers/intra-view-event-dispatcher.js")(contentViewController, platformUIController);
@@ -51,11 +51,12 @@ module.exports = function(serviceUrls) {
   }());
 
   (function loadIOActivityMonitors() {
-    require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader, segmentLogger);
+    require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader, externalLogger);
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 
-  return remoteScheduleLoader.loadRemoteSchedule()
+  return platformInfo.resolveIPAddress()
+  .then(remoteScheduleLoader.loadRemoteSchedule)
   .catch(function(err) {
     console.log("Remote schedule loader: " + err);
   })
