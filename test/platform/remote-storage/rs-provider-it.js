@@ -1,7 +1,7 @@
 "use strict";
 var assert = require("assert"),
 platformIO = require("../../../app/player/platform/io-provider.js"),
-serviceUrls = require("../../../app/player/options/service-urls.js")(platformIO),
+serviceUrls = require("../../main/mock-service-urls.js"),
 platformRS = require("../../../app/player/platform/remote-storage/rs-provider.js")(platformIO, serviceUrls);
 
 describe("remote storage provider", function() {
