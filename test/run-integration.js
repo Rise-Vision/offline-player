@@ -17,10 +17,6 @@ function integrationTestCommandOptions() {
 console.log("Running test runner against " + itFiles.length + " files");
 childProcess = spawn("node", integrationTestCommandOptions());
 
-childProcess.stderr.on("data", function(data) {
-  console.log(data.toString());
-});
+childProcess.stderr.pipe(process.stdout);
 
-childProcess.stdout.on("data", function(data) {
-  console.log(data.toString());
-});
+childProcess.stdout.pipe(process.stdout);
