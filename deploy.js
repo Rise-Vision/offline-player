@@ -10,6 +10,7 @@ publishVersion;
   manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
   lastDot = manifest.version.lastIndexOf("."),
   patchVer = "" + d.getDate() + parseInt((d.getHours() * 60 + d.getMinutes()) / 14.4);
+  patchVer = Array(4).join().split(",").map(function(v, i) {return patchVer[i] || "0"}).join("");
 
   manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
   publishVersion = manifest.version;
@@ -45,6 +46,7 @@ chromeWebStoreUploadRequest = spawnSync("curl", [
 console.log(JSON.parse(chromeWebStoreUploadRequest.stdout.toString()).uploadState);
 
 if (chromeWebStoreUploadRequest.stdout.toString().indexOf("FAILURE") > -1) {
+  console.log(chromeWebStoreUploadRequest.stdout.toString());
   process.exit(1);
 }
 

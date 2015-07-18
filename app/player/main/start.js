@@ -13,7 +13,7 @@ module.exports = function(serviceUrls) {
   platformUIController = require("../platform/ui-controller.js"),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformFS, platformIOProvider),
+  (platformFS, platformIOProvider, serviceUrls),
 
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider, platformFS),
