@@ -1,5 +1,5 @@
 window.addEventListener("load", function() {
-  var serviceUrls = require("./service-urls.js")(require("../platform/platform-info.js"), require("../../../private-keys/offline-player/bigquery-credentials.js")),
+  var serviceUrls = require("./service-urls.js")(require("../platform/platform-info.js")(), require("../../../private-keys/offline-player/bigquery-credentials.js")),
   controller = require("./options-page-controller.js")(serviceUrls);
 
   (function setOptionsWindowCloseTimeout() {
