@@ -9,8 +9,11 @@ publishVersion;
   d = new Date(),
   manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
   lastDot = manifest.version.lastIndexOf("."),
-  patchVer = "" + d.getDate() + parseInt((d.getHours() * 60 + d.getMinutes()) / 14.4);
-  patchVer = Array(4).join().split(",").map(function(v, i) {return patchVer[i] || "0"}).join("");
+  dayPct = parseInt((d.getHours() * 60 + d.getMinutes()) / 14.4),
+  patchVer;
+
+  if (dayPct.length === 1) {dayPct = "0" + dayPct;}
+  patchVer = "" + d.getDate() + dayPct;
 
   manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
   publishVersion = manifest.version;
