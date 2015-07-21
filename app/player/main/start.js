@@ -25,7 +25,10 @@ module.exports = function(serviceUrls, externalLogger) {
   (contentViewController),  
 
   remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
-  (platformIOProvider, serviceUrls);
+  (platformIOProvider, serviceUrls),
+
+  // No object is returned
+  channelAPI = require("../channel/channel-api.js");
   
   global.logger = require("../logging/logger.js")(externalLogger);
 
