@@ -25,8 +25,6 @@ module.exports = function(platformInfo, bqCredentials) {
     "/_ah/api/storage/v0.01/registerGCMTargetList?" +
     "gcmClientId=GCM_CLIENT_ID",
 
-    ipAddressResolver: "http://ident.me",
-
     externalLogAuthRefresh: "https://www.googleapis.com/oauth2/v3/token" +
     "?client_id=" + bqCredentials.client_id +
     "&client_secret=" + bqCredentials.client_secret +

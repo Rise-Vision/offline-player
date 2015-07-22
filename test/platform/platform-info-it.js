@@ -4,7 +4,7 @@ mock = require("simple-mock").mock,
 platformIO = require("../../app/player/platform/io-provider.js"),
 serviceUrls = {ipAddressResolver: "http://localhost:7654/ipAddress"},
 platformInfo = require("../../app/player/platform/platform-info.js")
-(platformIO, serviceUrls);
+(platformIO, "http://localhost:7654/ipAddress");
 
 describe("platform info", function() {
   it("exist", function() {

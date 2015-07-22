@@ -1,4 +1,4 @@
-module.exports = function(platformIO, serviceUrls) {
+module.exports = function(platformIO, ipAddressResolverUrl) {
   var ipAddress = {text: ""},
   platform = {arch: "", os: ""};
 
@@ -19,12 +19,13 @@ module.exports = function(platformIO, serviceUrls) {
           }
           platform.arch = info.arch;
           platform.os = info.os;
+          console.log("Platform base is " + JSON.stringify(platform));
           resolve();
         });
       });
     },
     initIPAddress: function() {
-      return platformIO.httpFetcher(serviceUrls.ipAddressResolver)
+      return platformIO.httpFetcher(ipAddressResolverUrl)
       .then(function(resp) {return resp.text();})
       .then(function(text) {ipAddress.text = text; return true;})
       .catch(function(err) {console.log("Could not resolve IP: " + err);})

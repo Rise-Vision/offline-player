@@ -1,7 +1,16 @@
 var starter = require("./start.js"),
-platformInfo = require("../platform/platform-info.js")(),
-bqCreds = require("../../../private-keys/offline-player/bigquery-credentials.js");
-platformInfo.initPlatform().then(function() {
+platformIO = require("../platform/io-provider.js"),
+platformInfo = require("../platform/platform-info.js")
+(platformIO, "http://ident.me"),
+bqCreds = require("../../../private-keys/offline-player/bigquery-credentials.js"),
+externalLogger,
+serviceUrls;
+
+platformInfo.initPlatform()
+.then(platformInfo.initIPAddress)
+.then(function() {
   serviceUrls = require("../options/service-urls.js")(platformInfo, bqCreds);
-  starter(serviceUrls);
+  externalLogger = require("../logging/external-logger-bigquery.js")
+  (platformIO, platformInfo, serviceUrls);
+  starter(serviceUrls, externalLogger);
 });

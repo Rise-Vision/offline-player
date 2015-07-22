@@ -1,9 +1,6 @@
-module.exports = function(serviceUrls) {
+module.exports = function(serviceUrls, externalLogger) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
-
-  platformInfo = require("../platform/platform-info.js")
-  (platformIOProvider, serviceUrls),
 
   platformFS = require("../platform/filesystem/fs-provider.js"),
 
@@ -26,11 +23,8 @@ module.exports = function(serviceUrls) {
   (contentViewController),  
 
   remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
-  (platformIOProvider, serviceUrls),
+  (platformIOProvider, serviceUrls);
   
-  externalLogger = require("../logging/external-logger-bigquery.js")
-  (platformIOProvider, platformInfo, serviceUrls);
-
   global.logger = require("../logging/logger.js")(externalLogger);
 
   (function loadIntraViewListeners() {
@@ -55,9 +49,7 @@ module.exports = function(serviceUrls) {
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 
-  return platformInfo.initIPAddress()
-  .then(platformInfo.initPlatform)
-  .then(remoteScheduleLoader.loadRemoteSchedule)
+  return remoteScheduleLoader.loadRemoteSchedule()
   .catch(function(err) {
     console.log("Remote schedule loader: " + err);
   })
@@ -82,6 +74,9 @@ module.exports = function(serviceUrls) {
     .then(function() {
       platformRS.registerTargets(localSchedule.items, true);
       return true;
+    })
+    .catch(function(err) {
+      console.log("Error resetting content " + err);
     });
   }
 };
