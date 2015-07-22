@@ -55,7 +55,8 @@ module.exports = function(serviceUrls) {
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
   }());
 
-  return platformInfo.resolveIPAddress()
+  return platformInfo.initIPAddress()
+  .then(platformInfo.initPlatform)
   .then(remoteScheduleLoader.loadRemoteSchedule)
   .catch(function(err) {
     console.log("Remote schedule loader: " + err);

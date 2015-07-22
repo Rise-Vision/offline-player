@@ -1,6 +1,12 @@
 window.addEventListener("load", function() {
-  var serviceUrls = require("./service-urls.js")(require("../platform/platform-info.js")(), require("../../../private-keys/offline-player/bigquery-credentials.js")),
+  var platformInfo = require("../platform/platform-info.js")(),
+  bigQueryCredentials = require("../../../private-keys/offline-player/bigquery-credentials.js"),
+  serviceUrls,
+  controller;
+
+  serviceUrls = require("./service-urls.js")(platformInfo, bigQueryCredentials),
   controller = require("./options-page-controller.js")(serviceUrls);
+  platformInfo.initPlatform();
 
   (function setOptionsWindowCloseTimeout() {
     var timeoutHandle;

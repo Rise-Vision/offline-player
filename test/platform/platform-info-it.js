@@ -27,12 +27,17 @@ describe("platform info", function() {
     assert.ok(platformInfo.baseVersion);
   });
 
-  it("contains the base platform description", function() {
-    assert.ok(platformInfo.basePlatform);
+  it("sets up the base platform description", function() {
+    return platformInfo.initPlatform()
+    .then(function() {
+      console.log(JSON.stringify(platformInfo.basePlatform));
+      assert.ok(platformInfo.basePlatform.os);
+      assert.ok(platformInfo.basePlatform.arch);
+    });
   });
 
   it("fetches IP address from an external provider", function() {
-    return platformInfo.resolveIPAddress()
+    return platformInfo.initIPAddress()
     .then(function() {
       assert.equal(platformInfo.ipAddress.text, "1.1.1.1");
     });
@@ -43,7 +48,7 @@ describe("platform info", function() {
     platformInfo = require("../../app/player/platform/platform-info.js")
     (platformIO, serviceUrls);
 
-    return platformInfo.resolveIPAddress()
+    return platformInfo.initIPAddress()
     .then(function() {
       assert.equal(platformInfo.ipAddress.text, "");
     });
