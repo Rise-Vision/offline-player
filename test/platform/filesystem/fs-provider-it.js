@@ -12,17 +12,17 @@ describe("platform filesystem provider", function() {
     mainUrlPath = "http://www.site.com/test/",
     sha1sum = "be3da096623146256303ffb7cf49748b553ac61d"; //sha1sum of main url path
 
-    return platformFS.filesystemSave(mainUrlPath, "1/file1.txt", blob)
+    return platformFS.filesystemSave([sha1sum, "one"], "file1.txt", blob)
     .then(function(resp) {
       return new Promise(function(resolve, reject) {
         webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
           fs.root.getDirectory(sha1sum, {create: false}, function(dir) {
-            dir.getDirectory("1", {create: false}, function(dir) {
+            dir.getDirectory("one", {create: false}, function(dir) {
               dir.getFile("file1.txt", {create: false}, function(file) {
                 resolve(file);
               }, function(err) {reject(err);});
             });
-          }, function(err) {console.log("error");console.log(err);});
+          }, function(err) {console.log("error");console.log(err.message);});
         });
       });
     })
@@ -45,7 +45,7 @@ describe("platform filesystem provider", function() {
     .then(function() {
       return platformFS.getDirectory("part1/part2");
     }).then(function(resp) {
-      assert(resp);
+      assert.equal(resp.name, "part2");
     });
   });
 
@@ -56,11 +56,27 @@ describe("platform filesystem provider", function() {
     });
   });
   
-  it("knows when filesystem space is low", function() {
+  it("knows when filesystem space is sufficient", function() {
     return platformFS.checkFilesystemSpace(0)
     .then(function(resp) {
       console.log("Disk space remaining: " + resp);
       assert.ok(resp);
     });
+  });
+
+  it("knows when filesystem space is not sufficient", function() {
+    return platformFS.checkFilesystemSpace(100000000000)
+    .then(function(resp) {
+      assert.ok(false);
+    })
+    .catch(function() {
+      assert.ok(true);
+    });
+  });
+
+  xit("returns all root directories", function() {
+  });
+
+  xit("removes directories and all their contents", function() {
   });
 });

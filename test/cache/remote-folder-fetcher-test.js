@@ -2,7 +2,7 @@
 var assert = require("assert"),
 mock = require("simple-mock").mock,
 platformIO = {},
-platformFS = {},
+cache = {},
 fetcher;
 
 describe("remote folder fetcher", function() {
@@ -10,13 +10,11 @@ describe("remote folder fetcher", function() {
     mock(platformIO, "httpFetcher").resolveWith({json: function() {
       return {items:[{folder: false, mediaLink: "test", objectId: "myFolder/tst"}]};
     }, blob: function() {return "testblob";}});
-    mock(platformFS, "filesystemSave").resolveWith([]);
-    mock(platformFS, "filesystemRetrieve").resolveWith([]);
     mock(platformIO, "isNetworkConnected").returnWith(true);
-    mock(platformFS, "hasPreviouslySavedFolder").resolveWith(false);
-    mock(platformFS, "hasFilesystemSpace").resolveWith(true);
+    mock(cache, "hasPreviouslySavedSchedule").resolveWith(false);
+    mock(cache, "cacheFileFromUrl").resolveWith(false);
     fetcher = require("../../app/player/cache/remote-folder-fetcher.js")
-    (platformFS, platformIO, {folderContentsUrl: "test"});
+    (cache, platformIO, {folderContentsUrl: "test"});
   });
 
   it("exists", function() {
@@ -28,8 +26,8 @@ describe("remote folder fetcher", function() {
     url = "http://storage/risemedialibrary-" + companyId + "/myfolder/index.html";
     return fetcher.fetchFoldersIntoFilesystem([{objectReference: url}])
     .then(function(resp) {
-      assert.equal(platformFS.filesystemSave.lastCall.args[1], "tst");
-      assert.equal(platformFS.filesystemSave.lastCall.args[2], "testblob");
+      assert.equal(cache.cacheFileFromUrl.lastCall.args[1], "tst");
+      assert.equal(cache.cacheFileFromUrl.lastCall.args[2], "testblob");
     });
   });
 
@@ -44,7 +42,7 @@ describe("remote folder fetcher", function() {
     var companyId = "121212211212121212121212121212121212",
     url = "http://storage/risemedialibrary-" + companyId + "/myfolder/index.html";
 
-    mock(platformFS, "hasPreviouslySavedFolder", function() {
+    mock(cache, "hasPreviouslySavedSchedule", function() {
       return Promise.resolve(true);
     });
 
@@ -63,29 +61,12 @@ describe("remote folder fetcher", function() {
     return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
     .then(function() {
       assert.equal(platformIO.httpFetcher.callCount, 4);
-      assert.equal(platformFS.filesystemSave.callCount, 2);
-      assert.ok(platformFS.filesystemSave.calls.some(function(call) {
+      assert.equal(cache.cacheFileFromUrl.callCount, 2);
+      assert.ok(cache.cacheFileFromUrl.calls.some(function(call) {
         return call.args[0] === "http://risemedialibrary-" + companyId + "/1/" &&
         call.args[1] === "Folder/tst" &&
         call.args[2] === "testblob";
       }));
-    });
-  });
-
-  it("refuses to save if disk space is low", function() {
-    var companyId = "121212211212121212121212121212121212", scheduleItems = [
-      {objectReference: "http://risemedialibrary-" + companyId + "/1/test.html"},
-      {objectReference: "http://risemedialibrary-" + companyId + "/2/index.html"},
-    ];
-
-    mock(platformFS, "hasFilesystemSpace", function() {
-      return Promise.reject(new Error("Disk space is below 500MB"));
-    });
-
-    return fetcher.fetchFoldersIntoFilesystem(scheduleItems)
-    .then(function(resp) {
-      assert.equal(platformIO.httpFetcher.callCount, 0);
-      assert.ok(/disk space/i.test(resp));
     });
   });
 });

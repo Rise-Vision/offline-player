@@ -72,7 +72,7 @@ describe("cache", function() {
     });
   });
 
-  it.only("retrieves a url for a schedule", function() {
+  it("retrieves a url for a schedule", function() {
     return cache.getCachedMainScheduleObjectUrl("http://the-url/path/file")
     .then(function(url) {
       assert.equal

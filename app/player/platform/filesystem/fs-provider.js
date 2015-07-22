@@ -86,7 +86,7 @@ module.exports = {
 
     function errorFunction(reject) {
       return function(err) {
-        console.log("Platform IO: error on " + fileName + " " + err.message);
+        console.log("Platform FS: error on " + fileName + " " + err.message);
         reject(err);
       };
     }
