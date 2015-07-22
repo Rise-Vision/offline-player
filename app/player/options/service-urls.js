@@ -2,7 +2,7 @@ module.exports = function(platformInfo, bqCredentials) {
   return {
     setPlatformDetailsUrl: "https://rvacore-test.appspot.com" +
     "/v2/viewer/display/DISPLAY_ID?os=" + platformInfo.basePlatform.os +
-    platformInfo.basePlatform.arch +
+    "%2F" + platformInfo.basePlatform.arch +
     "&cv=" + platformInfo.version +
     "&cn=" + platformInfo.name +
     "&pv=" + platformInfo.baseVersion +
