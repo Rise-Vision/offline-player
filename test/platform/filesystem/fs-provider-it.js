@@ -31,36 +31,33 @@ describe("platform filesystem provider", function() {
     });
   });
 
-  it("checks for previously saved folder", function() {
-    var mainUrlPath = "http://www.test.com/1/",
-    sha1sum = "2f52a41ada769508db36bba81563c06b58b38206";
-    return new Promise(function createTheFolder(resolve, reject) {
+  it("retrieves a directory", function() {
+    var dirPath = ["part1", "part2"];
+    return new Promise(function createTheDirectory(resolve, reject) {
       webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
-        fs.root.getDirectory(sha1sum, {create: true}, function(dir) {
-          resolve();
+        fs.root.getDirectory(dirPath[0], {create: true}, function(dir) {
+          dir.getDirectory(dirPath[1], {create: true}, function() {
+            resolve();
+          });
         });
       });
     })
     .then(function() {
-      return platformFS.hasPreviouslySavedFolder("http://www.test.com/1/");
+      return platformFS.getDirectory("part1/part2");
     }).then(function(resp) {
       assert(resp);
     });
   });
 
-  it("retrieves the main url for a presentation", function() {
-    var presentationUrl = "http://www.test.com/1/2/3/four.html",
-    mainUrlPath = "http://www.test.com/1/2/3/",
-    hash = "8b89f32fd5969662da475722f2b62cbc074e3ae4"; //mainUrlPath hash
-
-    return platformFS.getCachedMainUrl(presentationUrl)
+  it("retrieves the url to the main filesystem", function() {
+    return platformFS.getMainFilesystemUrl()
     .then(function(filesystemUrl) {
-      assert(filesystemUrl.indexOf(hash + "/" + "four.html") > -1);
+      assert.ok(/chrome-extension/.test(filesystemUrl));
     });
   });
   
   it("knows when filesystem space is low", function() {
-    return platformFS.hasFilesystemSpace()
+    return platformFS.checkFilesystemSpace(0)
     .then(function(resp) {
       console.log("Disk space remaining: " + resp);
       assert.ok(resp);

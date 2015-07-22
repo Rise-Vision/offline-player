@@ -1,4 +1,4 @@
-module.exports = function(platformIO, platformFS, contentViewController, uiController, remoteFolderFetcher) {
+module.exports = function(platformIO, cache, contentViewController, uiController, remoteFolderFetcher) {
   return function(message) {
     var targets = JSON.parse(message.data.targets);
     var promises = [];
@@ -7,7 +7,7 @@ module.exports = function(platformIO, platformFS, contentViewController, uiContr
       ["http", "https"].forEach(function(protocol) {
         var presentationFolder = protocol + "://storage.googleapis.com/" + target.substr(0, target.lastIndexOf("/") + 1);
 
-        promises.push(platformFS.hasPreviouslySavedFolder(presentationFolder) 
+        promises.push(cache.hasPreviouslySavedSchedule(presentationFolder) 
         .then(function(previouslySaved) {
           if (previouslySaved) {
             return remoteFolderFetcher.fetchFoldersIntoFilesystem
