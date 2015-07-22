@@ -1,7 +1,8 @@
 module.exports = function(platformInfo, bqCredentials) {
   return {
     setPlatformDetailsUrl: "https://rvacore-test.appspot.com" +
-    "/v2/viewer/display/DISPLAY_ID?os=" + platformInfo.basePlatform +
+    "/v2/viewer/display/DISPLAY_ID?os=" + platformInfo.basePlatform.os +
+    "%2F" + platformInfo.basePlatform.arch +
     "&cv=" + platformInfo.version +
     "&cn=" + platformInfo.name +
     "&pv=" + platformInfo.baseVersion +
@@ -23,8 +24,6 @@ module.exports = function(platformInfo, bqCredentials) {
     registerTargetUrl: "https://storage-dot-rvacore-test.appspot.com" +
     "/_ah/api/storage/v0.01/registerGCMTargetList?" +
     "gcmClientId=GCM_CLIENT_ID",
-
-    ipAddressResolver: "http://ident.me",
 
     externalLogAuthRefresh: "https://www.googleapis.com/oauth2/v3/token" +
     "?client_id=" + bqCredentials.client_id +

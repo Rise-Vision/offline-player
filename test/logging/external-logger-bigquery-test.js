@@ -2,7 +2,7 @@
 var assert = require("assert"),
 mock = require("simple-mock").mock,
 externalLoggerPath = "../../app/player/logging/external-logger-bigquery.js",
-mockPlatformInfo = {baseVersion: "1", basePlatform: "2", version: "3", ipAddress: {text: "4"}},
+mockPlatformInfo = {baseVersion: "1", basePlatform: {os: "2a", arch: "2b"}, version: "3", ipAddress: {text: "4"}},
 mockPlatformIO = {localObjectStore: {}},
 serviceUrls = {externalLog: "http://api/TABLE_ID/insert"},
 externalLogger;

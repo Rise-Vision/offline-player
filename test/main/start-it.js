@@ -9,7 +9,10 @@ describe("starter", function() {
   });
 
   it("starts", function() {
-    return start(serviceUrls)
+    return start(serviceUrls, {
+      updateDisplayId: function(){},
+      sendEvent: function(){}
+    })
     .then(function(resp) {
       assert.equal(resp, true);
     });

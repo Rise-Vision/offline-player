@@ -16,7 +16,7 @@ module.exports = function(platformIO, platformInfo, serviceUrls) {
           "event": "",
           "display_id": "",
           "ip": "",
-          "os": platformInfo.basePlatform,
+          "os": platformInfo.basePlatform.os + "/" + platformInfo.basePlatform.arch,
           "chrome_version": platformInfo.version,
           "olp_version": platformInfo.baseVersion,
           "time_millis": 0
