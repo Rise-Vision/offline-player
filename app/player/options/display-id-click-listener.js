@@ -1,4 +1,4 @@
-function displayIdClickListener(controller) {
+function displayIdClickListener(controller, externalLogger) {
   return function() {
     var displayReadySection = document.getElementById("displayReadySection");
     var displaySetupSection = document.getElementById("displaySetupSection");
@@ -16,7 +16,7 @@ function displayIdClickListener(controller) {
     })
     .then(function(resp) {
       if (!resp.item || !resp.item.displayName) {
-        throw new Error("invalid response");
+        throw new Error(JSON.stringify(resp));
       }
 
       controller.setUIValues({
@@ -28,6 +28,12 @@ function displayIdClickListener(controller) {
       displayReadySection.style.display = "block";
     })
     .then(null, function(err) {
+      console.log(err.message);
+      if (/display.* not found/i.test(err.message)) {
+        controller.setUIStatus({message: "Display ID is invalid. Please enter a valid Display ID.", severity: "warning"});
+        externalLogger.sendEvent("invalid diplayId");
+        return;
+      }
       controller.setUIStatus({message: "Error applying display id.", severity: "warning"});
     });
   };

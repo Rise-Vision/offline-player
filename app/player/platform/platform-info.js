@@ -27,8 +27,15 @@ module.exports = function(platformIO, ipAddressResolverUrl) {
     initIPAddress: function() {
       return platformIO.httpFetcher(ipAddressResolverUrl)
       .then(function(resp) {return resp.text();})
-      .then(function(text) {ipAddress.text = text; return true;})
+      .then(function(text) {
+        ipAddress.text = text;
+        platformIO.localObjectStore.set({ipAddress: text});
+        return true;
+      })
       .catch(function(err) {console.log("Could not resolve IP: " + err);})
+    },
+    setIPAddress: function(ip) {
+      return ipAddress.text = ip;
     }
   };
 };
