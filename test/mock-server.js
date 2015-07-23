@@ -87,6 +87,12 @@ http.createServer(function(req, res) {
     return;
   }
 
+  if (req.url.indexOf("channelToken") > -1) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+    console.log("returning channel token");
+    return res.end(JSON.stringify({ token:"test-token" }));
+  }
+
   res.writeHead(200, {"Content-Type": "text/plain"});
   console.log("returning plain text ok response");
   res.end('{"response": "local-http-ok"}');

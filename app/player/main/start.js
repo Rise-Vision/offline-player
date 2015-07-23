@@ -24,11 +24,12 @@ module.exports = function(serviceUrls, externalLogger) {
   contentCycler = require("../schedule/content-cycler.js")
   (contentViewController),  
 
-  remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
+  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls),
 
-  // No object is returned
-  channelAPI = require("../channel/channel-api.js");
+  channelManager = require("../channel/channel-manager.js")(platformIOProvider, platformFS, serviceUrls),
+
+  tokenRetriever = require("../channel/token-retriever.js")(platformIOProvider, serviceUrls);
   
   global.logger = require("../logging/logger.js")(externalLogger);
 
@@ -55,6 +56,10 @@ module.exports = function(serviceUrls, externalLogger) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
+  .catch(function(err) {
+    console.log("Remote schedule loader: " + err);
+  })
+  .then(createChannel)
   .then(resetContent);
 
   function resetContent() {
@@ -80,5 +85,13 @@ module.exports = function(serviceUrls, externalLogger) {
     .catch(function(err) {
       console.log("Error resetting content " + err);
     });
+  }
+
+  function createChannel() {
+    return tokenRetriever.getToken()
+      .then(channelManager.createChannel)
+      .catch(function(err) {
+        console.log("Error creating channel " + err);
+      });
   }
 };

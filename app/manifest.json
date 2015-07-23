@@ -29,6 +29,10 @@
        {
          "name": "packaged",
          "accessible_resources": ["content/empty-schedule-screen/*"]
+       },
+       {
+         "name": "channel-proxy",
+         "accessible_resources": ["content/channel-proxy/*"]
        }
      ]
   }
