@@ -74,9 +74,74 @@ describe("platform filesystem provider", function() {
     });
   });
 
-  xit("returns all root directories", function() {
+  it("returns all root directories", function() {
+    return new Promise(function createTheDirectories(resolve, reject) {
+      webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+        fs.root.getDirectory("one", {create: true}, function() {
+          fs.root.getDirectory("two", {create: true}, function() {
+            resolve();
+          });
+        });
+      });
+    })
+    .then(platformFS.getRootDirectories)
+    .then(function(dirs) {
+      assert.ok(dirs.some(function(dir){return dir.name === "one";}));
+      assert.ok(dirs.some(function(dir){return dir.name === "two";}));
+    });
   });
 
-  xit("removes directories and all their contents", function() {
+  it("removes directories and all their contents", function() {
+    var dir1, dir2, dir3;
+    return new Promise(function createTheContents(resolve, reject) {
+      webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+        fs.root.getDirectory("one", {create: true}, function(dir) {
+          dir1 = dir;
+          dir.getFile("file1", {create: true}, function(){
+            fs.root.getDirectory("two", {create: true}, function(dir) {
+              dir2 = dir;
+              dir.getDirectory("three", {create: true}, function(dir) {
+                dir3 = dir;
+                dir.getFile("file2", {create: true}, function() {
+                  resolve();
+                });
+              });
+            });
+          });
+        });
+      });
+    })
+    .then(function() {
+      assert.ok(dir1);
+      assert.ok(dir2);
+      assert.ok(dir3);
+    })
+    .then(function() {
+      return platformFS.removeDirectories([dir1, dir2, dir3]);
+    })
+    .then(function() {
+      return new Promise(function verifyRemoval(resolve, reject) {
+        webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+          fs.root.getDirectory
+          ("one", {create: false}, function(dir) {}, function() {resolve();});
+        });
+      });
+    })
+    .then(function() {
+      return new Promise(function verifyRemoval(resolve, reject) {
+        webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+          fs.root.getDirectory
+          ("two", {create: false}, function(dir) {}, function() {resolve();});
+        });
+      });
+    })
+    .then(function() {
+      return new Promise(function verifyRemoval(resolve, reject) {
+        webkitRequestFileSystem(PERSISTENT, 99000000000, function(fs) {
+          fs.root.getDirectory
+          ("three", {create: false}, function(dir) {}, function() {resolve();});
+        });
+      });
+    });
   });
 });

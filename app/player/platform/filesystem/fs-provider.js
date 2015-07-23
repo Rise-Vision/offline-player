@@ -105,12 +105,14 @@ module.exports = {
   },
   getRootDirectories: function() {
     return fs.then(function(fs) {
-      var reader = fs.root.createReader(),
-      dirs = [];
       return new Promise(function(resolve, reject) {
+        var reader = fs.root.createReader(),
+        dirs = [];
+
+        read();
         function read() {
           reader.readEntries(function(entries) {
-            if (!entries) {return resolve(dirs);}
+            if (!entries.length) {return resolve(dirs);}
 
             dirs = dirs.concat(entries.filter(function(entry){
               return entry.isDirectory;
