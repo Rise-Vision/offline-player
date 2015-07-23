@@ -1,5 +1,4 @@
-var fs,
-crypto = require("crypto");
+var fs;
 
 (function initFilesystemPromise() {
   "use strict";
@@ -13,42 +12,53 @@ crypto = require("crypto");
   });
 }());
 
-function hash(str) {
-  var sha1sum = crypto.createHash('sha1');
-  sha1sum.update(str);
-  return sha1sum.digest("hex");
-}
-
-function checkFilesystemSpace(bytesToSave) {
-  return new Promise(function(resolve, reject) {
-    navigator.webkitPersistentStorage.queryUsageAndQuota
-      (function(usedBytes, grantedBytes) {  
-        if (grantedBytes - usedBytes - bytesToSave < 500000000) {
-          return reject(new Error("Insufficient disk space"));
-        }
-        resolve(grantedBytes - usedBytes);
+function realizeDirectoryPath(directoryPathArray) {
+  return fs.then(function(fs) {
+    return directoryPathArray.reduce(function(prev, curr) {
+      return prev.then(function(dir) {
+        return new Promise(function(resolve, reject) {
+          dir.getDirectory(curr, {create:true}, function(nextDir) {
+            resolve(nextDir);
+          });
+        });
       });
+    }, Promise.resolve(fs.root));
   });
 }
 
 module.exports = {
-  hasFilesystemSpace: function() {
-    return checkFilesystemSpace(0);
+  checkFilesystemSpace: function(bytesToSave) {
+    return new Promise(function(resolve, reject) {
+      navigator.webkitPersistentStorage.queryUsageAndQuota
+      (function(usedBytes, grantedBytes) {  
+        if (grantedBytes - usedBytes - bytesToSave <= 0) {
+          return reject(new Error("Insufficient disk space"));
+        }
+        resolve(grantedBytes - usedBytes);
+      });
+    });
   },
-  filesystemSave: function(mainUrlPath, filePath, fileBlob) {
-    var fileName;
-    filePath = filePath.split("/");
-    fileName = filePath.pop();
-
-    if (typeof fileBlob === "string") {
-      fileBlob = new Blob([blob]);
+  getMainFilesystemUrl: function() {
+    return fs
+    .then(function(fs) {
+      return fs.root.toURL();
+    });
+  },
+  getDirectory: function(dir) {
+    return fs.then(function(fs) {
+      return new Promise(function(resolve, reject) {
+        fs.root.getDirectory(dir, {create: false}, function(dir) {
+          resolve(dir);
+        }, function(err) {resolve(false);});
+      });
+    });
+  },
+  filesystemSave: function(filePathArray, fileName, fileData) {
+    if (typeof fileData === "string") {
+      fileData = new Blob([fileData]);
     }
 
-    return checkFilesystemSpace(fileBlob.size)
-    .then(function() {
-      filePath.unshift(hash(mainUrlPath));
-      return getDirectory(filePath);
-    })
+    return realizeDirectoryPath(filePathArray)
     .then(function(directoryEntry) {
       return new Promise(function(resolve, reject) {
         directoryEntry.getFile(fileName, {create: true}, function(entry) {
@@ -68,48 +78,50 @@ module.exports = {
 
             writer.onerror = errorFunction(reject);
 
-            writer.write(fileBlob);
+            writer.write(fileData);
           }, errorFunction(reject));
         }, errorFunction(reject));
       });
     });
 
-    function getDirectory(directoryPathArray) {
-      return fs.then(function(fs) {
-        return directoryPathArray.reduce(function(prev, curr) {
-          return prev.then(function(dir) {
-            return new Promise(function(resolve, reject) {
-              dir.getDirectory(curr, {create:true}, function(nextDir) {
-                resolve(nextDir);
-              });
-            });
-          });
-        }, Promise.resolve(fs.root));
-      });
-    }
-
     function errorFunction(reject) {
       return function(err) {
-        console.log("Platform IO: error on " + fileName + " " + err.message);
+        console.log("Platform FS: error on " + fileName + " " + err.message);
         reject(err);
       };
     }
   },
-  hasPreviouslySavedFolder: function(mainUrlPath) {
+  removeDirectories: function(dirs) {
+    return dirs.reduce(function(prev, curr) {
+      return prev
+      .then(function() {
+        return new Promise(function(resolve, reject) {
+          curr.removeRecursively(function() {
+            resolve();
+          }, function(err) {console.log(err); resolve();});
+        });
+      });
+    }, Promise.resolve());
+  },
+  getRootDirectories: function() {
     return fs.then(function(fs) {
       return new Promise(function(resolve, reject) {
-        fs.root.getDirectory(hash(mainUrlPath), {create: false}, function(dir) {
-          resolve(true);
-        }, function(err) {resolve(false);});
+        var reader = fs.root.createReader(),
+        dirs = [];
+
+        read();
+        function read() {
+          reader.readEntries(function(entries) {
+            if (!entries.length) {return resolve(dirs);}
+
+            dirs = dirs.concat(entries.filter(function(entry){
+              return entry.isDirectory;
+            }));
+
+            read();
+          });
+        }
       });
     });
   },
-  getCachedMainUrl: function(url) {
-    var mainUrlPath = url.substr(0, url.lastIndexOf("/") + 1),
-    fileName = url.substr(url.lastIndexOf("/") + 1);
-
-    return fs.then(function(fs) {
-      return fs.root.toURL() + hash(mainUrlPath) + "/" + fileName;
-    });
-  }
 };

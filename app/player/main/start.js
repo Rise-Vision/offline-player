@@ -9,11 +9,13 @@ module.exports = function(serviceUrls, externalLogger) {
 
   platformUIController = require("../platform/ui-controller.js"),
 
+  cache = require("../cache/cache.js")(platformFS, platformIOProvider),
+
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
-  (platformFS, platformIOProvider, serviceUrls),
+  (cache, platformIOProvider, serviceUrls),
 
   contentViewController = require("../schedule/content-view-controller.js")
-  (platformUIController, platformIOProvider, platformFS),
+  (platformUIController, platformIOProvider, cache),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
@@ -36,7 +38,7 @@ module.exports = function(serviceUrls, externalLogger) {
   }());
 
   (function loadRemoteStorageListener() {
-    var remoteStorageListener = require("../remote-storage/remote-storage-listener.js")(platformIOProvider, platformFS, contentViewController, platformUIController, remoteFolderFetcher);
+    var remoteStorageListener = require("../remote-storage/remote-storage-listener.js")(platformIOProvider, cache, contentViewController, platformUIController, remoteFolderFetcher);
     platformRS.registerRemoteStorageListener(remoteStorageListener);
   }());
 
