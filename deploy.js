@@ -2,6 +2,7 @@ var spawnSync = require("child_process").spawnSync,
 fs = require("fs"),
 credentialsPath = "private-keys/offline-player/oauth-credentials.json",
 utf8 = function() {return {encoding: "utf8"};},
+app_id = (process.env.CIRCLE_BRANCH === "master" ? "production_app_id" : "test_app_id"),
 publishVersion;
 
 (function incrementPatchVersion() {
@@ -44,7 +45,7 @@ chromeWebStoreUploadRequest = spawnSync("curl", [
 "-X", "PUT",
 "-T", "app.zip",
 "-vv",
-"https://www.googleapis.com/upload/chromewebstore/v1.1/items/" + credentials.app_id]);
+"https://www.googleapis.com/upload/chromewebstore/v1.1/items/" + credentials[app_id]]);
 
 console.log(JSON.parse(chromeWebStoreUploadRequest.stdout.toString()).uploadState);
 
@@ -61,6 +62,6 @@ chromeWebStorePublishRequest = spawnSync("curl", [
 "-X", "POST",
 "-vv",
 "-fail",
-"https://www.googleapis.com/chromewebstore/v1.1/items/" + credentials.app_id + "/publish"]);
+"https://www.googleapis.com/chromewebstore/v1.1/items/" + credentials[app_id] + "/publish"]);
 
 process.exit(chromeWebStorePublishRequest.status);

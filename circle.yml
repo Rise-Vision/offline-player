@@ -21,7 +21,7 @@ deployment:
   staging:
     branch: /(feature|fix|chore).*/
     commands:
-      - echo "Non master branch - nothing left to do"
+      - npm run deploy
   production:
     branch: master
     commands:
