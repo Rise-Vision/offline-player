@@ -5,7 +5,8 @@ module.exports = function(platformIO, serviceUrls) {
   return {
     loadRemoteSchedule: function() {
       if (!platformIO.isNetworkConnected()) {
-        return Promise.reject("no connection - aborting");
+        logger.console("Remote schedule retriever: no network connection");
+        return Promise.resolve(false);
       }
 
       return getDisplayIdFromLocalStorage()
