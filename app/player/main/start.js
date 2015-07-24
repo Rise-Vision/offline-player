@@ -57,7 +57,7 @@ module.exports = function(serviceUrls, externalLogger) {
   function resetContent() {
     var localSchedule;
 
-    return localScheduleLoader(timelineParser)
+    return localScheduleLoader(timelineParser, externalLogger, platformIOProvider)
     .then(function(resp) {
       localSchedule = resp;
       return remoteFolderFetcher.fetchFoldersIntoFilesystem(resp.items);

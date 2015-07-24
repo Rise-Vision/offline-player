@@ -28,16 +28,13 @@ describe("remote schedule retriever", function(){
     assert.ok(retriever);
   });
 
-  it("rejects when disconnected", function() {
+  it("resolves false when disconnected", function() {
     mock(platformIO, "isNetworkConnected", function() {return false;});
     retriever = require(retrieverPath)(platformIO, coreUrl);
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.fail("Should not be here");
-    })
-    .catch(function(resp) {
-      assert.ok(/no connection/.test(resp));
+      assert.equal(resp, false);
     });
   });
 
