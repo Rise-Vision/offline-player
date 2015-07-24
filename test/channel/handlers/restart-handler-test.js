@@ -27,25 +27,15 @@ describe("Restart handler", function() {
   });
 
   it("handles its event", function() {
-    var eventObject = {
-      data: validMessage
-    };
-    assert.ok(responseHandler.handles(eventObject));
+    assert.ok(responseHandler.handles(validMessage));
   });
 
   it("ignores other events", function() {
-    var eventObject = {
-      data: ignoredMessage
-    };
-    assert.ok(!responseHandler.handles(eventObject));
+    assert.ok(!responseHandler.handles(ignoredMessage));
   });
 
   it("successfully invokes restart", function() {
-    var eventObject = {
-      data: validMessage
-    };
-
-    responseHandler.process(eventObject).then(function() {
+    responseHandler.process(validMessage).then(function() {
       assert(!mockPlatformProvider.reboot.called);
       assert(mockPlatformProvider.restart.called);
     });

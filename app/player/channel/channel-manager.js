@@ -1,19 +1,37 @@
-module.exports = function() {
+module.exports = function(messageDetailRetriever) {
   var eventHandlers = [];
 
-  function dispatchMessage(evt) {
+  function processMessage(evt) {
+    if(evt.data.type && evt.data.type.indexOf("channel") === 0) {
+      var message = evt.data.message;
+
+      if(message && message.indexOf("updated") === 0) {
+        return fetchMessage(message)
+        .then(dispatchMessage);
+      }
+    }
+    else {
+      return Promise.reject();
+    }
+  }
+
+  function fetchMessage(message) {
+    return messageDetailRetriever.getMessageDetail(message.substring("updated".length));
+  }
+
+  function dispatchMessage(messageDetail) {
     var promises = eventHandlers.filter(function(handler) {
-      return handler.handles(evt);
+      return handler.handles(messageDetail);
     })
     .map(function(handler) {
-      return handler.process(evt);
+      return handler.process(messageDetail);
     });
 
     return Promise.all(promises);
   }
 
   return {
-    dispatchMessage: dispatchMessage,
+    processMessage: processMessage,
     addEventHandler: function(handler) {
       eventHandlers.push(handler);
     },
@@ -39,7 +57,7 @@ module.exports = function() {
       }
 
       view.addEventListener("loadstop", sendRegistrationMessage);
-      view.addEventListener("message", dispatchMessage);
+      window.addEventListener("message", processMessage);
 
       return Promise.resolve();
     }

@@ -27,38 +27,24 @@ describe("Reboot handler", function() {
   });
 
   it("handles its event", function() {
-    var eventObject = {
-      data: validMessage
-    };
-    assert.ok(responseHandler.handles(eventObject));
+    assert.ok(responseHandler.handles(validMessage));
   });
 
   it("ignores other events", function() {
-    var eventObject = {
-      data: ignoredMessage
-    };
-    assert.ok(!responseHandler.handles(eventObject));
+    assert.ok(!responseHandler.handles(ignoredMessage));
   });
 
   it("successfully invokes reboot", function() {
-    var eventObject = {
-      data: validMessage
-    };
-
-    responseHandler.process(eventObject).then(function() {
+    responseHandler.process(validMessage).then(function() {
       assert(mockPlatformProvider.reboot.called);
       assert(!mockPlatformProvider.restart.called);
     });
   });
 
   it("fails to reboot and falls back to restart", function() {
-    var eventObject = {
-      data: validMessage
-    };
-
     mock(mockPlatformProvider, "reboot").rejectWith(false);
 
-    responseHandler.process(eventObject).then(function() {
+    responseHandler.process(validMessage).then(function() {
       assert(mockPlatformProvider.reboot.called);
       assert(mockPlatformProvider.restart.called);
     });

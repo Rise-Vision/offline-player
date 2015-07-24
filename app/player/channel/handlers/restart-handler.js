@@ -1,11 +1,11 @@
 module.exports = function(platformProvider) {
   return {
     handles: function(evt) {
-      return evt.data.player && evt.data.player.restartRequired === "true";
+      return evt.player && evt.player.restartRequired === "true";
     },
 
     process: function(evt) {
-      console.log("Restarting");
+      console.log("Restarting", platformProvider);
       return platformProvider.restart();
     }
   };

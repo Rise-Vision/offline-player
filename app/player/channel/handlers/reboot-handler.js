@@ -1,7 +1,7 @@
 module.exports = function(platformProvider) {
   return {
     handles: function(evt) {
-      return evt.data.player && evt.data.player.rebootRequired === "true";
+      return evt.player && evt.player.rebootRequired === "true";
     },
 
     process: function(evt) {

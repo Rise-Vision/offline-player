@@ -1,44 +1,48 @@
 "use strict";
 var assert = require("assert"),
-handlerPath = "../../app/player/channel/channel-manager.js",
+managerPath = "../../app/player/channel/channel-manager.js",
 rebootHandlerPath = "../../app/player/channel/handlers/reboot-handler.js",
 restartHandlerPath = "../../app/player/channel/handlers/restart-handler.js",
 mock = require("simple-mock").mock,
 mockPlatformProvider,
+mockMessageRetriever,
 eventData,
 rebootHandler,
 restartHandler,
-handler;
+manager;
 
 describe("channel manager", function() {
   beforeEach("setup mocks", function() {
     mockPlatformProvider = {};
+    mockMessageRetriever = {};
     eventData = {
-      data: {
-        player: {
-          rebootRequired: "true"
-        }
+      player: {
+        rebootRequired: "true"
       }
     };
 
     rebootHandler = require(rebootHandlerPath)(mockPlatformProvider);
     restartHandler = require(restartHandlerPath)(mockPlatformProvider);
 
+    mock(mockMessageRetriever, "getMessageDetail").resolveWith(eventData);
     mock(rebootHandler, "process").resolveWith(true);
     mock(restartHandler, "process").resolveWith(true);
 
-    handler = require(handlerPath)();
+    manager = require(managerPath)(mockMessageRetriever);
   });
 
   it("exists", function() {
-    assert.ok(handler);
+    assert.ok(manager);
   });
 
   it("invokes the correct handler", function() {
-    handler.addEventHandler(rebootHandler);
-    handler.addEventHandler(restartHandler);
+    var message = { type: "channel-message", message: "updated FGHJK"};
+    var evt = { data: message };
 
-    return handler.dispatchMessage(eventData).then(function() {
+    manager.addEventHandler(rebootHandler);
+    manager.addEventHandler(restartHandler);
+
+    return manager.processMessage(evt).then(function() {
       assert(rebootHandler.process.called);
       assert(!restartHandler.process.called);
     });

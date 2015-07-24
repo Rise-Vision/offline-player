@@ -9,7 +9,7 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   platformUIController = require("../platform/ui-controller.js"),
 
-  platformProvider = require("../platform/platform-provider.js"),
+  platformProvider = require("../platform/platform-provider.js")(platformInfo),
 
   cache = require("../cache/cache.js")(platformFS, platformIOProvider),
 
@@ -31,7 +31,9 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   tokenRetriever = require("../channel/token-retriever.js")(platformIOProvider, serviceUrls),
 
-  channelManager = require("../channel/channel-manager.js")(platformIOProvider, platformFS, serviceUrls);
+  messageDetailRetriever = require("../channel/message-detail-retriever.js")(platformIOProvider, serviceUrls),
+
+  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever);
   
   global.logger = require("../logging/logger.js")(externalLogger);
 

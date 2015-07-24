@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert"),
-serviceUrls = require("../../app/player/options/service-urls.js")({basePlatform:{}},{}),
+serviceUrls = { tokenServerUrl: "testURL/DISPLAY_ID/channel?uid=UID&vv=VIEWER_VERSION" },
 retrieverPath = "../../app/player/channel/token-retriever.js",
 retriever,
 mock = require("simple-mock").mock,
@@ -74,7 +74,7 @@ describe("token-retriever", function() {
       var viewerVersion = retriever.getViewerVersion();
       var uid = retriever.getUID();
 
-      assert.equal(requestUrl, "https://rvacore-test.appspot.com/v2/viewer/display/test/channel?uid=" + uid + "&vv=" + viewerVersion);
+      assert.equal(requestUrl, "testURL/test/channel?uid=" + uid + "&vv=" + viewerVersion);
     });
   });
 
