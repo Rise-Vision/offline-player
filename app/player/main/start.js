@@ -63,9 +63,6 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
-  .catch(function(err) {
-    console.log("Remote schedule loader: " + err);
-  })
   .then(createChannel)
   .then(resetContent);
 

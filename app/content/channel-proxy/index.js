@@ -9,7 +9,7 @@ function initializeEventHandler(evt) {
 function createChannelIFrame() {
   var container = document.querySelector("#iframeContainer");
   var iframe = document.createElement("iframe");
-  
+
   iframe.setAttribute("src", "channel-iframe-contents.html");
   iframe.style.width = "0";
   iframe.style.height = "0";
@@ -29,14 +29,27 @@ function destroyChannelIFrame() {
 
 function channelEvent(eventName) {
   console.log("channelEvent", eventName);
+  source.postMessage({
+    type: "channel-event",
+    name: name
+  }, origin);
 }
 
 function channelMessage(message) {
   console.log("channelMessage", message);
+  source.postMessage({
+    type: "channel-message",
+    message: message
+  }, origin);
 }
 
 function channelError(code, description) {
   console.log("channelError", code, description);
+  source.postMessage({
+    type: "channel-error",
+    code: code,
+    description: description
+  }, origin);
 }
 
 window.addEventListener("message", function(evt) {

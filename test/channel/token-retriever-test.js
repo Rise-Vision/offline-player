@@ -9,7 +9,7 @@ mockPlatformIO;
 describe("token-retriever", function() {
   beforeEach("setup mocks", function() {
     mockPlatformIO = { localObjectStore: {} };
-    mock(mockPlatformIO.localObjectStore, "get").resolveWith({displayId: "test"}); 
+    mock(mockPlatformIO.localObjectStore, "get").resolveWith({displayId: "test"});
     mock(mockPlatformIO, "isNetworkConnected").returnWith(true);
     mock(mockPlatformIO, "httpFetcher").resolveWith({
       json: function() {
