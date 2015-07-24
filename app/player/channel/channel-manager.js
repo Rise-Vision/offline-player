@@ -1,4 +1,5 @@
-module.exports = function(messageDetailRetriever) {
+module.exports = function(messageDetailRetriever, uiController) {
+  var channelView, channelWindow, channelToken;
   var eventHandlers = [];
 
   function processMessage(evt) {
@@ -8,6 +9,9 @@ module.exports = function(messageDetailRetriever) {
       if(message && message.indexOf("updated") === 0) {
         return fetchMessage(message)
         .then(dispatchMessage);
+      }
+      else if(message === "ayt") {
+        return Promise.resolve(resetChannel());
       }
     }
     else {
@@ -30,6 +34,13 @@ module.exports = function(messageDetailRetriever) {
     return Promise.all(promises);
   }
 
+  function resetChannel() {
+    uiController.sendWindowMessage(channelWindow, {
+      type: "reset-channel",
+      token: channelToken
+    }, "*");
+  }
+
   return {
     processMessage: processMessage,
     addEventHandler: function(handler) {
@@ -39,24 +50,26 @@ module.exports = function(messageDetailRetriever) {
       eventHandlers = [];
     },
     createChannel: function(token) {
-      var view = document.createElement("webview");
+      channelView = document.createElement("webview");
+      channelView.style.display = "none";
+      channelView.partition = "persist:channel-proxy";
+      channelView.src = "../../content/channel-proxy/index.html";
 
-      view.style.display = "none";
-      view.partition = "persist:channel-proxy";
-      view.src = "../../content/channel-proxy/index.html";
+      channelWindow = channelView.contentWindow;
+      channelToken = token;
 
-      document.body.appendChild(view);
+      document.body.appendChild(channelView);
 
       function sendRegistrationMessage() {
-        view.removeEventListener("loadstop", sendRegistrationMessage);
+        channelView.removeEventListener("loadstop", sendRegistrationMessage);
 
-        view.contentWindow.postMessage({
+        uiController.sendWindowMessage(channelWindow, {
           type: "create-channel",
-          token: token
+          token: channelToken
         }, "*");
       }
 
-      view.addEventListener("loadstop", sendRegistrationMessage);
+      channelView.addEventListener("loadstop", sendRegistrationMessage);
       window.addEventListener("message", processMessage);
 
       return Promise.resolve();

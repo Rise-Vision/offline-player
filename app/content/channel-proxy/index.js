@@ -58,4 +58,8 @@ window.addEventListener("message", function(evt) {
     destroyChannelIFrame();
     createChannelIFrame();
   }
+  else if(evt.data.type === "reset-channel") {
+    destroyChannelIFrame();
+    createChannelIFrame();
+  }
 }, false);

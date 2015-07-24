@@ -33,7 +33,7 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   messageDetailRetriever = require("../channel/message-detail-retriever.js")(platformIOProvider, serviceUrls),
 
-  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever);
+  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever, platformUIController);
   
   global.logger = require("../logging/logger.js")(externalLogger);
 
