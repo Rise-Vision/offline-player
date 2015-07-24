@@ -4,10 +4,17 @@ module.exports = function(cache, platformIO, serviceUrls) {
       return prev.then(function() {
         return platformIO.httpFetcher(curr.remoteUrl)
         .then(function(resp) {
+          if (resp.status === 403) {
+            throw new Error("blocked");
+          }
           return resp.blob();
         })
         .then(function(blob) {
           return cache.cacheFileFromUrl(mainUrlPath, curr.filePath, blob);
+        }).
+        catch(function(err) {
+          logger.console("Blocked file: " + curr.remoteUrl);
+          logger.external("file blocked");
         });
       });
     }, Promise.resolve());
