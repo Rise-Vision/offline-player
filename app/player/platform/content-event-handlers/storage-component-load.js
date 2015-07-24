@@ -4,7 +4,7 @@ module.exports = function(platformIO, uiController) {
       return evt.data.type === "storage-component-load";
     },
 
-    process: function(evt) {
+    process: function respondToInitialFileListRequest(evt) {
       var url = evt.data.url;
 
       if (!url) {
