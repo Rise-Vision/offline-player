@@ -52,9 +52,6 @@ module.exports = function(serviceUrls, externalLogger) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
-  .catch(function(err) {
-    console.log("Remote schedule loader: " + err);
-  })
   .then(resetContent);
 
   function resetContent() {

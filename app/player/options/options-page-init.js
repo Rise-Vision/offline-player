@@ -1,13 +1,28 @@
 window.addEventListener("load", function() {
-  var platformInfo = require("../platform/platform-info.js")(),
+  var platformIO = require("../platform/io-provider.js"),
+  platformInfo = require("../platform/platform-info.js")
+  (platformIO, "http://ident.me"),
   bigQueryCredentials = require("../../../private-keys/offline-player/bigquery-credentials.js"),
   serviceUrls,
-  controller;
+  controller,
+  externalLogger;
+
+  platformIO.localObjectStore.get(["ipAddress"])
+  .then(function(resp) {
+    platformInfo.setIPAddress(resp.ipAddress);
+  });
+
+  chrome.storage.onChanged.addListener(function(changes) {
+    if (!changes.ipAddress) {return;}
+    platformInfo.setIPAddress(changes.ipAddress.newValue);
+  });
 
   platformInfo.initPlatform()
   .then(function() {
     serviceUrls = require("./service-urls.js")(platformInfo, bigQueryCredentials);
     controller = require("./options-page-controller.js")(serviceUrls);
+    externalLogger = require("../logging/external-logger-bigquery.js")
+    (platformIO, platformInfo, serviceUrls);
 
     (function setOptionsWindowCloseTimeout() {
       var timeoutHandle;
@@ -51,9 +66,25 @@ window.addEventListener("load", function() {
       (new CustomEvent("status.update", {detail: changes}));
     });
 
+    (function setupOnlineCheck() {
+      var intervalHandle;
+
+      console.log("setting up online check");
+      if (navigator.onLine) {return;}
+
+      intervalHandle = setInterval(checkForOnlineChange, 5000);
+
+      function checkForOnlineChange() {
+        if (navigator.onLine) {
+          clearInterval(intervalHandle);
+          initializeSections();
+        }
+      }
+    }());
+
     (function bindDomInputListeners() {
       addListener("close", "click", function() {window.close();});
-      addListener("displayIdApply", "click", require("./display-id-click-listener.js")(controller));
+      addListener("displayIdApply", "click", require("./display-id-click-listener.js")(controller, externalLogger));
       addListener("claimIdApply", "click", require("./claim-id-click-listener.js")(controller));
       addListener("changeDisplayIdApply", "click", require("./change-display-id-click-listener.js")(controller));
       addListener("status", "status.update", require("./status-field-listener.js"));
@@ -64,6 +95,7 @@ window.addEventListener("load", function() {
     }());
 
     function initializeSections() {
+      console.log("Initializing options page sections");
       var uiValues = controller.getUIValues();
 
       if(!uiValues.displayId) {
@@ -73,8 +105,14 @@ window.addEventListener("load", function() {
         });      
       }
 
+      controller.clearUIStatus();
+
+      if (!navigator.onLine && !uiValues.displayId) {
+        controller.setUIStatus({message: "Unable to register this Display. Please make sure this device is connected to the Internet.", severity: "severe"});
+      }
+
       document.getElementById("displayReadySection").style.display = uiValues.displayId ? "block" : "none";
-      document.getElementById("displaySetupSection").style.display = uiValues.displayId ? "none" : "block";
+      document.getElementById("displaySetupSection").style.display = uiValues.displayId ? "none" : (navigator.onLine) ? "block" : "none";
     }
   });
 });

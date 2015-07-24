@@ -1,4 +1,4 @@
-function optionsPageController(serviceUrls) {
+module.exports = function optionsPageController(serviceUrls) {
   "use strict";
   var uiFieldMap = {displayId: "", claimId: "", displayName: ""},
   dimensions = {width: 0, height: 0},
@@ -69,5 +69,3 @@ function optionsPageController(serviceUrls) {
     }
   };
 }
-
-module.exports = optionsPageController;

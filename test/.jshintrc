@@ -4,6 +4,7 @@
   "strict": true,
   "globalstrict": true,
   "globals": {
+    "global": true,
     "window": true,
     "exports": false,
     "module": false,

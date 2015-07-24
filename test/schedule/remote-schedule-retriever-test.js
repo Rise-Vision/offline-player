@@ -9,7 +9,10 @@ coreUrl = {scheduleFetchUrl: "test"};
 
 describe("remote schedule retriever", function(){
   beforeEach("set up mock IO scenario", function() {
+    global.logger = {};
     platformIO = {localObjectStore: {}};
+    mock(global.logger, "console").returnWith(true);
+    mock(global.logger, "external").returnWith(true);
     mock(platformIO, "isNetworkConnected").returnWith(true);
     mock(platformIO.localObjectStore, "get").resolveWith({displayId: "id"});
     mock(platformIO.localObjectStore, "set").resolveWith(true);
@@ -38,7 +41,7 @@ describe("remote schedule retriever", function(){
     });
   });
 
-  it("rejects when local storage retrieval fails", function() {
+  it("doesn't save schedule when storage retrieval fails", function() {
     retriever = require(retrieverPath)(platformIO, coreUrl);
     mock(platformIO.localObjectStore, "get", function() {
       return Promise.resolve();
@@ -46,14 +49,27 @@ describe("remote schedule retriever", function(){
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.fail(resp, "rejection", "expected rejected promise");
-    })
-    .catch(function(err) {
-      assert.ok(err.message.indexOf("error retrieving display id") > - 1);
+      assert.equal(platformIO.localObjectStore.set.callCount, 0);
     });
   });
 
-  it("rejects when no display id is stored", function() {
+  it("logs externally on invalid display id", function() {
+    retriever = require(retrieverPath)(platformIO, coreUrl);
+    mock(platformIO, "httpFetcher", function() {
+      return Promise.resolve({json: function() {
+        return Promise.resolve({
+          status: {message: "display id not found"}
+        });
+      }});
+    });
+
+    return retriever.loadRemoteSchedule()
+    .then(function() {
+      assert.equal(logger.external.callCount, 1);
+    });
+  });
+
+  it("doesn't try to fetch when displayId is not stored", function() {
     mock(platformIO.localObjectStore, "get", function() {
       return Promise.resolve({});
     });
@@ -61,10 +77,7 @@ describe("remote schedule retriever", function(){
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.fail(resp, "rejection", "expected rejected promise");
-    })
-    .catch(function(err) {
-      assert.ok(err.message.indexOf("no display id") > -1);
+      assert.equal(platformIO.httpFetcher.callCount, 0);
     });
   });
 
@@ -86,23 +99,6 @@ describe("remote schedule retriever", function(){
     });
   });
 
-  it("throws if no schedule in response", function() {
-    mock(platformIO, "httpFetcher", function() {
-      return Promise.resolve({json: function() {return Promise.resolve(
-            {content: {noschedulehere: {}}}
-      );}});
-    });
-    retriever = require(retrieverPath)(platformIO, coreUrl);
-
-    return retriever.loadRemoteSchedule()
-    .then(function() {
-      assert.fail(null, null, "expected rejected promise");
-    })
-    .catch(function(resp) {
-      assert(resp.message.indexOf("no schedule data") > -1);
-    });
-  });
-
   it("saves local schedule", function() {
     retriever = require(retrieverPath)(platformIO, coreUrl);
 
@@ -118,10 +114,7 @@ describe("remote schedule retriever", function(){
 
     return retriever.loadRemoteSchedule()
     .then(function(resp) {
-      assert.fail(null, null, "received resolved promise on failed storage update");
-    })
-    .catch(function(err) {
-      assert.ok(err.message.indexOf("error saving schedule") > -1);
+      assert.ok(/error saving/.test(global.logger.console.lastCall.args[0]));
     });
   });
 });

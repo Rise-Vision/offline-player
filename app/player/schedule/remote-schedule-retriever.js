@@ -11,7 +11,10 @@ module.exports = function(platformIO, serviceUrls) {
       return getDisplayIdFromLocalStorage()
       .then(fetchRemoteScheduleContentJson)
       .then(retrieveScheduleFromContentObject) 
-      .then(saveNewLocalSchedule);
+      .then(saveNewLocalSchedule)
+      .catch(function(err) {
+        logger.console(err.message);
+      });
     }
   };
 
@@ -43,6 +46,9 @@ module.exports = function(platformIO, serviceUrls) {
   function retrieveScheduleFromContentObject(json) {
     if (!json.content || !json.content.schedule) {
       console.info(JSON.stringify(json));
+      if (/display.* not found/i.test(json.status.message)) {
+        logger.external("invalid diplayId");
+      }
       throw err("no schedule data in response");
     }
     return json.content.schedule;
