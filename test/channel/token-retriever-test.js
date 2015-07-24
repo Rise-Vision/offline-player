@@ -1,6 +1,6 @@
 "use strict";
 var assert = require("assert"),
-serviceUrls = require("../../app/player/options/service-urls.js")({}, {}),
+serviceUrls = require("../../app/player/options/service-urls.js")({basePlatform:{}},{}),
 retrieverPath = "../../app/player/channel/token-retriever.js",
 retriever,
 mock = require("simple-mock").mock,
