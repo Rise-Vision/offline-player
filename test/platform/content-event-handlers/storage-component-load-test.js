@@ -68,7 +68,7 @@ describe("storage-component-load", function() {
     });
   });
 
-  it("fetches remote url when online", function(done) {
+  it("fetches the remote file listing when online", function(done) {
     responseHandler.process(eventObject).then(function() {
       assert.equal(mockPlatformIO.httpFetcher.callCount, 1);
       assert.equal(mockPlatformIO.httpFetcher.lastCall.args[0], testUrl);
@@ -85,7 +85,7 @@ describe("storage-component-load", function() {
     });
   });
 
-  it("restores from local storage url when offline", function(done) {
+  it("restores the file list from local storage when offline", function(done) {
     mock(mockPlatformIO, "isNetworkConnected").returnWith(false);
 
     responseHandler.process(eventObject).then(function() {
