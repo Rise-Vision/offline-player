@@ -24,12 +24,11 @@ function claimIdClickListener(controller) {
       displayReadySection.style.display = "block";
     })
     .then(function sendPlatformDetails() {
-      console.log("Handler 2");
       return fetch(controller.assemblePlatformDetailsUrl(),
       {credentials: "include"});
     })
-    .then(null, function(err) {
-      controller.setUIStatus({message: "Error applying claim id. " + err, severity: "severe"});
+    .catch(function(err) {
+      controller.setUIStatus({message: err.message, severity: "severe"});
     });
   };
 }

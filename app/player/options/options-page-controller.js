@@ -1,4 +1,4 @@
-module.exports = function optionsPageController(serviceUrls) {
+module.exports = function optionsPageController(serviceUrls, externalLogger) {
   "use strict";
   var uiFieldMap = {displayId: "", claimId: "", displayName: ""},
   dimensions = {width: 0, height: 0},
@@ -14,8 +14,14 @@ module.exports = function optionsPageController(serviceUrls) {
     },
 
     setDisplayIdFromJson: function(json) {
+      if (/claim id.* not found/i.test(JSON.stringify(json))) {
+        externalLogger.sendEvent("invalid claim id");
+        return Promise.reject(new Error("Claim ID is invalid." +
+        " Please enter a valid Claim ID."));
+      }
       if (!json.displayId) {
-        return Promise.reject(new Error("Invalid json response"));
+        return Promise.reject(new Error("Error applying Claim ID." +
+        " Invalid json response"));
       }
 
       uiFieldMap.displayId = json.displayId;
@@ -68,4 +74,4 @@ module.exports = function optionsPageController(serviceUrls) {
       Object.observe(uiStatus, fn);
     }
   };
-}
+};

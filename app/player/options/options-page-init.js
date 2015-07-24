@@ -20,9 +20,9 @@ window.addEventListener("load", function() {
   platformInfo.initPlatform()
   .then(function() {
     serviceUrls = require("./service-urls.js")(platformInfo, bigQueryCredentials);
-    controller = require("./options-page-controller.js")(serviceUrls);
     externalLogger = require("../logging/external-logger-bigquery.js")
     (platformIO, platformInfo, serviceUrls);
+    controller = require("./options-page-controller.js")(serviceUrls, externalLogger);
 
     (function setOptionsWindowCloseTimeout() {
       var timeoutHandle;
