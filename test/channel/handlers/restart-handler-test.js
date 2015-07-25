@@ -14,6 +14,10 @@ describe("Restart handler", function() {
   var ignoredMessage = {};
 
   beforeEach("setup mocks", function() {
+    global.logger = {};
+    mock(global.logger, "console").returnWith(true);
+    mock(global.logger, "external").returnWith(true);
+
     mockPlatformProvider = {};
 
     mock(mockPlatformProvider, "reboot").resolveWith(true);
@@ -35,9 +39,12 @@ describe("Restart handler", function() {
   });
 
   it("successfully invokes restart", function() {
-    responseHandler.process(validMessage).then(function() {
+    return responseHandler.process(validMessage).then(function() {
       assert(!mockPlatformProvider.reboot.called);
       assert(mockPlatformProvider.restart.called);
+
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
     });
   });
 });

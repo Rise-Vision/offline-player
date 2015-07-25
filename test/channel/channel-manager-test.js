@@ -14,6 +14,10 @@ manager;
 
 describe("channel manager", function() {
   beforeEach("setup mocks", function() {
+    global.logger = {};
+    mock(global.logger, "console").returnWith(true);
+    mock(global.logger, "external").returnWith(true);
+
     mockPlatformProvider = {};
     mockMessageRetriever = {};
     mockUIController = {};
@@ -48,6 +52,9 @@ describe("channel manager", function() {
     return manager.processMessage(evt).then(function() {
       assert(rebootHandler.process.called);
       assert(!restartHandler.process.called);
+
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
     });
   });
 
@@ -60,6 +67,11 @@ describe("channel manager", function() {
 
     return manager.processMessage(evt).then(function() {
       assert(mockUIController.sendWindowMessage.called);
+      assert.equal(mockUIController.sendWindowMessage.lastCall.args[1].type, "reset-channel");
+
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 2);
+
       assert(!rebootHandler.process.called);
       assert(!restartHandler.process.called);
     });

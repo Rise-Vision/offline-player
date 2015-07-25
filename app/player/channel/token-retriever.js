@@ -47,14 +47,20 @@ module.exports = function(platformIO, serviceUrls) {
     return platformIO.httpFetcher(tokenRequestUrl, {credentials: "include"})
     .then(function(resp) {
       return resp.json();
+    })
+    .catch(function() {
+      logger.external("request token fetch failed");
+      return Promise.reject();
     });
   }
 
   function extractToken(data) {
     if(data.token && data.token !== "null") {
+      logger.external("channel token retrieved");
       return Promise.resolve(data.token);
     }
     else {
+      logger.external("invalid channel token null");
       return Promise.reject("Invalid channel token - Null");
     }
   }

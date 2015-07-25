@@ -26,6 +26,10 @@ describe("message detail retriever", function() {
       }
     };
 
+    global.logger = {};
+    mock(global.logger, "console").returnWith(true);
+    mock(global.logger, "external").returnWith(true);
+
     mockPlatformIO = { localObjectStore: {} };
     mock(mockPlatformIO.localObjectStore, "get").resolveWith({displayId: "test"});
     mock(mockPlatformIO, "isNetworkConnected").returnWith(true);
@@ -69,6 +73,16 @@ describe("message detail retriever", function() {
       .then(function(detail) {
         assert(detail);
         assert.equal(detail.status.message, "OK.");
+      });
+  });
+
+  it("logs to external logger when fetch detail fails", function() {
+    mock(mockPlatformIO, "httpFetcher").rejectWith(false);
+
+    return retriever.getMessageDetail("test")
+      .catch(function() {
+        assert(global.logger.external.called);
+        assert.equal(global.logger.external.callCount, 1);
       });
   });
 });

@@ -8,6 +8,10 @@ mockPlatformIO;
 
 describe("token-retriever", function() {
   beforeEach("setup mocks", function() {
+    global.logger = {};
+    mock(global.logger, "console").returnWith(true);
+    mock(global.logger, "external").returnWith(true);
+
     mockPlatformIO = { localObjectStore: {} };
     mock(mockPlatformIO.localObjectStore, "get").resolveWith({displayId: "test"});
     mock(mockPlatformIO, "isNetworkConnected").returnWith(true);
@@ -83,6 +87,9 @@ describe("token-retriever", function() {
     .then(function(token) {
       assert(token);
       assert.equal(token, "test-token");
+      
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
     });
   });
 
@@ -97,6 +104,9 @@ describe("token-retriever", function() {
     .then(null, function(err) {
       assert(err);
       assert.equal(err, "Invalid channel token - Null");
+
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
     });
   });
 });

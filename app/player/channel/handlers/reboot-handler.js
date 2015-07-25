@@ -6,8 +6,12 @@ module.exports = function(platformProvider) {
 
     process: function(evt) {
       console.log("Rebooting");
+      logger.external("reboot");
+      
       return platformProvider.reboot().catch(function() {
         console.log("Restarting instead");
+        logger.external("restart after failed reboot");
+
         platformProvider.restart();
       });
     }

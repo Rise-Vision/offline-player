@@ -7,10 +7,12 @@ module.exports = function(messageDetailRetriever, uiController) {
       var message = evt.data.message;
 
       if(message && message.indexOf("updated") === 0) {
+        logger.external("channel updated");
         return fetchMessage(message)
         .then(dispatchMessage);
       }
       else if(message === "ayt") {
+        logger.external("channel ayt");
         return Promise.resolve(resetChannel());
       }
     }
@@ -20,7 +22,8 @@ module.exports = function(messageDetailRetriever, uiController) {
   }
 
   function fetchMessage(message) {
-    return messageDetailRetriever.getMessageDetail(message.substring("updated".length));
+    return messageDetailRetriever
+      .getMessageDetail(message.substring("updated".length));
   }
 
   function dispatchMessage(messageDetail) {
@@ -35,6 +38,8 @@ module.exports = function(messageDetailRetriever, uiController) {
   }
 
   function resetChannel() {
+    logger.external("channel reset");
+
     uiController.sendWindowMessage(channelWindow, {
       type: "reset-channel",
       token: channelToken
@@ -50,17 +55,18 @@ module.exports = function(messageDetailRetriever, uiController) {
       eventHandlers = [];
     },
     createChannel: function(token) {
+      channelToken = token;
+
       channelView = document.createElement("webview");
       channelView.style.display = "none";
       channelView.partition = "persist:channel-proxy";
       channelView.src = "../../content/channel-proxy/index.html";
 
-      channelWindow = channelView.contentWindow;
-      channelToken = token;
-
       document.body.appendChild(channelView);
 
       function sendRegistrationMessage() {
+        channelWindow = channelView.contentWindow;
+
         channelView.removeEventListener("loadstop", sendRegistrationMessage);
 
         uiController.sendWindowMessage(channelWindow, {
@@ -71,6 +77,8 @@ module.exports = function(messageDetailRetriever, uiController) {
 
       channelView.addEventListener("loadstop", sendRegistrationMessage);
       window.addEventListener("message", processMessage);
+
+      logger.external("channel create");
 
       return Promise.resolve();
     }

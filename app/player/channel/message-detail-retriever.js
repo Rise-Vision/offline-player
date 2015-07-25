@@ -21,16 +21,18 @@ module.exports = function(platformIO, serviceUrls) {
   }
 
   function generateMessageDetailRequestUrl(displayId, messageId) {
-    console.log("generateMessageDetailRequestUrl", displayId, messageId);
     return Promise.resolve(serviceUrls.setPlatformDetailsUrl
             .replace("DISPLAY_ID", displayId) + "&ticket=" + messageId);
   }
 
   function requestMessageDetail(messageDetailsUrl) {
-    console.log("requestMessageDetail", messageDetailsUrl);
     return platformIO.httpFetcher(messageDetailsUrl, {credentials: "include"})
     .then(function(resp) {
       return resp.json();
+    })
+    .catch(function() {
+      logger.external("channel message fetch failed");
+      return Promise.reject();
     });
   }
 };
