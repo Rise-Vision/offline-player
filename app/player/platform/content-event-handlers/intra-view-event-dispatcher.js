@@ -8,13 +8,12 @@ module.exports = function(contentViewController, uiController) {
       return handler.handles(evt);
     });
 
-    if(handlers.length === 0) {
-      return respondWithError("No handlers were found for the event");
-    }
-    else if(handlers.length > 1) {
+    if(handlers.length > 1) {
       return respondWithError("Only one handler can exist for the given event");
     }
-    return handlers[0].process(evt, contentViewController.getViewUrl(evt.source));
+    else if(handlers.length === 1) {
+      return handlers[0].process(evt, contentViewController.getViewUrl(evt.source));
+    }
 
     function respondWithError(err) {
       evt.data.error = err;

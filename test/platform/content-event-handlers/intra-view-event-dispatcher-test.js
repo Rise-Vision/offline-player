@@ -49,17 +49,6 @@ describe("intra-view-event-dispatcher", function() {
     assert.equal(sourceParam, "view-url");
   });
 
-  it("rejects events without handlers", function() {
-    eventDispatcher.resetEventHandlers();
-
-    return eventDispatcher.dispatch(createWindowEvent("none"))
-    .catch(function(err) {
-      assert.equal(err.name, "Error");
-      assert.equal(err.message, "No handlers were found for the event");
-      assert.equal(mockUIController.sendWindowMessage.callCount, 1);
-    });
-  });
-
   it("rejects events with more than one handler", function() {
     eventDispatcher.resetEventHandlers();
     eventDispatcher.addEventHandler(createWindowEventHandler("test1", function() {}));
