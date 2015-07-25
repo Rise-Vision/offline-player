@@ -3,9 +3,10 @@ module.exports = function(messageDetailRetriever, uiController) {
   var eventHandlers = [];
 
   function processMessage(evt) {
-    if(evt.data.type && evt.data.type.indexOf("channel") === 0) {
-      var message = evt.data.message;
+    var type = evt.data.type;
+    var message = evt.data.message;
 
+    if(type && type.indexOf("channel") === 0) {
       if(message && message.indexOf("updated") === 0) {
         logger.external("channel updated");
         return fetchMessage(message)
@@ -14,6 +15,14 @@ module.exports = function(messageDetailRetriever, uiController) {
       else if(message === "ayt") {
         logger.external("channel ayt");
         return Promise.resolve(resetChannel());
+      }
+      else if(type === "channel-event") {
+        logger.external(message);
+        return Promise.resolve();
+      }
+      else if(type === "channel-error") {
+        logger.external(evt.data.code + " - " + evt.data.description);
+        return Promise.resolve();
       }
     }
     else {

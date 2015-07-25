@@ -76,4 +76,34 @@ describe("channel manager", function() {
       assert(!restartHandler.process.called);
     });
   });
+
+  it("handles connected event", function() {
+    var message = { type: "channel-event", message: "connected"};
+    var evt = { data: message };
+
+    return manager.processMessage(evt).then(function() {
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
+    });
+  });
+
+  it("handles closed event", function() {
+    var message = { type: "channel-event", message: "closed"};
+    var evt = { data: message };
+
+    return manager.processMessage(evt).then(function() {
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
+    });
+  });
+
+  it("handles channel errors", function() {
+    var message = { type: "channel-error", code: 101, description: "failed"};
+    var evt = { data: message };
+
+    return manager.processMessage(evt).then(function() {
+      assert(global.logger.external.called);
+      assert.equal(global.logger.external.callCount, 1);
+    });
+  });
 });

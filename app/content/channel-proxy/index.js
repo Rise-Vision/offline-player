@@ -31,7 +31,7 @@ function channelEvent(eventName) {
   console.log("channelEvent", eventName);
   source.postMessage({
     type: "channel-event",
-    name: name
+    message: eventName
   }, origin);
 }
 
