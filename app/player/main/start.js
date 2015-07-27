@@ -70,11 +70,11 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
-  .then(function() {
+  .then(resetContent)
+  .then(function(result) {
     channelSupervisor.start();
-    return Promise.resolve();
-  })
-  .then(resetContent);
+    return result;
+  });
 
   function resetContent() {
     var localSchedule;
