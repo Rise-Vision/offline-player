@@ -29,6 +29,8 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
   (platformIOProvider, serviceUrls),
 
+  onlineStatusObserver = require("../alarms/online-status-observer.js")(platformIOProvider),
+
   tokenRetriever = require("../channel/token-retriever.js")(platformIOProvider, serviceUrls),
 
   messageDetailRetriever = require("../channel/message-detail-retriever.js")(platformIOProvider, serviceUrls),
