@@ -2,6 +2,8 @@
 var domPlatformController = require("../../app/player/platform/ui-controller.js"),
 assert = require("assert");
 
+global.logger = {external: function(){}, console: function(){}};
+
 describe("platform ui controller", function() {
   beforeEach("clear views", function() {
     var views = document.querySelectorAll("webview");

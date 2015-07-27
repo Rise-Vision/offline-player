@@ -57,10 +57,17 @@ module.exports = {
     }
 
     function sendRegistrationMessage() {
-      view.contentWindow.postMessage("register.chrome.app.window", "*");
-      view.contentWindow.postMessage({ type: "offline-player-init" }, "*");
-      view.removeEventListener("loadstop", sendRegistrationMessage);
-      view.removeEventListener("load", sendRegistrationMessage);
+      setTimeout(function() {
+        try {
+          view.contentWindow.postMessage("register.chrome.app.window", "*");
+          view.contentWindow.postMessage({ type: "offline-player-init" }, "*");
+          view.removeEventListener("loadstop", sendRegistrationMessage);
+          view.removeEventListener("load", sendRegistrationMessage);
+        } catch(e) {
+          logger.console("Failed window registration");
+          logger.external("failed window registration");
+        }
+      }, 0);
     }
 
     return clearViewCache(view);
