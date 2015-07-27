@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Rise Vision Offline Player",
   "version": "0.2.1",
-  "minimum_chrome_version": "41",
+  "minimum_chrome_version": "42",
   "app": {
     "background": {
       "scripts": ["player/main/background-script.js"]
