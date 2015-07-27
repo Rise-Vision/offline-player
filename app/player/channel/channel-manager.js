@@ -14,7 +14,8 @@ module.exports = function(messageDetailRetriever, uiController) {
       }
       else if(message === "ayt") {
         logger.external("channel ayt");
-        return Promise.resolve(resetChannel());
+        resetChannel();
+        return Promise.resolve();
       }
       else if(type === "channel-event") {
         logger.external(message);
@@ -90,6 +91,19 @@ module.exports = function(messageDetailRetriever, uiController) {
       logger.external("channel create");
 
       return Promise.resolve();
+    },
+    destroyChannel: function() {
+      if(channelView) {
+        uiController.sendWindowMessage(channelWindow, {
+          type: "destroy-channel"
+        }, "*");
+
+        document.view.removeChild(channelView);
+        channelView = null;
+        channelWindow = null;
+
+        logger.external("channel destroy");
+      }
     }
   };
 };

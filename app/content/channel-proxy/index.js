@@ -62,4 +62,7 @@ window.addEventListener("message", function(evt) {
     destroyChannelIFrame();
     createChannelIFrame();
   }
+  else if(evt.data.type === "destroy-channel") {
+    destroyChannelIFrame();
+  }
 }, false);

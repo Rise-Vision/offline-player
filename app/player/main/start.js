@@ -35,7 +35,10 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   messageDetailRetriever = require("../channel/message-detail-retriever.js")(platformIOProvider, serviceUrls),
 
-  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever, platformUIController);
+  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever, platformUIController),
+
+  channelSupervisor = require("../main/channel-supervisor.js")
+  (platformIOProvider, tokenRetriever, channelManager, onlineStatusObserver);
   
   global.logger = require("../logging/logger.js")(externalLogger);
 
@@ -67,7 +70,10 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
-  .then(createChannel)
+  .then(function() {
+    channelSupervisor.start();
+    return Promise.resolve();
+  })
   .then(resetContent);
 
   function resetContent() {
@@ -93,13 +99,5 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
     .catch(function(err) {
       console.log("Error resetting content " + err);
     });
-  }
-
-  function createChannel() {
-    return tokenRetriever.getToken()
-      .then(channelManager.createChannel)
-      .catch(function(err) {
-        console.log("Error creating channel " + err);
-      });
   }
 };
