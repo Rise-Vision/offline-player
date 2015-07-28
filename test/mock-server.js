@@ -87,6 +87,11 @@ http.createServer(function(req, res) {
     return;
   }
 
+  if (req.url.indexOf("authRefresh") > -1) {
+    console.log("returning fake token");
+    return res.end(JSON.stringify({access_token: "fake-token"}));
+  }
+
   res.writeHead(200, {"Content-Type": "text/plain"});
   console.log("returning plain text ok response");
   res.end('{"response": "local-http-ok"}');

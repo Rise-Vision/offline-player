@@ -17,7 +17,7 @@ describe("external logger bigquery", function() {
       return resp.json();
     }).then(function(json) {
       assert.ok(json.rows[0].insertId.length > 5);
-      assert.ok(json.rows[0].json.time_millis > 0);
+      assert.ok(json.rows[0].json.ts);
     });
   });
 });
