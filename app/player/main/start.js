@@ -53,6 +53,7 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   (function loadChannelEventHandlers() {
     channelManager.addEventHandler(require("../channel/handlers/reboot-handler.js")(platformProvider));
     channelManager.addEventHandler(require("../channel/handlers/restart-handler.js")(platformProvider));
+    channelManager.addEventHandler(require("../channel/handlers/schedule-update-handler.js")(platformIOProvider));
   }());
 
   (function loadRemoteStorageListener() {
