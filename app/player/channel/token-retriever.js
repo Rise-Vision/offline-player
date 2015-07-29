@@ -1,5 +1,5 @@
 module.exports = function(platformIO, serviceUrls) {
-  var VIEWER_VERSION = "1-06-039";
+  var VIEWER_VERSION = "OLP";
   var uid;
 
   return {
