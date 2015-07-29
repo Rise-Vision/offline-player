@@ -1,4 +1,4 @@
-module.exports = function(platformProvider) {
+module.exports = function(rebootRestartProvider) {
   return {
     handles: function(evt) {
       return evt.player && evt.player.rebootRequired === "true";
@@ -8,11 +8,11 @@ module.exports = function(platformProvider) {
       console.log("Rebooting");
       logger.external("reboot");
       
-      return platformProvider.reboot().catch(function() {
+      return rebootRestartProvider.reboot().catch(function() {
         console.log("Restarting instead");
         logger.external("restart after failed reboot");
 
-        platformProvider.restart();
+        rebootRestartProvider.restart();
       });
     }
   };

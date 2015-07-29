@@ -9,7 +9,7 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   platformUIController = require("../platform/ui-controller.js"),
 
-  platformProvider = require("../platform/platform-provider.js")(platformInfo),
+  platformProvider = require("../platform/reboot-restart-provider.js")(platformInfo),
 
   cache = require("../cache/cache.js")(platformFS, platformIOProvider),
 
