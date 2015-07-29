@@ -5,7 +5,7 @@ module.exports = function(platformProvider) {
     },
 
     process: function(evt) {
-      console.log("Restarting", platformProvider);
+      console.log("Restarting");
       logger.external("restart");
       return platformProvider.restart();
     }

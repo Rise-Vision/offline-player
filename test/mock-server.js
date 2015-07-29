@@ -24,6 +24,12 @@ http.createServer(function(req, res) {
     return res.end("<!doctype html><html><head></head><body>test remote page from mock server<img src='image-src' /></body></html>");
   }
 
+  if (req.url.indexOf("mock-schedule-page") > -1) {
+    res.writeHead(200, {"Content-Type": "text/html"});
+    console.log("returning mock html page");
+    return res.end("<!doctype html><html><head></head><body>test remote page from mock server for schedule update<img src='image-src' /></body></html>");
+  }
+
   if (req.url.indexOf("folderContentsUrl") > -1) {
     res.writeHead(200, {"Content-Type": "application/json"});
     console.log("returning mock folder contents json");
