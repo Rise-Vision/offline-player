@@ -20,3 +20,7 @@ childProcess = spawn("node", integrationTestCommandOptions());
 childProcess.stderr.pipe(process.stdout);
 
 childProcess.stdout.pipe(process.stdout);
+
+childProcess.on("close", function(code) {
+  process.exit(code);
+});
