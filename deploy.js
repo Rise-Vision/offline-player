@@ -10,13 +10,17 @@ publishVersion;
   d = new Date(),
   manifest = JSON.parse(fs.readFileSync("app/manifest.json", utf8())),
   lastDot = manifest.version.lastIndexOf("."),
-  dayPct = parseInt((d.getHours() * 60 + d.getMinutes()) / 14.4),
+  dayMinutes = d.getHours() * 60 + d.getMinutes(),
+  dayPct = dayMinutes / 1440,
   patchVer;
 
-  if (dayPct.length === 1) {dayPct = "0" + dayPct;}
-  patchVer = "" + d.getDate() + dayPct;
+  patchVer = parseInt(((dayPct) + "").split(".")[1].substr(0,4)) + 1000;
 
-  manifest.version = manifest.version.substr(0, lastDot) + "." + patchVer;
+  manifest.version = (d.getFullYear() - 2000) + "." +
+  (d.getMonth() + 1) + "." + 
+  d.getDate() + "." +
+  patchVer;
+
   publishVersion = manifest.version;
 
   fs.writeFileSync
