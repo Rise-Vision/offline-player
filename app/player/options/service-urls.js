@@ -32,6 +32,8 @@ module.exports = function(platformInfo, bqCredentials) {
     "&grant_type=refresh_token",
 
     externalLog: "https://www.googleapis.com/bigquery/v2/projects" +
-    "/client-side-events/datasets/OLP_Events/tables/TABLE_ID/insertAll" 
+    "/client-side-events/datasets/OLP_Events/tables/TABLE_ID/insertAll",
+
+    tokenServerUrl: "https://rvacore-test.appspot.com/v2/viewer/display/DISPLAY_ID/channel?uid=UID&vv=VIEWER_VERSION"
   };
 };

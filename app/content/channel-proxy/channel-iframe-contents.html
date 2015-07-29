@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+    <script type="text/javascript" src="https://rvacore-test.appspot.com/_ah/channel/jsapi"></script>
+    <script type="text/javascript" src="channel-handler.js"></script>
+  </head>
+  <body onload="createChannel();">
+    <script type="text/javascript">
+      function createChannel() {
+        connectChannel("startUp", parent.token);
+      }
+    </script>
+  </body>
+</html>

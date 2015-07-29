@@ -71,7 +71,7 @@ module.exports = function(platformIO, platformInfo, serviceUrls) {
       return id;
     },
     sendEvent: function(eventName) {
-      if (!eventName) {return;}
+      if (!eventName) {return Promise.reject();}
       var data = JSON.parse(JSON.stringify(defaultEventData));
       data.rows[0].insertId = Math.random().toString(36).substr(2).toUpperCase();
       data.rows[0].json.ip = platformInfo.ipAddress.text;

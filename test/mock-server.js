@@ -87,6 +87,12 @@ http.createServer(function(req, res) {
     return;
   }
 
+  if (req.url.indexOf("channelToken") > -1) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+    console.log("returning channel token");
+    return res.end(JSON.stringify({ token:"test-token" }));
+  }
+
   if (req.url.indexOf("authRefresh") > -1) {
     console.log("returning fake token");
     return res.end(JSON.stringify({access_token: "fake-token"}));

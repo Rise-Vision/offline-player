@@ -1,4 +1,4 @@
-module.exports = function(serviceUrls, externalLogger) {
+module.exports = function(serviceUrls, externalLogger, platformInfo) {
   "use strict";
   var platformIOProvider = require("../platform/io-provider.js"),
 
@@ -8,6 +8,8 @@ module.exports = function(serviceUrls, externalLogger) {
   (platformIOProvider, serviceUrls),
 
   platformUIController = require("../platform/ui-controller.js"),
+
+  platformProvider = require("../platform/reboot-restart-provider.js")(platformInfo),
 
   cache = require("../cache/cache.js")(platformFS, platformIOProvider),
 
@@ -24,8 +26,19 @@ module.exports = function(serviceUrls, externalLogger) {
   contentCycler = require("../schedule/content-cycler.js")
   (contentViewController),  
 
-  remoteScheduleLoader= require("../schedule/remote-schedule-retriever.js")
-  (platformIOProvider, serviceUrls);
+  remoteScheduleLoader = require("../schedule/remote-schedule-retriever.js")
+  (platformIOProvider, serviceUrls),
+
+  onlineStatusObserver = require("../alarms/online-status-observer.js")(platformIOProvider),
+
+  tokenRetriever = require("../channel/token-retriever.js")(platformIOProvider, serviceUrls),
+
+  messageDetailRetriever = require("../channel/message-detail-retriever.js")(platformIOProvider, serviceUrls),
+
+  channelManager = require("../channel/channel-manager.js")(messageDetailRetriever, platformUIController),
+
+  channelSupervisor = require("../main/channel-supervisor.js")
+  (platformIOProvider, tokenRetriever, channelManager, onlineStatusObserver);
   
   global.logger = require("../logging/logger.js")(externalLogger);
 
@@ -35,6 +48,11 @@ module.exports = function(serviceUrls, externalLogger) {
     dispatcher.addEventHandler(require("../platform/content-event-handlers/bypass-cors.js")());
     dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-load.js")(platformIOProvider, platformUIController));
     dispatcher.addEventHandler(require("../platform/content-event-handlers/storage-component-response.js")(platformIOProvider, platformRS, remoteFolderFetcher, platformUIController));
+  }());
+
+  (function loadChannelEventHandlers() {
+    channelManager.addEventHandler(require("../channel/handlers/reboot-handler.js")(platformProvider));
+    channelManager.addEventHandler(require("../channel/handlers/restart-handler.js")(platformProvider));
   }());
 
   (function loadRemoteStorageListener() {
@@ -52,7 +70,11 @@ module.exports = function(serviceUrls, externalLogger) {
   }());
 
   return remoteScheduleLoader.loadRemoteSchedule()
-  .then(resetContent);
+  .then(resetContent)
+  .then(function(result) {
+    channelSupervisor.start();
+    return result;
+  });
 
   function resetContent() {
     var localSchedule;

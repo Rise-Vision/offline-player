@@ -13,6 +13,7 @@
     "it": false,
     "xit": false,
     "beforeEach": false,
+    "afterEach": false,
     "chrome": false,
     "setTimeout": false,
     "setInterval": false,

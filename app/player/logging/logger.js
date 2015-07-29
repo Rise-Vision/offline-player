@@ -5,8 +5,7 @@ module.exports = function(externalLogger) {
       return true;
     },
     external: function(eventName) {
-      externalLogger.sendEvent(eventName);
-      return true;
+      return externalLogger.sendEvent(eventName);
     },
     display: function(msg) {
       return true;

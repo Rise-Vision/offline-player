@@ -12,5 +12,5 @@ platformInfo.initPlatform()
   serviceUrls = require("../options/service-urls.js")(platformInfo, bqCreds);
   externalLogger = require("../logging/external-logger-bigquery.js")
   (platformIO, platformInfo, serviceUrls);
-  starter(serviceUrls, externalLogger);
+  starter(serviceUrls, externalLogger, platformInfo);
 });

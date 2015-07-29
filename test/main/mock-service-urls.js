@@ -22,5 +22,7 @@ module.exports = {
 
   externalLogAuthRefresh: "http://localhost:7654/authRefresh",
 
-  externalLog: "http://localhost:7654/event"
+  externalLog: "http://localhost:7654/event",
+
+  tokenServerUrl: "http://localhost:7654/channelToken"
 };
