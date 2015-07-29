@@ -19,7 +19,7 @@ module.exports = function(platformIO, platformInfo, serviceUrls) {
           "os": platformInfo.basePlatform.os + "/" + platformInfo.basePlatform.arch,
           "chrome_version": platformInfo.version,
           "olp_version": platformInfo.baseVersion,
-          "time_millis": 0
+          "ts": ""
         }
       }
     ]
@@ -34,9 +34,9 @@ module.exports = function(platformIO, platformInfo, serviceUrls) {
 
   function addTableNameToEventEndpoint() {
     var date = new Date(),
-    year = date.getFullYear(),
-    month = date.getMonth() + 1,
-    day = date.getDate();
+    year = date.getUTCFullYear(),
+    month = date.getUTCMonth() + 1,
+    day = date.getUTCDate();
 
     if (month < 10) {month = "0" + month;}
     if (day < 10) {day = "0" + day;}
@@ -75,7 +75,7 @@ module.exports = function(platformIO, platformInfo, serviceUrls) {
       var data = JSON.parse(JSON.stringify(defaultEventData));
       data.rows[0].insertId = Math.random().toString(36).substr(2).toUpperCase();
       data.rows[0].json.ip = platformInfo.ipAddress.text;
-      data.rows[0].json.time_millis = new Date() - 0;
+      data.rows[0].json.ts = new Date().toISOString();
       data.rows[0].json.event = eventName;
 
       return getToken().then(function() {
