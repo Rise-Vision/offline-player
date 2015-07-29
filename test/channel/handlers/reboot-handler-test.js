@@ -2,7 +2,7 @@
 var assert = require("assert"),
 handlerPath = "../../../app/player/channel/handlers/reboot-handler.js",
 mock = require("simple-mock").mock,
-mockPlatformProvider,
+mockRebootRestartProvider,
 responseHandler;
 
 describe("Reboot handler", function() {
@@ -16,14 +16,14 @@ describe("Reboot handler", function() {
   beforeEach("setup mocks", function() {
     global.logger = {};
     mock(global.logger, "console").returnWith(true);
-    mock(global.logger, "external").returnWith(true);
+    mock(global.logger, "external").resolveWith(true);
 
-    mockPlatformProvider = {};
+    mockRebootRestartProvider = {};
 
-    mock(mockPlatformProvider, "reboot").resolveWith(true);
-    mock(mockPlatformProvider, "restart").resolveWith(true);
+    mock(mockRebootRestartProvider, "reboot").resolveWith(true);
+    mock(mockRebootRestartProvider, "restart").resolveWith(true);
 
-    responseHandler = require(handlerPath)(mockPlatformProvider);
+    responseHandler = require(handlerPath)(mockRebootRestartProvider);
   });
 
   it("exists", function() {
@@ -40,23 +40,21 @@ describe("Reboot handler", function() {
 
   it("successfully invokes reboot", function() {
     return responseHandler.process(validMessage).then(function() {
-      assert(mockPlatformProvider.reboot.called);
-      assert(!mockPlatformProvider.restart.called);
+      assert(mockRebootRestartProvider.reboot.called);
+      assert(!mockRebootRestartProvider.restart.called);
 
-      assert(global.logger.external.called);
       assert.equal(global.logger.external.callCount, 1);
     });
   });
 
   it("fails to reboot and falls back to restart", function() {
-    mock(mockPlatformProvider, "reboot").rejectWith(false);
+    mock(mockRebootRestartProvider, "reboot").rejectWith(false);
 
     return responseHandler.process(validMessage).then(function() {
-      assert(mockPlatformProvider.reboot.called);
-      assert(mockPlatformProvider.restart.called);
+      assert(mockRebootRestartProvider.reboot.called);
+      assert(mockRebootRestartProvider.restart.called);
 
-      assert(global.logger.external.called);
-      assert.equal(global.logger.external.callCount, 2);
+      assert.equal(global.logger.external.callCount, 1);
     });
   });
 });

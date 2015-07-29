@@ -6,12 +6,11 @@ module.exports = function(rebootRestartProvider) {
 
     process: function(evt) {
       console.log("Rebooting");
-      logger.external("reboot");
-      
-      return rebootRestartProvider.reboot().catch(function() {
-        console.log("Restarting instead");
-        logger.external("restart after failed reboot");
-
+      return logger.external("reboot/restart via channel")
+      .then(function() {
+        return rebootRestartProvider.reboot();
+      })
+      .catch(function() {
         rebootRestartProvider.restart();
       });
     }
