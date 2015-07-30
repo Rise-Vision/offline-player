@@ -14,10 +14,10 @@ describe("reboot restart provider", function() {
       runtime: {}
     };
 
-    mockPlatformInfo = {};
+    mockPlatformInfo = { basePlatform: {} };
     mockContentViewController = {};
 
-    mockPlatformInfo.basePlatform = "cros";
+    mockPlatformInfo.basePlatform.os = "cros";
 
     mock(mockContentViewController, "reloadPresentations").resolveWith(true);
     mock(global.chrome.app.window, "create").returnWith(true);
@@ -44,7 +44,7 @@ describe("reboot restart provider", function() {
   });
 
   it("does not reboot the machine when running on OS other than Chrome OS", function() {
-    mockPlatformInfo.basePlatform = "other";
+    mockPlatformInfo.basePlatform.os = "other";
 
     return provider.reboot().catch(function() {
       assert(!global.chrome.runtime.restart.called);
