@@ -1,6 +1,62 @@
-module.exports = function(messageDetailRetriever, uiController) {
+module.exports = function(tokenRetriever, messageDetailRetriever, uiController) {
   var channelView, channelWindow, channelToken;
   var eventHandlers = [];
+
+  function updateToken() {
+    if(!channelToken) {
+      return tokenRetriever.getToken().then(function(newToken) {
+        channelToken = newToken;
+        return channelToken;
+      });      
+    }
+    else {
+      return Promise.resolve(channelToken);
+    }
+  }
+
+  function createChannelWindow() {
+    channelView = document.createElement("webview");
+    channelView.style.display = "none";
+    channelView.partition = "persist:channel-proxy";
+    channelView.src = "../../content/channel-proxy/index.html";
+
+    document.body.appendChild(channelView);
+
+    function sendRegistrationMessage() {
+      channelWindow = channelView.contentWindow;
+
+      channelView.removeEventListener("loadstop", sendRegistrationMessage);
+
+      uiController.sendWindowMessage(channelWindow, {
+        type: "create-channel",
+        token: channelToken
+      }, "*");
+    }
+
+    channelView.addEventListener("loadstop", sendRegistrationMessage);
+    window.addEventListener("message", processMessage);
+
+    logger.external("channel create");
+
+    return Promise.resolve();    
+  }
+
+  function destroyChannel() {
+    if(channelView) {
+      uiController.sendWindowMessage(channelWindow, {
+        type: "destroy-channel"
+      }, "*");
+
+      document.body.removeChild(channelView);
+      channelView = null;
+      channelWindow = null;
+
+      return logger.external("channel destroy");
+    }
+    else {
+      return Promise.resolve();
+    }
+  }
 
   function processMessage(evt) {
     var type = evt.data.type;
@@ -23,6 +79,15 @@ module.exports = function(messageDetailRetriever, uiController) {
       }
       else if(type === "channel-error") {
         logger.external(evt.data.code + " - " + evt.data.description);
+
+        if(Number(evt.data.code) === 401) {
+          channelToken = null;
+
+          return destroyChannel()
+          .then(updateToken)
+          .then(createChannelWindow);
+        }
+
         return Promise.resolve();
       }
     }
@@ -64,46 +129,10 @@ module.exports = function(messageDetailRetriever, uiController) {
     resetEventHandlers: function() {
       eventHandlers = [];
     },
-    createChannel: function(token) {
-      channelToken = token;
-
-      channelView = document.createElement("webview");
-      channelView.style.display = "none";
-      channelView.partition = "persist:channel-proxy";
-      channelView.src = "../../content/channel-proxy/index.html";
-
-      document.body.appendChild(channelView);
-
-      function sendRegistrationMessage() {
-        channelWindow = channelView.contentWindow;
-
-        channelView.removeEventListener("loadstop", sendRegistrationMessage);
-
-        uiController.sendWindowMessage(channelWindow, {
-          type: "create-channel",
-          token: channelToken
-        }, "*");
-      }
-
-      channelView.addEventListener("loadstop", sendRegistrationMessage);
-      window.addEventListener("message", processMessage);
-
-      logger.external("channel create");
-
-      return Promise.resolve();
+    createChannel: function() {
+      return updateToken()
+      .then(createChannelWindow);
     },
-    destroyChannel: function() {
-      if(channelView) {
-        uiController.sendWindowMessage(channelWindow, {
-          type: "destroy-channel"
-        }, "*");
-
-        document.view.removeChild(channelView);
-        channelView = null;
-        channelWindow = null;
-
-        logger.external("channel destroy");
-      }
-    }
+    destroyChannel: destroyChannel
   };
 };
