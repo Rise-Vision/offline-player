@@ -61,7 +61,7 @@ module.exports = function(platformIO, serviceUrls) {
     }
     else {
       logger.external("invalid channel token null");
-      return Promise.reject("Invalid channel token - Null");
+      return Promise.reject("Invalid channel token - " + data.status.message);
     }
   }
 };

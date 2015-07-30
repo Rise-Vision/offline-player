@@ -1,18 +1,7 @@
-module.exports = function(ioProvider, tokenRetriever, channelManager, onlineStatusObserver) {
-  var token;
-
-  function updateToken() {
-    return tokenRetriever.getToken().then(function(newToken) {
-      token = newToken;
-      return token;
-    });
-  }
-
+module.exports = function(ioProvider, channelManager, onlineStatusObserver) {
   function handleNetworkStatusChange(status) {
     if(status) {
-      var promise = token ? Promise.resolve(token) : updateToken();
-
-      return promise.then(channelManager.createChannel);
+      return channelManager.createChannel();
     }
     else if(token) {
       return channelManager.destroyChannel();

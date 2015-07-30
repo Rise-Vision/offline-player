@@ -96,14 +96,14 @@ describe("token-retriever", function() {
   it("rejects because a valid token could not be retrieved", function() {
     mock(mockPlatformIO, "httpFetcher").resolveWith({
       json: function() {
-        return Promise.resolve({});
+        return Promise.resolve({ status: { message: "Multiple clients are using the same display id" } });
       }
     });
 
     return retriever.getToken()
     .then(null, function(err) {
       assert(err);
-      assert.equal(err, "Invalid channel token - Null");
+      assert.equal(err, "Invalid channel token - Multiple clients are using the same display id");
 
       assert(global.logger.external.called);
       assert.equal(global.logger.external.callCount, 1);
