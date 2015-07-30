@@ -1,21 +1,26 @@
 function clearViewCache(view) {
   return new Promise(function(resolve, reject) {
-    // View refresh is disabled for the moment
-    if (view.nodeName === "--WEBVIEW") {
+    if (view.nodeName === "WEBVIEW") {
       // If a timeout is not used, the callback is never invoked or fails when calling reload
       setTimeout(function() {
-        view.clearData({}, {
-          "appcache": true,
-          "cache": true,
-          "indexedDB": true,
-          "localStorage": true,
-        }, function() {
-            console.log("Cleared!");
-            view.reload();
+        try {
+          view.clearData({}, {
+            "appcache": true,
+            "cache": true,
+            "cookies": true,
+            "indexedDB": true,
+            "localStorage": true,
+            "webSQL": true
+          }, function() {
+            console.log("Cache cleared; reloading view");
             resolve(view);
-          }
-        );        
-      }, 5000);
+          });
+        }
+        catch (e) {
+          console.log("Cache clear failed");
+          resolve(view);
+        }
+      }, 500);
     }
     else { // iframe
       resolve(view);
@@ -70,7 +75,7 @@ module.exports = {
       }, 0);
     }
 
-    return clearViewCache(view);
+    return Promise.resolve(view);
   },
 
   sendWindowMessage: function(targetWindow, messageObj, dest) {
@@ -94,5 +99,7 @@ module.exports = {
     return el.style.display === "block";
   },
 
-  removeView: function(view) {document.body.removeChild(view);}
+  removeView: function(view) {document.body.removeChild(view);},
+
+  clearViewCache: clearViewCache
 };
