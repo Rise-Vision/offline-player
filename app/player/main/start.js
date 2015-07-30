@@ -9,8 +9,6 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   platformUIController = require("../platform/ui-controller.js"),
 
-  platformProvider = require("../platform/reboot-restart-provider.js")(platformInfo),
-
   cache = require("../cache/cache.js")(platformFS, platformIOProvider),
 
   remoteFolderFetcher = require("../cache/remote-folder-fetcher.js")
@@ -18,6 +16,8 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
 
   contentViewController = require("../schedule/content-view-controller.js")
   (platformUIController, platformIOProvider, cache),
+
+  rebootRestartProvider = require("../platform/reboot-restart-provider.js")(platformInfo, contentViewController),
 
   localScheduleLoader = require("../schedule/local-schedule-loader.js"),
 
@@ -51,8 +51,8 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
   }());
 
   (function loadChannelEventHandlers() {
-    channelManager.addEventHandler(require("../channel/handlers/reboot-handler.js")(platformProvider));
-    channelManager.addEventHandler(require("../channel/handlers/restart-handler.js")(platformProvider));
+    channelManager.addEventHandler(require("../channel/handlers/reboot-handler.js")(rebootRestartProvider));
+    channelManager.addEventHandler(require("../channel/handlers/restart-handler.js")(rebootRestartProvider));
     channelManager.addEventHandler(require("../channel/handlers/schedule-update-handler.js")(platformIOProvider));
   }());
 

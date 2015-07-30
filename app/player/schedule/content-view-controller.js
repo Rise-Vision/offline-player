@@ -69,6 +69,15 @@ module.exports = function(platformUIController, platformIO, cache) {
       });
     },
 
+    reloadPresentations: function() {
+      return Object.keys(contentViews).reduce(function(prev, key) {
+        return prev.then(function(resp) {
+          return createContentView(key)
+          .then(function() {resp.push(key); return resp;});
+        });
+      }, Promise.resolve([]));
+    },
+
     reloadMatchingPresentations: function(mainUrlPath) {
       return Object.keys(contentViews).reduce(function(prev, key) {
         return prev.then(function(resp) {
