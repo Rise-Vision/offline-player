@@ -61,10 +61,6 @@ module.exports = function(serviceUrls, externalLogger, platformInfo) {
     platformRS.registerRemoteStorageListener(remoteStorageListener);
   }());
 
-  (function loadTimedIntervalTasks() {
-    require("../alarms/remote-schedule-fetch.js")(remoteScheduleLoader);
-  }());
-
   (function loadIOActivityMonitors() {
     require("../platform/io-activity-monitors/local-storage-display-id-monitor.js")(remoteScheduleLoader, externalLogger);
     require("../platform/io-activity-monitors/local-storage-schedule-monitor.js")(resetContent);
